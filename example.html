@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>trak.io.js Example Page</title>
+
+    <script type="text/javascript">
+      timeout = 1
+      var trak=trak||[];trak.io=trak.io||{};trak.io.load=function(e){var t=document.createElement("script");t.type="text/javascript",t.src="trak.io.js";var n=document.getElementsByTagName("script")[0];setTimeout(function(){n.parentNode.insertBefore(t,n);},timeout);var r=function(e){return function(){trak.push([e].concat(Array.prototype.slice.call(arguments,0)))}},i=["initialize","identify","track","alias","medium","source","host","protocol"];for(var s=0;s<i.length;s++) trak.io[i[s]]=r(i[s]);trak.io.initialize.apply(trak.io,arguments)};
+      trak.io.load('dfafd501dd1b2bc10fe6a92c4fc3b26fc0570946');
+      trak.io.protocol('http');
+      trak.io.host('lvh.me:3007');
+    </script>
+
+</head>
+
+<body>
+  <a href='example.html?c=d'>change</a>
+</body>
+</html>

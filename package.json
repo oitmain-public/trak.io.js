@@ -1,0 +1,34 @@
+{
+  "name": "trak.io.js",
+  "version": "0.9.5",
+  "author": "trak.io",
+  "description": "JavaScript library for trak.io",
+  "license": "Proprietary",
+  "url": "https://trak.io",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/trak.io/trak.io.js.git"
+  },
+  "main": "trak.io.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "connect": "2.7.1",
+    "uglify-js": ">= 1.3.4",
+    "mocha": "1.8.x",
+    "mocha-phantomjs": "1.1.x",
+    "optimist": "0.4.x",
+    "sinon": "1.6.x",
+  },
+  "keywords": [
+    "trak.io",
+    "trakio",
+    "trak",
+    "track",
+    "analytics",
+    "analyticsjs"
+  ]
+}

@@ -1,0 +1,2 @@
+describe 'Trak', ->
+  describe '#identify()', ->

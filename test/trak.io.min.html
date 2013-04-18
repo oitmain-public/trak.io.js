@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <title>Tests | trak.io.js</title>
+
+    <link rel="stylesheet" href="../components/mocha/mocha.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="../components/chai/chai.js"></script>
+    <script src="../components/chai-jquery/chai-jquery.js"></script>
+    <script src="../node_modules/sinon/pkg/sinon.js"></script>
+    <script src="../components/sinon-chai/lib/sinon-chai.js"></script>
+    <script src="../components/mocha/mocha.js"></script>
+
+    <script>
+      window.mocha.setup({
+        ui : 'bdd',
+        ignoreLeaks : true
+      });
+    </script>
+    <script type='text/javascript' src="/trak.io.min.js"></script>
+
+    <script type='text/javascript' src="trak/track.js"></script>
+    <script type='text/javascript' src="trak/identify.js"></script>
+    <script type='text/javascript' src="jsonp.js"></script>
+    <script type='text/javascript' src="trak.js"></script>
+    <script type='text/javascript' src="runner.js"></script>
+
+  </head>
+  <body>
+    <h1>trak.io.js Tests</h1>
+    <div id="mocha"></div>
+  </body>
+</html>
