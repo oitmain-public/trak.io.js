@@ -12,6 +12,10 @@ define ['jsonp','exceptions','dojo/io-query','cookie'], (JSONP,Exceptions,ioQuer
       this.medium(options.medium) if options.medium
       this.distinct_id()
 
+      if options.track_page_views != false
+        this.page_view()
+
+
     initialise: ()->
       this.initialize.apply this, arguments
 
@@ -89,9 +93,8 @@ define ['jsonp','exceptions','dojo/io-query','cookie'], (JSONP,Exceptions,ioQuer
       this.call 'track', { data: { distinct_id: distinct_id, event: event, medium: medium, context: context, properties: properties }}
       null
 
-    medium: (e) ->
-
-    source: (e) ->
+    page_view: (url=this.url(), title=this.page_title()) ->
+      this.track 'page_view', { url: url, page_title: title }
 
     _protocol: 'https'
     protocol: (value)->
@@ -142,6 +145,9 @@ define ['jsonp','exceptions','dojo/io-query','cookie'], (JSONP,Exceptions,ioQuer
 
     referrer: ->
       document.referrer
+
+    page_title: ->
+      document.title
 
     _medium: false
     medium: (value)->

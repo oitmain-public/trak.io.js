@@ -15,7 +15,8 @@ define(['jsonp', 'exceptions', 'dojo/io-query', 'cookie'], function(JSONP, Excep
       if (options.host) this.host(options.host);
       if (options.context) this.context(options.context);
       if (options.medium) this.medium(options.medium);
-      return this.distinct_id();
+      this.distinct_id();
+      if (options.track_page_views !== false) return this.page_view();
     };
 
     Trak.prototype.initialise = function() {
@@ -114,9 +115,14 @@ define(['jsonp', 'exceptions', 'dojo/io-query', 'cookie'], function(JSONP, Excep
       return null;
     };
 
-    Trak.prototype.medium = function(e) {};
-
-    Trak.prototype.source = function(e) {};
+    Trak.prototype.page_view = function(url, title) {
+      if (url == null) url = this.url();
+      if (title == null) title = this.page_title();
+      return this.track('page_view', {
+        url: url,
+        page_title: title
+      });
+    };
 
     Trak.prototype._protocol = 'https';
 
@@ -179,6 +185,10 @@ define(['jsonp', 'exceptions', 'dojo/io-query', 'cookie'], function(JSONP, Excep
 
     Trak.prototype.referrer = function() {
       return document.referrer;
+    };
+
+    Trak.prototype.page_title = function() {
+      return document.title;
     };
 
     Trak.prototype._medium = false;

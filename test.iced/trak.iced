@@ -1,7 +1,7 @@
 requirejs ['trak','cookie'], (Trak, cookie) ->
 
 
-  describe 'Trak', ->
+  describe.only 'Trak', ->
 
 
     afterEach ->
@@ -42,6 +42,26 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
         trak.io.host().should.equal 'api.trak.io'
         trak.io.current_context().should.eql {}
         trak.io.medium().should.equal 'web_site'
+
+      it.only "calls #page_view", ->
+        sinon.stub(trak.io, 'track')
+        sinon.stub(trak.io, 'url').returns('page_url')
+        sinon.stub(trak.io, 'page_title').returns('A page title')
+        trak.io.initialize('api_token_value')
+        trak.io.track.should.have.been.calledWith('page_view', { url: 'page_url', page_title: 'A page title' })
+        trak.io.track.restore()
+        trak.io.page_title.restore()
+        trak.io.url.restore()
+
+      it "doesn't call #page_view if track_page_views", ->
+        sinon.stub(trak.io, 'track')
+        sinon.stub(trak.io, 'url').returns('page_url')
+        sinon.stub(trak.io, 'page_title').returns('A page title')
+        trak.io.initialize('api_token_value', { track_page_views: false })
+        trak.io.track.should.not.have.been.called
+        trak.io.track.restore()
+        trak.io.page_title.restore()
+        trak.io.url.restore()
 
 
     describe '#initialise', ->
