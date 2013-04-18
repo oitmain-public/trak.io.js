@@ -1,6 +1,6 @@
 requirejs ['exceptions'], (Exceptions) ->
 
-  describe.only  'Trak', ->
+  describe  'Trak', ->
 
     before ->
       sinon.stub(trak.io, 'call')

@@ -40,24 +40,26 @@ define(['exceptions', 'json2'], function(Exceptions, JSON) {
         case 'identify':
           return {
             token: trak.io.api_token(),
-            distinct_id: trak.io.distinct_id(),
-            time: new Date(),
             data: {
+              distinct_id: trak.io.distinct_id(),
+              time: new Date(),
               properties: {}
             }
           };
         case 'alias':
           return {
             token: trak.io.api_token(),
-            distinct_id: trak.io.distinct_id(),
-            time: new Date()
+            data: {
+              distinct_id: trak.io.distinct_id(),
+              time: new Date()
+            }
           };
         case 'track':
           return {
             token: trak.io.api_token(),
-            distinct_id: trak.io.distinct_id(),
-            time: new Date(),
             data: {
+              distinct_id: trak.io.distinct_id(),
+              time: new Date(),
               properties: {},
               medium: trak.io.medium(),
               context: trak.io.context()

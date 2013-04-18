@@ -28,9 +28,53 @@ define(['jsonp', 'exceptions', 'dojo/io-query', 'cookie'], function(JSONP, Excep
       return this.jsonp.call.apply(this.jsonp, arguments);
     };
 
-    Trak.prototype.identify = function(e) {};
+    Trak.prototype.identify = function(a1, a2) {
+      var distinct_id, properties;
+      if (_.isString(a1)) {
+        distinct_id = a1;
+        properties = a2;
+        this.distinct_id(distinct_id);
+      } else {
+        properties = a1;
+      }
+      if (!properties) properties = {};
+      if (!distinct_id) distinct_id = this.distinct_id();
+      this.call('identify', {
+        distinct_id: distinct_id,
+        data: {
+          properties: properties
+        }
+      });
+      return null;
+    };
 
-    Trak.prototype.alias = function(e) {};
+    Trak.prototype.alias = function(a1, a2) {
+      var alias, distinct_id, update_distinct;
+      if (_.isString(a1) && _.isString(a2)) {
+        distinct_id = a1;
+        alias = a2;
+        update_distinct = false;
+      } else if (_.isString(a1) && _.isBoolean(a2)) {
+        distinct_id = this.distinct_id();
+        alias = a1;
+        update_distinct = false;
+      } else {
+        distinct_id = this.distinct_id();
+        alias = a1;
+        update_distinct = true;
+      }
+      if (!alias) {
+        throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an alias, see http://docs.trak.io/alias.html');
+      }
+      this.call('alias', {
+        data: {
+          distinct_id: distinct_id,
+          alias: alias
+        }
+      });
+      if (update_distinct) this.distinct_id(alias);
+      return null;
+    };
 
     Trak.prototype.track = function(a1, a2, a3, a4, a5) {
       var context, distinct_id, event, medium, properties;

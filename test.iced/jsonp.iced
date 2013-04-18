@@ -132,11 +132,11 @@ requirejs ['jsonp','exceptions'], (JSONP, Exceptions) ->
 
       it "merges nested objects and encodes them to json", ->
         sinon.stub(jsonp, 'default_params').returns({ top: 'top', nested: { override: 'foo', keep: 'foo', second: { override: 'foo', keep: 'foo' }}})
-        jsonp.params('endpoint', { nested: { override: 'bar', second: { override: 'bar'}}}).should.equal '?top=top&nested={"override":"bar","keep":"foo","second":{"override":"bar","keep":"foo"}}'
+        jsonp.params('endpoint', { nested: { override: 'bar', second: { override: 'bar'}}}).should.equal '?top=top&nested='+encodeURIComponent('{"override":"bar","keep":"foo","second":{"override":"bar","keep":"foo"}}')
 
       it "merges arrays and encodes them to json", ->
         sinon.stub(jsonp, 'default_params').returns({ top: 'top', array: ['foo','duplicate']})
-        jsonp.params('endpoint', { array: ['duplicate','bar']}).should.equal '?top=top&array=["foo","duplicate","bar"]'
+        jsonp.params('endpoint', { array: ['duplicate','bar']}).should.equal '?top=top&array='+encodeURIComponent('["foo","duplicate","bar"]')
 
 
     describe '#default_params', ->
@@ -154,13 +154,13 @@ requirejs ['jsonp','exceptions'], (JSONP, Exceptions) ->
         trak.io.context.restore();
 
       it "returns default params for alias", ->
-        jsonp.default_params('alias').should.eql({ token: 'api_token_value', distinct_id: 'distinct_id_value', time: new Date() })
+        jsonp.default_params('alias').should.eql({ token: 'api_token_value', data: { distinct_id: 'distinct_id_value', time: new Date() }})
 
       it "returns default params for identify", ->
-        jsonp.default_params('identify').should.eql({ token: 'api_token_value', distinct_id: 'distinct_id_value', time: new Date(), properties: {} })
+        jsonp.default_params('identify').should.eql({ token: 'api_token_value', data: { distinct_id: 'distinct_id_value', time: new Date(), properties: {} }})
 
       it "returns default params for track", ->
-        jsonp.default_params('track').should.eql({ token: 'api_token_value', distinct_id: 'distinct_id_value', time: new Date(), properties: {}, medium: 'medium_value', context: 'context_value' })
+        jsonp.default_params('track').should.eql({ token: 'api_token_value', data: { distinct_id: 'distinct_id_value', time: new Date(), properties: {}, medium: 'medium_value', context: 'context_value' }})
 
       it "returns empty object for unknown", ->
         jsonp.default_params('jibersih').should.eql {}

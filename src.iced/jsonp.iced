@@ -29,11 +29,11 @@ define ['exceptions','json2'], (Exceptions, JSON) ->
     default_params: (endpoint) ->
       switch endpoint
         when 'identify'
-          { token: trak.io.api_token(), distinct_id: trak.io.distinct_id(), time: new Date(), data: { properties: {} } }
+          { token: trak.io.api_token(), data: { distinct_id: trak.io.distinct_id(), time: new Date(), properties: {} } }
         when 'alias'
-          { token: trak.io.api_token(), distinct_id: trak.io.distinct_id(), time: new Date() }
+          { token: trak.io.api_token(), data: { distinct_id: trak.io.distinct_id(), time: new Date() } }
         when 'track'
-          { token: trak.io.api_token(), distinct_id: trak.io.distinct_id(), time: new Date(), data: { properties: {}, medium: trak.io.medium(), context: trak.io.context() } }
+          { token: trak.io.api_token(), data: { distinct_id: trak.io.distinct_id(), time: new Date(), properties: {}, medium: trak.io.medium(), context: trak.io.context() } }
         else
           {}
 

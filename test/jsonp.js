@@ -207,7 +207,7 @@ requirejs(['jsonp', 'exceptions'], function(JSONP, Exceptions) {
               override: 'bar'
             }
           }
-        }).should.equal('?top=top&nested={"override":"bar","keep":"foo","second":{"override":"bar","keep":"foo"}}');
+        }).should.equal('?top=top&nested=' + encodeURIComponent('{"override":"bar","keep":"foo","second":{"override":"bar","keep":"foo"}}'));
       });
       return it("merges arrays and encodes them to json", function() {
         sinon.stub(jsonp, 'default_params').returns({
@@ -216,7 +216,7 @@ requirejs(['jsonp', 'exceptions'], function(JSONP, Exceptions) {
         });
         return jsonp.params('endpoint', {
           array: ['duplicate', 'bar']
-        }).should.equal('?top=top&array=["foo","duplicate","bar"]');
+        }).should.equal('?top=top&array=' + encodeURIComponent('["foo","duplicate","bar"]'));
       });
     });
     describe('#default_params', function() {
@@ -235,26 +235,32 @@ requirejs(['jsonp', 'exceptions'], function(JSONP, Exceptions) {
       it("returns default params for alias", function() {
         return jsonp.default_params('alias').should.eql({
           token: 'api_token_value',
-          distinct_id: 'distinct_id_value',
-          time: new Date()
+          data: {
+            distinct_id: 'distinct_id_value',
+            time: new Date()
+          }
         });
       });
       it("returns default params for identify", function() {
         return jsonp.default_params('identify').should.eql({
           token: 'api_token_value',
-          distinct_id: 'distinct_id_value',
-          time: new Date(),
-          properties: {}
+          data: {
+            distinct_id: 'distinct_id_value',
+            time: new Date(),
+            properties: {}
+          }
         });
       });
       it("returns default params for track", function() {
         return jsonp.default_params('track').should.eql({
           token: 'api_token_value',
-          distinct_id: 'distinct_id_value',
-          time: new Date(),
-          properties: {},
-          medium: 'medium_value',
-          context: 'context_value'
+          data: {
+            distinct_id: 'distinct_id_value',
+            time: new Date(),
+            properties: {},
+            medium: 'medium_value',
+            context: 'context_value'
+          }
         });
       });
       return it("returns empty object for unknown", function() {

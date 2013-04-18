@@ -21,9 +21,43 @@ define ['jsonp','exceptions','dojo/io-query','cookie'], (JSONP,Exceptions,ioQuer
     call: () ->
       this.jsonp.call.apply this.jsonp, arguments
 
-    identify: (e) ->
+    identify: (a1, a2) ->
 
-    alias: (e) ->
+      if _.isString(a1)
+        distinct_id = a1
+        properties = a2
+        this.distinct_id(distinct_id)
+      else
+        properties = a1
+
+      properties = {} unless properties
+      distinct_id = this.distinct_id() unless distinct_id
+
+      this.call 'identify', { distinct_id: distinct_id, data: { properties: properties }}
+      null
+
+
+    alias: (a1, a2) ->
+
+      if _.isString(a1) and _.isString(a2)
+        distinct_id = a1
+        alias = a2
+        update_distinct = false
+      else if _.isString(a1) and _.isBoolean(a2)
+        distinct_id = this.distinct_id()
+        alias = a1
+        update_distinct = false
+      else
+        distinct_id = this.distinct_id()
+        alias = a1
+        update_distinct = true
+
+      unless alias
+        throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an alias, see http://docs.trak.io/alias.html')
+
+      this.call 'alias', { data: { distinct_id: distinct_id, alias: alias }}
+      this.distinct_id(alias) if update_distinct
+      null
 
     track: (a1, a2, a3, a4, a5) ->
 
