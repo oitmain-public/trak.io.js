@@ -1,22 +1,21 @@
 ({
-  name: 'trak.io', // I guess it needs a name too
-  baseUrl: 'src', // Base url for importing/requiring scripts (* relative to appDir)
+  name: '../components/almond/almond',
+  baseUrl: 'src',
   out: 'trak.io.js',
   optimize: 'none',
-  include: 'requireLib',
+  include: 'trak.io',
+  insertRequire: ['trak.io'],
   shim: {
-    lodash: {
-      exports: '_'
-    },
     json2: {
       exports: 'JSON'
+    },
+    lodash: {
+      exports: '_'
     }
   },
   paths: {
-    requireLib: '../components/requirejs/require',
-    lodash: '../components/lodash/dist/lodash.compat.min',
+    lodash: '../vendor/lodash',
     json2: '../components/json2/json2',
-    cookie: '../components/cookie/cookie',
-    dojo: '../components/dojo'
+    cookie: '../components/cookie/cookie'
   }
 })

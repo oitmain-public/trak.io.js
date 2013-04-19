@@ -6,7 +6,8 @@
     "requirejs": null,
     "lodash": null,
     "json2": null,
-    "dojo": null
+    "dojo": null,
+    "almond": null
   },
   "devDependencies": {
     "mocha": null,

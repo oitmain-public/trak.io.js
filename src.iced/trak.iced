@@ -1,4 +1,4 @@
-define ['jsonp','exceptions','dojo/io-query','cookie'], (JSONP,Exceptions,ioQuery,cookie) ->
+define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,ioQuery,cookie,_) ->
 
   class Trak
 

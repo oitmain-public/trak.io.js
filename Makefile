@@ -9,7 +9,7 @@ watch:
 	watch -n -0.1 make
 
 min: build
-	uglifyjs -nc -o trak.io.min.js trak.io.js
+	uglifyjs -mc -o trak.io.min.js trak.io.js
 
 server:
 	node server.js &
