@@ -35,6 +35,10 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
         trak.io.initialize('api_token_value', {medium: 'custom_medium'})
         trak.io.medium().should.equal 'custom_medium'
 
+      it "stores distinct_id option", ->
+        trak.io.initialize('api_token_value', {distinct_id: 'custom_distinct_id'})
+        trak.io.distinct_id().should.equal 'custom_distinct_id'
+
       it "set up default options", ->
         trak = new Trak()
         trak.io.initialize('api_token_value')

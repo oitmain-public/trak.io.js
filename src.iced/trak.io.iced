@@ -5,7 +5,6 @@ define ['trak', 'lodash','cookie'], (Trak, _, cookie) ->
   # Loop through the interim analytics queue and reapply the calls to their
   # proper analytics.js method.
   queue = window.trak
-  console.log 'a'
   window.trak = trak
   while queue and queue.length > 0
     item = queue.shift()

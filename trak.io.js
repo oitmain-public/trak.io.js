@@ -3375,7 +3375,7 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
       if (options.host) this.host(options.host);
       if (options.context) this.context(options.context);
       if (options.medium) this.medium(options.medium);
-      this.distinct_id();
+      this.distinct_id(options.distinct_id || null);
       if (options.track_page_views !== false) return this.page_view();
     };
 
@@ -3613,7 +3613,6 @@ define('trak.io',['trak', 'lodash', 'cookie'], function(Trak, _, cookie) {
   var item, method, queue, trak;
   trak = new Trak();
   queue = window.trak;
-  console.log('a');
   window.trak = trak;
   while (queue && queue.length > 0) {
     item = queue.shift();

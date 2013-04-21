@@ -15,7 +15,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       if (options.host) this.host(options.host);
       if (options.context) this.context(options.context);
       if (options.medium) this.medium(options.medium);
-      this.distinct_id();
+      this.distinct_id(options.distinct_id || null);
       if (options.track_page_views !== false) return this.page_view();
     };
 

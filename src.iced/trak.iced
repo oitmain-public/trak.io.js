@@ -10,7 +10,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       this.host(options.host) if options.host
       this.context(options.context) if options.context
       this.medium(options.medium) if options.medium
-      this.distinct_id()
+      this.distinct_id(options.distinct_id || null)
 
       if options.track_page_views != false
         this.page_view()

@@ -43,6 +43,12 @@ requirejs(['trak', 'cookie'], function(Trak, cookie) {
         });
         return trak.io.medium().should.equal('custom_medium');
       });
+      it("stores distinct_id option", function() {
+        trak.io.initialize('api_token_value', {
+          distinct_id: 'custom_distinct_id'
+        });
+        return trak.io.distinct_id().should.equal('custom_distinct_id');
+      });
       it("set up default options", function() {
         var trak;
         trak = new Trak();

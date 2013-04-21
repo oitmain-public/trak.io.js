@@ -2,7 +2,7 @@
 PHANTOM = node_modules/.bin/mocha-phantomjs
 PHANTOM_OPTS = --setting web-security=false --setting local-to-remote-url-access=true
 
-build: components ice
+build: ice
 	r.js -o build.js
 
 watch:

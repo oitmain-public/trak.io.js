@@ -4,7 +4,6 @@ define(['trak', 'lodash', 'cookie'], function(Trak, _, cookie) {
   var item, method, queue, trak;
   trak = new Trak();
   queue = window.trak;
-  console.log('a');
   window.trak = trak;
   while (queue && queue.length > 0) {
     item = queue.shift();
