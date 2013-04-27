@@ -33,7 +33,7 @@ define ['exceptions','json2'], (Exceptions, JSON) ->
         when 'alias'
           { token: trak.io.api_token(), data: { distinct_id: trak.io.distinct_id(), time: new Date() } }
         when 'track'
-          { token: trak.io.api_token(), data: { distinct_id: trak.io.distinct_id(), time: new Date(), properties: {}, medium: trak.io.medium(), context: trak.io.context() } }
+          { token: trak.io.api_token(), data: { distinct_id: trak.io.distinct_id(), time: new Date(), properties: {}, channel: trak.io.channel(), context: trak.io.context() } }
         else
           {}
 

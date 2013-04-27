@@ -7,7 +7,7 @@ requirejs(['trak', 'cookie'], function(Trak, cookie) {
       trak.io._protocol = 'https';
       trak.io._host = 'api.trak.io';
       trak.io._current_context = false;
-      trak.io._medium = false;
+      trak.io._channel = false;
       return trak.io._distinct_id = null;
     });
     describe('#initialize', function() {
@@ -37,11 +37,11 @@ requirejs(['trak', 'cookie'], function(Trak, cookie) {
           foo: 'bar'
         });
       });
-      it("stores medium option", function() {
+      it("stores channel option", function() {
         trak.io.initialize('api_token_value', {
-          medium: 'custom_medium'
+          channel: 'custom_channel'
         });
-        return trak.io.medium().should.equal('custom_medium');
+        return trak.io.channel().should.equal('custom_channel');
       });
       it("stores distinct_id option", function() {
         trak.io.initialize('api_token_value', {
@@ -56,7 +56,7 @@ requirejs(['trak', 'cookie'], function(Trak, cookie) {
         trak.io.protocol().should.equal('https://');
         trak.io.host().should.equal('api.trak.io');
         trak.io.current_context().should.eql({});
-        return trak.io.medium().should.equal('web_site');
+        return trak.io.channel().should.equal('web_site');
       });
       it.only("calls #page_view", function() {
         sinon.stub(trak.io, 'track');
@@ -165,18 +165,18 @@ requirejs(['trak', 'cookie'], function(Trak, cookie) {
         });
         return trak.io.url.restore();
       });
-      it("returns referrer by default", function() {
-        sinon.stub(trak.io, 'referrer').returns('http://referrer.com/?a=b&c=d');
-        trak.io.context().referrer.should.equal('http://referrer.com/?a=b&c=d');
-        return trak.io.referrer.restore();
+      it("returns referer by default", function() {
+        sinon.stub(trak.io, 'referer').returns('http://referer.com/?a=b&c=d');
+        trak.io.context().referer.should.equal('http://referer.com/?a=b&c=d');
+        return trak.io.referer.restore();
       });
-      it("returns referrer params by default", function() {
-        sinon.stub(trak.io, 'referrer').returns('http://referrer.com/?a=b&c=d');
-        trak.io.context().referrer_params.should.eql({
+      it("returns referer params by default", function() {
+        sinon.stub(trak.io, 'referer').returns('http://referer.com/?a=b&c=d');
+        trak.io.context().referer_params.should.eql({
           a: 'b',
           c: 'd'
         });
-        return trak.io.referrer.restore();
+        return trak.io.referer.restore();
       });
       it("allows individual contexts to be set", function() {
         trak.io.context('foo', 'bar').foo.should.equal('bar');
@@ -200,26 +200,27 @@ requirejs(['trak', 'cookie'], function(Trak, cookie) {
       });
       it("merges provided with defaults", function() {
         sinon.stub(trak.io, 'url').returns('http://example.com/?a=b&c=d');
-        sinon.stub(trak.io, 'referrer').returns('http://referrer.com/?a=b&c=d');
+        sinon.stub(trak.io, 'referer').returns('http://referer.com/?a=b&c=d');
         trak.io.context({
           foo: 'bar'
         }).should.eql({
           ip: null,
           user_agent: navigator.userAgent,
+          page_title: 'Tests | trak.io.js',
           url: 'http://example.com/?a=b&c=d',
-          referrer: 'http://referrer.com/?a=b&c=d',
+          referer: 'http://referer.com/?a=b&c=d',
           params: {
             a: 'b',
             c: 'd'
           },
-          referrer_params: {
+          referer_params: {
             a: 'b',
             c: 'd'
           },
           foo: 'bar'
         });
         trak.io.url.restore();
-        return trak.io.referrer.restore();
+        return trak.io.referer.restore();
       });
       it("stores any additional contexts in a cookie", function() {
         trak.io.context('foo', 'bar');
@@ -234,21 +235,21 @@ requirejs(['trak', 'cookie'], function(Trak, cookie) {
         return trak.io.context().foo.should.equal('bar');
       });
     });
-    return describe('#medium', function() {
+    return describe('#channel', function() {
       it("returns 'web_site' by default", function() {
-        return trak.io.medium().should.equal('web_site');
+        return trak.io.channel().should.equal('web_site');
       });
       it("returns provided value if set", function() {
-        trak.io.medium('custom_medium').should.equal('custom_medium');
-        return trak.io.medium().should.equal('custom_medium');
+        trak.io.channel('custom_channel').should.equal('custom_channel');
+        return trak.io.channel().should.equal('custom_channel');
       });
       it("stores value in cookie", function() {
-        trak.io.medium('cookie_medium');
-        return cookie.get("_trak_" + (trak.io.api_token()) + "_medium").should.eql('cookie_medium');
+        trak.io.channel('cookie_channel');
+        return cookie.get("_trak_" + (trak.io.api_token()) + "_channel").should.eql('cookie_channel');
       });
-      return it("retrieve any additional medium in a cookie", function() {
-        cookie.set("_trak_" + (trak.io.api_token()) + "_medium", 'cookie_medium');
-        return trak.io.medium().should.equal('cookie_medium');
+      return it("retrieve any additional channel in a cookie", function() {
+        cookie.set("_trak_" + (trak.io.api_token()) + "_channel", 'cookie_channel');
+        return trak.io.channel().should.equal('cookie_channel');
       });
     });
   });

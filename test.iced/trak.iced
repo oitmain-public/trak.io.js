@@ -9,7 +9,7 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
       trak.io._protocol = 'https'
       trak.io._host = 'api.trak.io'
       trak.io._current_context = false
-      trak.io._medium = false
+      trak.io._channel = false
       trak.io._distinct_id = null
 
 
@@ -31,9 +31,9 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
         trak.io.initialize('api_token_value', {context: {foo: 'bar'}})
         trak.io.current_context().should.eql {foo: 'bar'}
 
-      it "stores medium option", ->
-        trak.io.initialize('api_token_value', {medium: 'custom_medium'})
-        trak.io.medium().should.equal 'custom_medium'
+      it "stores channel option", ->
+        trak.io.initialize('api_token_value', {channel: 'custom_channel'})
+        trak.io.channel().should.equal 'custom_channel'
 
       it "stores distinct_id option", ->
         trak.io.initialize('api_token_value', {distinct_id: 'custom_distinct_id'})
@@ -45,7 +45,7 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
         trak.io.protocol().should.equal 'https://'
         trak.io.host().should.equal 'api.trak.io'
         trak.io.current_context().should.eql {}
-        trak.io.medium().should.equal 'web_site'
+        trak.io.channel().should.equal 'web_site'
 
       it.only "calls #page_view", ->
         sinon.stub(trak.io, 'track')
@@ -151,15 +151,15 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
         trak.io.context().params.should.eql({a: 'b', c: 'd'})
         trak.io.url.restore()
 
-      it "returns referrer by default", ->
-        sinon.stub(trak.io, 'referrer').returns('http://referrer.com/?a=b&c=d')
-        trak.io.context().referrer.should.equal('http://referrer.com/?a=b&c=d')
-        trak.io.referrer.restore()
+      it "returns referer by default", ->
+        sinon.stub(trak.io, 'referer').returns('http://referer.com/?a=b&c=d')
+        trak.io.context().referer.should.equal('http://referer.com/?a=b&c=d')
+        trak.io.referer.restore()
 
-      it "returns referrer params by default", ->
-        sinon.stub(trak.io, 'referrer').returns('http://referrer.com/?a=b&c=d')
-        trak.io.context().referrer_params.should.eql({a: 'b', c: 'd'})
-        trak.io.referrer.restore()
+      it "returns referer params by default", ->
+        sinon.stub(trak.io, 'referer').returns('http://referer.com/?a=b&c=d')
+        trak.io.context().referer_params.should.eql({a: 'b', c: 'd'})
+        trak.io.referer.restore()
 
       it "allows individual contexts to be set", ->
         trak.io.context('foo', 'bar').foo.should.equal 'bar'
@@ -176,17 +176,18 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
 
       it "merges provided with defaults", ->
         sinon.stub(trak.io, 'url').returns('http://example.com/?a=b&c=d')
-        sinon.stub(trak.io, 'referrer').returns('http://referrer.com/?a=b&c=d')
+        sinon.stub(trak.io, 'referer').returns('http://referer.com/?a=b&c=d')
         trak.io.context({foo: 'bar'}).should.eql
           ip: null
           user_agent: navigator.userAgent
-          url: 'http://example.com/?a=b&c=d',
-          referrer: 'http://referrer.com/?a=b&c=d',
+          page_title: 'Tests | trak.io.js'
+          url: 'http://example.com/?a=b&c=d'
+          referer: 'http://referer.com/?a=b&c=d'
           params: {a: 'b', c: 'd'}
-          referrer_params: {a: 'b', c: 'd'}
+          referer_params: {a: 'b', c: 'd'}
           foo: 'bar'
         trak.io.url.restore()
-        trak.io.referrer.restore()
+        trak.io.referer.restore()
 
       it "stores any additional contexts in a cookie", ->
         trak.io.context 'foo', 'bar'
@@ -197,22 +198,22 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
         trak.io.context().foo.should.equal 'bar'
 
 
-    describe '#medium', ()->
+    describe '#channel', ()->
 
       it "returns 'web_site' by default", ->
-        trak.io.medium().should.equal 'web_site'
+        trak.io.channel().should.equal 'web_site'
 
       it "returns provided value if set", ->
-        trak.io.medium('custom_medium').should.equal 'custom_medium'
-        trak.io.medium().should.equal 'custom_medium'
+        trak.io.channel('custom_channel').should.equal 'custom_channel'
+        trak.io.channel().should.equal 'custom_channel'
 
       it "stores value in cookie", ->
-        trak.io.medium 'cookie_medium'
-        cookie.get("_trak_#{trak.io.api_token()}_medium").should.eql 'cookie_medium'
+        trak.io.channel 'cookie_channel'
+        cookie.get("_trak_#{trak.io.api_token()}_channel").should.eql 'cookie_channel'
 
-      it "retrieve any additional medium in a cookie", ->
-        cookie.set "_trak_#{trak.io.api_token()}_medium", 'cookie_medium'
-        trak.io.medium().should.equal 'cookie_medium'
+      it "retrieve any additional channel in a cookie", ->
+        cookie.set "_trak_#{trak.io.api_token()}_channel", 'cookie_channel'
+        trak.io.channel().should.equal 'cookie_channel'
 
 
 

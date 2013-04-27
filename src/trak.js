@@ -14,7 +14,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       this.protocol(options.protocol);
       if (options.host) this.host(options.host);
       if (options.context) this.context(options.context);
-      if (options.medium) this.medium(options.medium);
+      if (options.channel) this.channel(options.channel);
       this.distinct_id(options.distinct_id || null);
       if (options.track_page_views !== false) return this.page_view();
     };
@@ -78,27 +78,27 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
     };
 
     Trak.prototype.track = function(a1, a2, a3, a4, a5) {
-      var context, distinct_id, event, medium, properties;
+      var channel, context, distinct_id, event, properties;
       if (_.isString(a1) && (_.isObject(a2) || _.isUndefined(a2))) {
         event = a1;
         properties = a2;
         context = a3;
       } else if (_.isString(a1) && _.isString(a2) && (_.isObject(a3) || _.isUndefined(a3))) {
         event = a1;
-        medium = a2;
+        channel = a2;
         properties = a3;
         context = a4;
       } else if (_.isString(a1) && _.isString(a2) && _.isString(a3)) {
         distinct_id = a1;
         event = a2;
-        medium = a3;
+        channel = a3;
         properties = a4;
         context = a5;
       }
       if (!distinct_id) distinct_id = this.distinct_id();
       if (!context) context = {};
       _.merge(context, this.context());
-      if (!medium) medium = this.medium();
+      if (!channel) channel = this.channel();
       if (!properties) properties = {};
       if (!event) {
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an event to track, see http://docs.trak.io/track.html');
@@ -107,7 +107,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
         data: {
           distinct_id: distinct_id,
           event: event,
-          medium: medium,
+          channel: channel,
           context: context,
           properties: properties
         }
@@ -159,16 +159,17 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
     };
 
     Trak.prototype.default_context = function() {
-      var referrer, url;
+      var referer, url;
       url = this.url();
-      referrer = this.referrer();
+      referer = this.referer();
       return {
         ip: null,
         user_agent: navigator.userAgent,
+        page_title: this.page_title(),
         url: url,
         params: url.indexOf("?") > 0 ? ioQuery.queryToObject(url.substring(url.indexOf("?") + 1, url.length)) : {},
-        referrer: referrer,
-        referrer_params: referrer.indexOf("?") > 0 ? ioQuery.queryToObject(referrer.substring(referrer.indexOf("?") + 1, referrer.length)) : {}
+        referer: referer,
+        referer_params: referer.indexOf("?") > 0 ? ioQuery.queryToObject(referer.substring(referer.indexOf("?") + 1, referer.length)) : {}
       };
     };
 
@@ -183,7 +184,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       return window.location.href;
     };
 
-    Trak.prototype.referrer = function() {
+    Trak.prototype.referer = function() {
       return document.referrer;
     };
 
@@ -191,17 +192,17 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       return document.title;
     };
 
-    Trak.prototype._medium = false;
+    Trak.prototype._channel = false;
 
-    Trak.prototype.medium = function(value) {
-      if (!this._medium && !(this._medium = this.get_cookie('medium'))) {
-        this._medium = 'web_site';
+    Trak.prototype.channel = function(value) {
+      if (!this._channel && !(this._channel = this.get_cookie('channel'))) {
+        this._channel = 'web_site';
       }
       if (value) {
-        this._medium = value;
-        this.set_cookie('medium', value);
+        this._channel = value;
+        this.set_cookie('channel', value);
       }
-      return this._medium;
+      return this._channel;
     };
 
     Trak.prototype._api_token = null;

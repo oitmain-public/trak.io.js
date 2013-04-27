@@ -9,7 +9,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       this.protocol(options.protocol)
       this.host(options.host) if options.host
       this.context(options.context) if options.context
-      this.medium(options.medium) if options.medium
+      this.channel(options.channel) if options.channel
       this.distinct_id(options.distinct_id || null)
 
       if options.track_page_views != false
@@ -71,26 +71,26 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
         context = a3
       else if _.isString(a1) and _.isString(a2) and (_.isObject(a3) || _.isUndefined(a3))
         event = a1
-        medium = a2
+        channel = a2
         properties = a3
         context = a4
       else if _.isString(a1) and _.isString(a2) and _.isString(a3)
         distinct_id = a1
         event = a2
-        medium = a3
+        channel = a3
         properties = a4
         context = a5
 
       distinct_id = this.distinct_id() unless distinct_id
       context = {} unless context
       _.merge context, this.context()
-      medium = this.medium() unless medium
+      channel = this.channel() unless channel
       properties = {} unless properties
 
       unless event
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an event to track, see http://docs.trak.io/track.html')
 
-      this.call 'track', { data: { distinct_id: distinct_id, event: event, medium: medium, context: context, properties: properties }}
+      this.call 'track', { data: { distinct_id: distinct_id, event: event, channel: channel, context: context, properties: properties }}
       null
 
     page_view: (url=this.url(), title=this.page_title()) ->
@@ -125,14 +125,15 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
 
     default_context: ->
       url = this.url()
-      referrer = this.referrer()
+      referer = this.referer()
       {
         ip: null
         user_agent: navigator.userAgent
+        page_title: this.page_title()
         url: url
         params: if url.indexOf("?") > 0 then ioQuery.queryToObject(url.substring(url.indexOf("?") + 1, url.length)) else {}
-        referrer: referrer
-        referrer_params: if referrer.indexOf("?") > 0 then ioQuery.queryToObject(referrer.substring(referrer.indexOf("?") + 1, referrer.length)) else {}
+        referer: referer
+        referer_params: if referer.indexOf("?") > 0 then ioQuery.queryToObject(referer.substring(referer.indexOf("?") + 1, referer.length)) else {}
       }
 
     context: (key, value)->
@@ -143,20 +144,20 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
     url: ->
       window.location.href
 
-    referrer: ->
+    referer: ->
       document.referrer
 
     page_title: ->
       document.title
 
-    _medium: false
-    medium: (value)->
-      if !this._medium and !(this._medium = this.get_cookie('medium'))
-        this._medium = 'web_site'
+    _channel: false
+    channel: (value)->
+      if !this._channel and !(this._channel = this.get_cookie('channel'))
+        this._channel = 'web_site'
       if value
-        this._medium = value
-        this.set_cookie('medium', value)
-      this._medium
+        this._channel = value
+        this.set_cookie('channel', value)
+      this._channel
 
     _api_token: null
     api_token: ->

@@ -61,7 +61,7 @@ define(['exceptions', 'json2'], function(Exceptions, JSON) {
               distinct_id: trak.io.distinct_id(),
               time: new Date(),
               properties: {},
-              medium: trak.io.medium(),
+              channel: trak.io.channel(),
               context: trak.io.context()
             }
           };

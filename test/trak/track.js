@@ -8,13 +8,13 @@ requirejs(['exceptions'], function(Exceptions) {
       sinon.stub(trak.io, 'context').returns({
         "default": 'context'
       });
-      return sinon.stub(trak.io, 'medium').returns('default_medium');
+      return sinon.stub(trak.io, 'channel').returns('default_channel');
     });
     after(function() {
       trak.io.call.restore();
       trak.io.distinct_id.restore();
       trak.io.context.restore();
-      return trak.io.medium.restore();
+      return trak.io.channel.restore();
     });
     describe('#track()', function() {
       return it("raises Exceptions.MissingParameter", function() {
@@ -30,7 +30,7 @@ requirejs(['exceptions'], function(Exceptions) {
           data: {
             distinct_id: 'default_distinct_id',
             event: 'my_event',
-            medium: 'default_medium',
+            channel: 'default_channel',
             context: {
               "default": 'context'
             },
@@ -50,7 +50,7 @@ requirejs(['exceptions'], function(Exceptions) {
           data: {
             distinct_id: 'default_distinct_id',
             event: 'my_event',
-            medium: 'default_medium',
+            channel: 'default_channel',
             context: {
               "default": 'context'
             },
@@ -73,7 +73,7 @@ requirejs(['exceptions'], function(Exceptions) {
           data: {
             distinct_id: 'default_distinct_id',
             event: 'my_event',
-            medium: 'default_medium',
+            channel: 'default_channel',
             context: {
               "default": 'context',
               my: 'context'
@@ -94,14 +94,14 @@ requirejs(['exceptions'], function(Exceptions) {
         return trak.io.context.should.have.been.calledWithExactly();
       });
     });
-    describe('#track(event, medium)', function() {
+    describe('#track(event, channel)', function() {
       return it("calls #call", function() {
-        trak.io.track('my_event', 'my_medium');
+        trak.io.track('my_event', 'my_channel');
         return trak.io.call.should.have.been.calledWith('track', {
           data: {
             distinct_id: 'default_distinct_id',
             event: 'my_event',
-            medium: 'my_medium',
+            channel: 'my_channel',
             context: {
               "default": 'context'
             },
@@ -110,18 +110,18 @@ requirejs(['exceptions'], function(Exceptions) {
         });
       });
     });
-    describe('#track(event, medium, properties)', function() {
+    describe('#track(event, channel, properties)', function() {
       it("calls #call", function() {
         var properties;
         properties = {
           foo: 'bar'
         };
-        trak.io.track('my_event', 'my_medium', properties);
+        trak.io.track('my_event', 'my_channel', properties);
         return trak.io.call.should.have.been.calledWith('track', {
           data: {
             distinct_id: 'default_distinct_id',
             event: 'my_event',
-            medium: 'my_medium',
+            channel: 'my_channel',
             context: {
               "default": 'context'
             },
@@ -129,16 +129,16 @@ requirejs(['exceptions'], function(Exceptions) {
           }
         });
       });
-      return it("doesn't change trak.io.medium()", function() {
+      return it("doesn't change trak.io.channel()", function() {
         var properties;
         properties = {
           foo: 'bar'
         };
-        trak.io.track('my_event', 'my_medium', properties);
-        return trak.io.medium.should.have.been.calledWithExactly();
+        trak.io.track('my_event', 'my_channel', properties);
+        return trak.io.channel.should.have.been.calledWithExactly();
       });
     });
-    describe('#track(event, medium, properties, context)', function() {
+    describe('#track(event, channel, properties, context)', function() {
       it("calls #call merging contexts", function() {
         var context, properties;
         properties = {
@@ -147,12 +147,12 @@ requirejs(['exceptions'], function(Exceptions) {
         context = {
           my: 'context'
         };
-        trak.io.track('my_event', 'my_medium', properties, context);
+        trak.io.track('my_event', 'my_channel', properties, context);
         return trak.io.call.should.have.been.calledWith('track', {
           data: {
             distinct_id: 'default_distinct_id',
             event: 'my_event',
-            medium: 'my_medium',
+            channel: 'my_channel',
             context: {
               "default": 'context',
               my: 'context'
@@ -169,10 +169,10 @@ requirejs(['exceptions'], function(Exceptions) {
         context = {
           my: 'context'
         };
-        trak.io.track('my_event', 'my_medium', properties, context);
+        trak.io.track('my_event', 'my_channel', properties, context);
         return trak.io.context.should.have.been.calledWithExactly();
       });
-      return it("doesn't change trak.io.medium()", function() {
+      return it("doesn't change trak.io.channel()", function() {
         var context, properties;
         properties = {
           foo: 'bar'
@@ -180,18 +180,18 @@ requirejs(['exceptions'], function(Exceptions) {
         context = {
           my: 'context'
         };
-        trak.io.track('my_event', 'my_medium', properties, context);
-        return trak.io.medium.should.have.been.calledWithExactly();
+        trak.io.track('my_event', 'my_channel', properties, context);
+        return trak.io.channel.should.have.been.calledWithExactly();
       });
     });
-    describe('#track(distinct_id, event, medium)', function() {
+    describe('#track(distinct_id, event, channel)', function() {
       it("calls #call", function() {
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium');
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel');
         return trak.io.call.should.have.been.calledWith('track', {
           data: {
             distinct_id: 'my_distinct_id',
             event: 'my_event',
-            medium: 'my_medium',
+            channel: 'my_channel',
             context: {
               "default": 'context'
             },
@@ -200,26 +200,26 @@ requirejs(['exceptions'], function(Exceptions) {
         });
       });
       it("doesn't change trak.io.distinct_id()", function() {
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium');
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel');
         return trak.io.distinct_id.should.have.been.calledWithExactly();
       });
-      return it("doesn't change trak.io.medium()", function() {
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium');
-        return trak.io.medium.should.have.been.calledWithExactly();
+      return it("doesn't change trak.io.channel()", function() {
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel');
+        return trak.io.channel.should.have.been.calledWithExactly();
       });
     });
-    describe('#track(distinct_id, event, medium, properties)', function() {
+    describe('#track(distinct_id, event, channel, properties)', function() {
       it("calls #call", function() {
         var properties;
         properties = {
           my: 'properties'
         };
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium', properties);
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties);
         return trak.io.call.should.have.been.calledWith('track', {
           data: {
             distinct_id: 'my_distinct_id',
             event: 'my_event',
-            medium: 'my_medium',
+            channel: 'my_channel',
             context: {
               "default": 'context'
             },
@@ -232,19 +232,19 @@ requirejs(['exceptions'], function(Exceptions) {
         properties = {
           my: 'properties'
         };
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium', properties);
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties);
         return trak.io.distinct_id.should.have.been.calledWithExactly();
       });
-      return it("doesn't change trak.io.medium()", function() {
+      return it("doesn't change trak.io.channel()", function() {
         var properties;
         properties = {
           my: 'properties'
         };
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium', properties);
-        return trak.io.medium.should.have.been.calledWithExactly();
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties);
+        return trak.io.channel.should.have.been.calledWithExactly();
       });
     });
-    return describe('#track(distinct_id, event, medium, properties, context)', function() {
+    return describe('#track(distinct_id, event, channel, properties, context)', function() {
       it("calls #call merging contexts", function() {
         var context, properties;
         properties = {
@@ -253,12 +253,12 @@ requirejs(['exceptions'], function(Exceptions) {
         context = {
           my: 'context'
         };
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium', properties, context);
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context);
         return trak.io.call.should.have.been.calledWith('track', {
           data: {
             distinct_id: 'my_distinct_id',
             event: 'my_event',
-            medium: 'my_medium',
+            channel: 'my_channel',
             context: {
               "default": 'context',
               my: 'context'
@@ -275,10 +275,10 @@ requirejs(['exceptions'], function(Exceptions) {
         context = {
           my: 'context'
         };
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium', properties, context);
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context);
         return trak.io.distinct_id.should.have.been.calledWithExactly();
       });
-      it("doesn't change trak.io.medium()", function() {
+      it("doesn't change trak.io.channel()", function() {
         var context, properties;
         properties = {
           my: 'properties'
@@ -286,8 +286,8 @@ requirejs(['exceptions'], function(Exceptions) {
         context = {
           my: 'context'
         };
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium', properties, context);
-        return trak.io.medium.should.have.been.calledWithExactly();
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context);
+        return trak.io.channel.should.have.been.calledWithExactly();
       });
       return it("doesn't change trak.io.context()", function() {
         var context, properties;
@@ -297,7 +297,7 @@ requirejs(['exceptions'], function(Exceptions) {
         context = {
           my: 'context'
         };
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium', properties, context);
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context);
         return trak.io.context.should.have.been.calledWithExactly();
       });
     });

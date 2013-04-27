@@ -9,7 +9,7 @@ requirejs ['jsonp','exceptions'], (JSONP, Exceptions) ->
       trak.io._protocol = 'https'
       trak.io._host = 'api.trak.io'
       trak.io._current_context = false
-      trak.io._medium = false
+      trak.io._channel = false
       trak.io._distinct_id = null
 
     describe '#call', ->
@@ -144,13 +144,13 @@ requirejs ['jsonp','exceptions'], (JSONP, Exceptions) ->
       beforeEach ->
         sinon.stub(trak.io, "distinct_id").returns('distinct_id_value')
         sinon.stub(trak.io, "api_token").returns('api_token_value')
-        sinon.stub(trak.io, "medium").returns('medium_value')
+        sinon.stub(trak.io, "channel").returns('channel_value')
         sinon.stub(trak.io, "context").returns('context_value')
 
       afterEach ->
         trak.io.distinct_id.restore();
         trak.io.api_token.restore();
-        trak.io.medium.restore();
+        trak.io.channel.restore();
         trak.io.context.restore();
 
       it "returns default params for alias", ->
@@ -160,7 +160,7 @@ requirejs ['jsonp','exceptions'], (JSONP, Exceptions) ->
         jsonp.default_params('identify').should.eql({ token: 'api_token_value', data: { distinct_id: 'distinct_id_value', time: new Date(), properties: {} }})
 
       it "returns default params for track", ->
-        jsonp.default_params('track').should.eql({ token: 'api_token_value', data: { distinct_id: 'distinct_id_value', time: new Date(), properties: {}, medium: 'medium_value', context: 'context_value' }})
+        jsonp.default_params('track').should.eql({ token: 'api_token_value', data: { distinct_id: 'distinct_id_value', time: new Date(), properties: {}, channel: 'channel_value', context: 'context_value' }})
 
       it "returns empty object for unknown", ->
         jsonp.default_params('jibersih').should.eql {}

@@ -6,13 +6,13 @@ requirejs ['exceptions'], (Exceptions) ->
       sinon.stub(trak.io, 'call')
       sinon.stub(trak.io, 'distinct_id').returns('default_distinct_id')
       sinon.stub(trak.io, 'context').returns({default: 'context'})
-      sinon.stub(trak.io, 'medium').returns('default_medium')
+      sinon.stub(trak.io, 'channel').returns('default_channel')
 
     after ->
       trak.io.call.restore()
       trak.io.distinct_id.restore()
       trak.io.context.restore()
-      trak.io.medium.restore()
+      trak.io.channel.restore()
 
     describe '#track()', ->
 
@@ -25,7 +25,7 @@ requirejs ['exceptions'], (Exceptions) ->
 
       it "calls #call", ->
         trak.io.track('my_event')
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', medium: 'default_medium', context: { default: 'context'}, properties: {}}})
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'default_channel', context: { default: 'context'}, properties: {}}})
 
 
     describe '#track(event, properties)', ->
@@ -33,7 +33,7 @@ requirejs ['exceptions'], (Exceptions) ->
       it "calls #call", ->
         properties = {foo: 'bar'}
         trak.io.track('my_event', properties)
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', medium: 'default_medium', context: { default: 'context'}, properties: properties}})
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'default_channel', context: { default: 'context'}, properties: properties}})
 
 
     describe '#track(event, properties, context)', ->
@@ -42,7 +42,7 @@ requirejs ['exceptions'], (Exceptions) ->
         properties = {my: 'properties'}
         context = {my: 'context'}
         trak.io.track('my_event', properties, context)
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', medium: 'default_medium', context: {default: 'context', my: 'context'}, properties: properties}})
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'default_channel', context: {default: 'context', my: 'context'}, properties: properties}})
 
       it "doesn't change trak.io.context()", ->
         properties = {my: 'properties'}
@@ -50,103 +50,103 @@ requirejs ['exceptions'], (Exceptions) ->
         trak.io.track('my_event', properties, context)
         trak.io.context.should.have.been.calledWithExactly()
 
-    describe '#track(event, medium)', ->
+    describe '#track(event, channel)', ->
 
       it "calls #call", ->
-        trak.io.track('my_event', 'my_medium')
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', medium: 'my_medium', context: {default: 'context'}, properties: {}}})
+        trak.io.track('my_event', 'my_channel')
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context'}, properties: {}}})
 
 
-    describe '#track(event, medium, properties)', ->
+    describe '#track(event, channel, properties)', ->
 
       it "calls #call", ->
         properties = {foo: 'bar'}
-        trak.io.track('my_event', 'my_medium', properties)
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', medium: 'my_medium', context: {default: 'context'}, properties: properties}})
+        trak.io.track('my_event', 'my_channel', properties)
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context'}, properties: properties}})
 
-      it "doesn't change trak.io.medium()", ->
+      it "doesn't change trak.io.channel()", ->
         properties = {foo: 'bar'}
-        trak.io.track('my_event', 'my_medium', properties)
-        trak.io.medium.should.have.been.calledWithExactly()
+        trak.io.track('my_event', 'my_channel', properties)
+        trak.io.channel.should.have.been.calledWithExactly()
 
-    describe '#track(event, medium, properties, context)', ->
+    describe '#track(event, channel, properties, context)', ->
 
       it "calls #call merging contexts", ->
         properties = {my: 'properties'}
         context = {my: 'context'}
-        trak.io.track('my_event', 'my_medium', properties, context)
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', medium: 'my_medium', context: {default: 'context', my: 'context'}, properties: properties}})
+        trak.io.track('my_event', 'my_channel', properties, context)
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context', my: 'context'}, properties: properties}})
 
       it "doesn't change trak.io.context()", ->
         properties = {my: 'properties'}
         context = {my: 'context'}
-        trak.io.track('my_event', 'my_medium', properties, context)
+        trak.io.track('my_event', 'my_channel', properties, context)
         trak.io.context.should.have.been.calledWithExactly()
 
-      it "doesn't change trak.io.medium()", ->
+      it "doesn't change trak.io.channel()", ->
         properties = {foo: 'bar'}
         context = {my: 'context'}
-        trak.io.track('my_event', 'my_medium', properties, context)
-        trak.io.medium.should.have.been.calledWithExactly()
+        trak.io.track('my_event', 'my_channel', properties, context)
+        trak.io.channel.should.have.been.calledWithExactly()
 
 
-    describe '#track(distinct_id, event, medium)', ->
-
-      it "calls #call", ->
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium')
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'my_distinct_id', event: 'my_event', medium: 'my_medium', context: {default: 'context'}, properties: {}}})
-
-      it "doesn't change trak.io.distinct_id()", ->
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium')
-        trak.io.distinct_id.should.have.been.calledWithExactly()
-
-      it "doesn't change trak.io.medium()", ->
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium')
-        trak.io.medium.should.have.been.calledWithExactly()
-
-
-    describe '#track(distinct_id, event, medium, properties)', ->
+    describe '#track(distinct_id, event, channel)', ->
 
       it "calls #call", ->
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel')
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'my_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context'}, properties: {}}})
+
+      it "doesn't change trak.io.distinct_id()", ->
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel')
+        trak.io.distinct_id.should.have.been.calledWithExactly()
+
+      it "doesn't change trak.io.channel()", ->
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel')
+        trak.io.channel.should.have.been.calledWithExactly()
+
+
+    describe '#track(distinct_id, event, channel, properties)', ->
+
+      it "calls #call", ->
         properties = {my: 'properties'}
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium', properties)
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'my_distinct_id', event: 'my_event', medium: 'my_medium', context: {default: 'context'}, properties: properties}})
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties)
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'my_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context'}, properties: properties}})
 
       it "doesn't change trak.io.distinct_id()", ->
         properties = {my: 'properties'}
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium', properties)
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties)
         trak.io.distinct_id.should.have.been.calledWithExactly()
 
-      it "doesn't change trak.io.medium()", ->
+      it "doesn't change trak.io.channel()", ->
         properties = {my: 'properties'}
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium', properties)
-        trak.io.medium.should.have.been.calledWithExactly()
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties)
+        trak.io.channel.should.have.been.calledWithExactly()
 
 
-    describe '#track(distinct_id, event, medium, properties, context)', ->
+    describe '#track(distinct_id, event, channel, properties, context)', ->
 
       it "calls #call merging contexts", ->
         properties = {my: 'properties'}
         context = {my: 'context'}
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium', properties, context)
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'my_distinct_id', event: 'my_event', medium: 'my_medium', context: {default: 'context', my: 'context'}, properties: properties}})
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context)
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'my_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context', my: 'context'}, properties: properties}})
 
       it "doesn't change trak.io.distinct_id()", ->
         properties = {my: 'properties'}
         context = {my: 'context'}
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium', properties, context)
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context)
         trak.io.distinct_id.should.have.been.calledWithExactly()
 
-      it "doesn't change trak.io.medium()", ->
+      it "doesn't change trak.io.channel()", ->
         properties = {my: 'properties'}
         context = {my: 'context'}
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium', properties, context)
-        trak.io.medium.should.have.been.calledWithExactly()
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context)
+        trak.io.channel.should.have.been.calledWithExactly()
 
       it "doesn't change trak.io.context()", ->
         properties = {my: 'properties'}
         context = {my: 'context'}
-        trak.io.track('my_distinct_id', 'my_event', 'my_medium', properties, context)
+        trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context)
         trak.io.context.should.have.been.calledWithExactly()
 
 

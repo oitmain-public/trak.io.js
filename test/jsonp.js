@@ -9,7 +9,7 @@ requirejs(['jsonp', 'exceptions'], function(JSONP, Exceptions) {
       trak.io._protocol = 'https';
       trak.io._host = 'api.trak.io';
       trak.io._current_context = false;
-      trak.io._medium = false;
+      trak.io._channel = false;
       return trak.io._distinct_id = null;
     });
     describe('#call', function() {
@@ -223,13 +223,13 @@ requirejs(['jsonp', 'exceptions'], function(JSONP, Exceptions) {
       beforeEach(function() {
         sinon.stub(trak.io, "distinct_id").returns('distinct_id_value');
         sinon.stub(trak.io, "api_token").returns('api_token_value');
-        sinon.stub(trak.io, "medium").returns('medium_value');
+        sinon.stub(trak.io, "channel").returns('channel_value');
         return sinon.stub(trak.io, "context").returns('context_value');
       });
       afterEach(function() {
         trak.io.distinct_id.restore();
         trak.io.api_token.restore();
-        trak.io.medium.restore();
+        trak.io.channel.restore();
         return trak.io.context.restore();
       });
       it("returns default params for alias", function() {
@@ -258,7 +258,7 @@ requirejs(['jsonp', 'exceptions'], function(JSONP, Exceptions) {
             distinct_id: 'distinct_id_value',
             time: new Date(),
             properties: {},
-            medium: 'medium_value',
+            channel: 'channel_value',
             context: 'context_value'
           }
         });
