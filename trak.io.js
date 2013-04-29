@@ -3373,6 +3373,7 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
     Trak.prototype.initialize = function(_api_token, options) {
       this._api_token = _api_token;
       if (options == null) options = {};
+      cookie.defaults.domain = this.get_cookie_domain();
       this.protocol(options.protocol);
       if (options.host) this.host(options.host);
       if (options.context) this.context(options.context);
@@ -3569,6 +3570,13 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
         v = c === 'x' ? r : r & 0x3 | 0x8;
         return v.toString(16);
       });
+    };
+
+    Trak.prototype.get_cookie_domain = function() {
+      var matches;
+      if (matches = document.location.hostname.match(/[a-z0-9]+\.[a-z0-9]+$/i)) {
+        return "." + matches[0];
+      }
     };
 
     Trak.prototype.set_cookie = function(key, value) {

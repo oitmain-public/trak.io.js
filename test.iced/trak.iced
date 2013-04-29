@@ -1,7 +1,7 @@
 requirejs ['trak','cookie'], (Trak, cookie) ->
 
 
-  describe.only 'Trak', ->
+  describe 'Trak', ->
 
 
     afterEach ->
@@ -47,7 +47,7 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
         trak.io.current_context().should.eql {}
         trak.io.channel().should.equal 'web_site'
 
-      it.only "calls #page_view", ->
+      it "calls #page_view", ->
         sinon.stub(trak.io, 'track')
         sinon.stub(trak.io, 'url').returns('page_url')
         sinon.stub(trak.io, 'page_title').returns('A page title')

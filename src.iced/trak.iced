@@ -6,6 +6,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       this.io = this
 
     initialize: (@_api_token, options = {}) ->
+      cookie.defaults.domain = this.get_cookie_domain()
       this.protocol(options.protocol)
       this.host(options.host) if options.host
       this.context(options.context) if options.context
@@ -156,6 +157,10 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
           r = Math.random()*16|0
           v = if c == 'x' then r else (r&0x3|0x8)
           v.toString(16);
+
+    get_cookie_domain: () ->
+      if matches = document.location.hostname.match(/[a-z0-9]+\.[a-z0-9]+$/i)
+        "."+matches[0]
 
     set_cookie: (key, value) ->
       cookie.set(this.cookie_key(key), value)
