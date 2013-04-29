@@ -25,76 +25,55 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
     call: () ->
       this.jsonp.call.apply this.jsonp, arguments
 
-    identify: (a1, a2) ->
+    identify: () ->
 
-      if _.isString(a1)
-        distinct_id = a1
-        properties = a2
-        this.distinct_id(distinct_id)
-      else
-        properties = a1
+      args = this.sort_arguments(arguments, ['string', 'object', 'function'])
+      distinct_id = args[0] || this.distinct_id()
+      properties = args[1] || {}
+      callback = args[2] || null
 
-      properties = {} unless properties
-      distinct_id = this.distinct_id() unless distinct_id
-
-      this.call 'identify', { distinct_id: distinct_id, data: { properties: properties }}
+      this.distinct_id(distinct_id)
+      this.call 'identify', { distinct_id: distinct_id, data: { properties: properties }}, callback
       null
 
 
-    alias: (a1, a2) ->
-
-      if _.isString(a1) and _.isString(a2)
-        distinct_id = a1
-        alias = a2
-        update_distinct = false
-      else if _.isString(a1) and _.isBoolean(a2)
-        distinct_id = this.distinct_id()
-        alias = a1
-        update_distinct = false
-      else
-        distinct_id = this.distinct_id()
-        alias = a1
-        update_distinct = true
+    alias: () ->
+      args = this.sort_arguments(arguments, ['string', 'string', 'boolean', 'function'])
+      distinct_id = (if args[1] then args[0]) || this.distinct_id()
+      alias = if args[1] then args[1] else args[0]
+      update_distinct = if args[2] != null then args[2] else (if args[1] then false else true)
+      callback = args[3] || null
 
       unless alias
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an alias, see http://docs.trak.io/alias.html')
 
-      this.call 'alias', { data: { distinct_id: distinct_id, alias: alias }}
+      this.call 'alias', { data: { distinct_id: distinct_id, alias: alias }}, callback
       this.distinct_id(alias) if update_distinct
       null
 
-    track: (a1, a2, a3, a4, a5) ->
-
-      if _.isString(a1) and (_.isObject(a2) || _.isUndefined(a2))
-        event = a1
-        properties = a2
-        context = a3
-      else if _.isString(a1) and _.isString(a2) and (_.isObject(a3) || _.isUndefined(a3))
-        event = a1
-        channel = a2
-        properties = a3
-        context = a4
-      else if _.isString(a1) and _.isString(a2) and _.isString(a3)
-        distinct_id = a1
-        event = a2
-        channel = a3
-        properties = a4
-        context = a5
-
-      distinct_id = this.distinct_id() unless distinct_id
-      context = {} unless context
-      _.merge context, this.context()
-      channel = this.channel() unless channel
-      properties = {} unless properties
+    track: () ->
+      args = this.sort_arguments(arguments, ['string', 'string', 'string', 'object', 'object', 'function'])
+      distinct_id = (if args[2] then arguments[0]) || this.distinct_id()
+      event = (if args[2] then args[1] else args[0])
+      channel = (if args[2] then args[2] else args[1]) ||  this.channel()
+      properties = args[3] || {}
+      context = args[4] || {}
+      context = _.merge context, this.context()
+      callback = args[5] || null
 
       unless event
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an event to track, see http://docs.trak.io/track.html')
 
-      this.call 'track', { data: { distinct_id: distinct_id, event: event, channel: channel, context: context, properties: properties }}
+      this.call 'track', { data: { distinct_id: distinct_id, event: event, channel: channel, context: context, properties: properties }}, callback
       null
 
-    page_view: (url=this.url(), title=this.page_title()) ->
-      this.track 'page_view', { url: url, page_title: title }
+    page_view: () ->
+      args = this.sort_arguments(arguments, ['string', 'string', 'function'])
+      url = args[0] || this.url()
+      title = args[1] || this.page_title()
+      callback = args[2] || null
+
+      this.track 'page_view', { url: url, page_title: title }, callback
 
     _protocol: 'https'
     protocol: (value)->
@@ -186,3 +165,16 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
 
     cookie_key: (key)->
       "_trak_#{this.api_token()}_#{key}"
+
+    sort_arguments: (values, types) ->
+      values = Array.prototype.slice.call(values)
+      r = []
+      value = values.shift()
+      for type in types
+        if type == typeof value
+          r.push value
+          value = values.shift()
+        else
+          r.push null
+      r
+

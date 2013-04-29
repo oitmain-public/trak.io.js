@@ -27,11 +27,16 @@ requirejs(['jsonp', 'exceptions'], function(JSONP, Exceptions) {
     });
     describe('#callback', function() {
       it("does nothing when request is a success", function() {
-        return expect(function() {
+        var callback;
+        callback = sinon.spy();
+        expect(function() {
           return jsonp.callback({
             status: 'success'
-          });
+          }, callback);
         }).to.not["throw"](Error);
+        return callback.should.have.been.calledWith({
+          status: 'success'
+        });
       });
       it("raises a DataObjectInvalid exception", function() {
         return expect(function() {

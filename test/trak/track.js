@@ -36,7 +36,7 @@ requirejs(['exceptions'], function(Exceptions) {
             },
             properties: {}
           }
-        });
+        }, null);
       });
     });
     describe('#track(event, properties)', function() {
@@ -56,7 +56,7 @@ requirejs(['exceptions'], function(Exceptions) {
             },
             properties: properties
           }
-        });
+        }, null);
       });
     });
     describe('#track(event, properties, context)', function() {
@@ -80,7 +80,7 @@ requirejs(['exceptions'], function(Exceptions) {
             },
             properties: properties
           }
-        });
+        }, null);
       });
       return it("doesn't change trak.io.context()", function() {
         var context, properties;
@@ -107,7 +107,7 @@ requirejs(['exceptions'], function(Exceptions) {
             },
             properties: {}
           }
-        });
+        }, null);
       });
     });
     describe('#track(event, channel, properties)', function() {
@@ -127,7 +127,7 @@ requirejs(['exceptions'], function(Exceptions) {
             },
             properties: properties
           }
-        });
+        }, null);
       });
       return it("doesn't change trak.io.channel()", function() {
         var properties;
@@ -159,7 +159,7 @@ requirejs(['exceptions'], function(Exceptions) {
             },
             properties: properties
           }
-        });
+        }, null);
       });
       it("doesn't change trak.io.context()", function() {
         var context, properties;
@@ -197,7 +197,7 @@ requirejs(['exceptions'], function(Exceptions) {
             },
             properties: {}
           }
-        });
+        }, null);
       });
       it("doesn't change trak.io.distinct_id()", function() {
         trak.io.track('my_distinct_id', 'my_event', 'my_channel');
@@ -225,7 +225,7 @@ requirejs(['exceptions'], function(Exceptions) {
             },
             properties: properties
           }
-        });
+        }, null);
       });
       it("doesn't change trak.io.distinct_id()", function() {
         var properties;
@@ -265,7 +265,7 @@ requirejs(['exceptions'], function(Exceptions) {
             },
             properties: properties
           }
-        });
+        }, null);
       });
       it("doesn't change trak.io.distinct_id()", function() {
         var context, properties;

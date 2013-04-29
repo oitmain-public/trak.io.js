@@ -28,9 +28,11 @@ requirejs ['jsonp','exceptions'], (JSONP, Exceptions) ->
     describe '#callback', ->
 
       it "does nothing when request is a success", ->
+        callback = sinon.spy()
         expect(->
-          jsonp.callback({status: 'success'})
+          jsonp.callback({status: 'success'}, callback)
         ).to.not.throw(Error)
+        callback.should.have.been.calledWith({status: 'success'})
 
       it "raises a DataObjectInvalid exception", ->
         expect(->

@@ -8,8 +8,8 @@ define(['exceptions', 'json2'], function(Exceptions, JSON) {
 
     JSONP.prototype.count = 0;
 
-    JSONP.prototype.call = function(endpoint, params) {
-      return this.jsonp(this.url(endpoint, params));
+    JSONP.prototype.call = function(endpoint, params, callback) {
+      return this.jsonp(this.url(endpoint, params), callback);
     };
 
     JSONP.prototype.url = function(endpoint, params) {
@@ -70,9 +70,11 @@ define(['exceptions', 'json2'], function(Exceptions, JSON) {
       }
     };
 
-    JSONP.prototype.callback = function(data) {
+    JSONP.prototype.callback = function(data, callback) {
       var exception_class;
-      if (data && data.status && data.status === 'success') {} else if (data.exception && (exception_class = Exceptions[data.exception.match(/\:\:([a-zA-Z0-9]+)$/)[1]])) {
+      if (data && data.status && data.status === 'success') {
+        if (callback) return callback(data);
+      } else if (data.exception && (exception_class = Exceptions[data.exception.match(/\:\:([a-zA-Z0-9]+)$/)[1]])) {
         throw new exception_class(data.message, data.code, data.details, data);
       } else {
         throw new Exceptions.Unknown(data.message, data.code, data.details, data);
@@ -81,7 +83,7 @@ define(['exceptions', 'json2'], function(Exceptions, JSON) {
 
     JSONP.prototype.noop = function() {};
 
-    JSONP.prototype.jsonp = function(url) {
+    JSONP.prototype.jsonp = function(url, callback) {
       var cleanup, id, me, script, target, timeout, timer;
       timeout = 10000;
       target = document.getElementsByTagName('script')[0];
@@ -107,7 +109,7 @@ define(['exceptions', 'json2'], function(Exceptions, JSON) {
       window['__trak' + id] = function(data) {
         if (timer) clearTimeout(timer);
         cleanup();
-        return me.callback(data);
+        return me.callback(data, callback);
       };
       url += (~url.indexOf('?') ? '&' : '?') + 'callback=' + encodeURIComponent('__trak' + id + '');
       url = url.replace('?&', '?');

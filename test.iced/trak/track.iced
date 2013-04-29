@@ -25,7 +25,7 @@ requirejs ['exceptions'], (Exceptions) ->
 
       it "calls #call", ->
         trak.io.track('my_event')
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'default_channel', context: { default: 'context'}, properties: {}}})
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'default_channel', context: { default: 'context'}, properties: {}}}, null)
 
 
     describe '#track(event, properties)', ->
@@ -33,7 +33,7 @@ requirejs ['exceptions'], (Exceptions) ->
       it "calls #call", ->
         properties = {foo: 'bar'}
         trak.io.track('my_event', properties)
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'default_channel', context: { default: 'context'}, properties: properties}})
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'default_channel', context: { default: 'context'}, properties: properties}}, null)
 
 
     describe '#track(event, properties, context)', ->
@@ -42,7 +42,7 @@ requirejs ['exceptions'], (Exceptions) ->
         properties = {my: 'properties'}
         context = {my: 'context'}
         trak.io.track('my_event', properties, context)
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'default_channel', context: {default: 'context', my: 'context'}, properties: properties}})
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'default_channel', context: {default: 'context', my: 'context'}, properties: properties}}, null)
 
       it "doesn't change trak.io.context()", ->
         properties = {my: 'properties'}
@@ -54,7 +54,7 @@ requirejs ['exceptions'], (Exceptions) ->
 
       it "calls #call", ->
         trak.io.track('my_event', 'my_channel')
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context'}, properties: {}}})
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context'}, properties: {}}}, null)
 
 
     describe '#track(event, channel, properties)', ->
@@ -62,7 +62,7 @@ requirejs ['exceptions'], (Exceptions) ->
       it "calls #call", ->
         properties = {foo: 'bar'}
         trak.io.track('my_event', 'my_channel', properties)
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context'}, properties: properties}})
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context'}, properties: properties}}, null)
 
       it "doesn't change trak.io.channel()", ->
         properties = {foo: 'bar'}
@@ -75,7 +75,7 @@ requirejs ['exceptions'], (Exceptions) ->
         properties = {my: 'properties'}
         context = {my: 'context'}
         trak.io.track('my_event', 'my_channel', properties, context)
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context', my: 'context'}, properties: properties}})
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context', my: 'context'}, properties: properties}}, null)
 
       it "doesn't change trak.io.context()", ->
         properties = {my: 'properties'}
@@ -94,7 +94,7 @@ requirejs ['exceptions'], (Exceptions) ->
 
       it "calls #call", ->
         trak.io.track('my_distinct_id', 'my_event', 'my_channel')
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'my_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context'}, properties: {}}})
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'my_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context'}, properties: {}}}, null)
 
       it "doesn't change trak.io.distinct_id()", ->
         trak.io.track('my_distinct_id', 'my_event', 'my_channel')
@@ -110,7 +110,7 @@ requirejs ['exceptions'], (Exceptions) ->
       it "calls #call", ->
         properties = {my: 'properties'}
         trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties)
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'my_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context'}, properties: properties}})
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'my_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context'}, properties: properties}}, null)
 
       it "doesn't change trak.io.distinct_id()", ->
         properties = {my: 'properties'}
@@ -129,7 +129,7 @@ requirejs ['exceptions'], (Exceptions) ->
         properties = {my: 'properties'}
         context = {my: 'context'}
         trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context)
-        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'my_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context', my: 'context'}, properties: properties}})
+        trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'my_distinct_id', event: 'my_event', channel: 'my_channel', context: {default: 'context', my: 'context'}, properties: properties}}, null)
 
       it "doesn't change trak.io.distinct_id()", ->
         properties = {my: 'properties'}

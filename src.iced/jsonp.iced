@@ -4,8 +4,8 @@ define ['exceptions','json2'], (Exceptions, JSON) ->
 
     count: 0
 
-    call: (endpoint, params) ->
-      this.jsonp(this.url(endpoint, params))
+    call: (endpoint, params, callback) ->
+      this.jsonp(this.url(endpoint, params), callback)
 
     url: (endpoint, params) ->
       trak.io.protocol()+trak.io.host()+'/'+endpoint+this.params(endpoint, params)
@@ -38,9 +38,9 @@ define ['exceptions','json2'], (Exceptions, JSON) ->
           {}
 
 
-    callback: (data) ->
+    callback: (data, callback) ->
       if data and data.status and data.status == 'success'
-        # Do nothing
+        callback data if callback
       else if data.exception and exception_class = Exceptions[data.exception.match(/\:\:([a-zA-Z0-9]+)$/)[1]]
         throw new exception_class(data.message, data.code, data.details, data)
       else
@@ -49,7 +49,7 @@ define ['exceptions','json2'], (Exceptions, JSON) ->
     noop: () ->
       # Nothing
 
-    jsonp: (url) ->
+    jsonp: (url, callback) ->
 
       timeout = 10000
       target = document.getElementsByTagName('script')[0]
@@ -74,7 +74,7 @@ define ['exceptions','json2'], (Exceptions, JSON) ->
       window['__trak' + id] = (data) ->
         clearTimeout timer if timer
         cleanup()
-        me.callback data
+        me.callback data, callback
 
       # add qs component
       url += (if ~url.indexOf('?') then '&' else '?') + 'callback=' + encodeURIComponent('__trak' + id + '');

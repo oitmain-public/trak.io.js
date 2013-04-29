@@ -1140,8 +1140,8 @@ define('jsonp',['exceptions', 'json2'], function(Exceptions, JSON) {
 
     JSONP.prototype.count = 0;
 
-    JSONP.prototype.call = function(endpoint, params) {
-      return this.jsonp(this.url(endpoint, params));
+    JSONP.prototype.call = function(endpoint, params, callback) {
+      return this.jsonp(this.url(endpoint, params), callback);
     };
 
     JSONP.prototype.url = function(endpoint, params) {
@@ -1202,9 +1202,11 @@ define('jsonp',['exceptions', 'json2'], function(Exceptions, JSON) {
       }
     };
 
-    JSONP.prototype.callback = function(data) {
+    JSONP.prototype.callback = function(data, callback) {
       var exception_class;
-      if (data && data.status && data.status === 'success') {} else if (data.exception && (exception_class = Exceptions[data.exception.match(/\:\:([a-zA-Z0-9]+)$/)[1]])) {
+      if (data && data.status && data.status === 'success') {
+        if (callback) return callback(data);
+      } else if (data.exception && (exception_class = Exceptions[data.exception.match(/\:\:([a-zA-Z0-9]+)$/)[1]])) {
         throw new exception_class(data.message, data.code, data.details, data);
       } else {
         throw new Exceptions.Unknown(data.message, data.code, data.details, data);
@@ -1213,7 +1215,7 @@ define('jsonp',['exceptions', 'json2'], function(Exceptions, JSON) {
 
     JSONP.prototype.noop = function() {};
 
-    JSONP.prototype.jsonp = function(url) {
+    JSONP.prototype.jsonp = function(url, callback) {
       var cleanup, id, me, script, target, timeout, timer;
       timeout = 10000;
       target = document.getElementsByTagName('script')[0];
@@ -1239,7 +1241,7 @@ define('jsonp',['exceptions', 'json2'], function(Exceptions, JSON) {
       window['__trak' + id] = function(data) {
         if (timer) clearTimeout(timer);
         cleanup();
-        return me.callback(data);
+        return me.callback(data, callback);
       };
       url += (~url.indexOf('?') ? '&' : '?') + 'callback=' + encodeURIComponent('__trak' + id + '');
       url = url.replace('?&', '?');
@@ -3389,41 +3391,29 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
       return this.jsonp.call.apply(this.jsonp, arguments);
     };
 
-    Trak.prototype.identify = function(a1, a2) {
-      var distinct_id, properties;
-      if (_.isString(a1)) {
-        distinct_id = a1;
-        properties = a2;
-        this.distinct_id(distinct_id);
-      } else {
-        properties = a1;
-      }
-      if (!properties) properties = {};
-      if (!distinct_id) distinct_id = this.distinct_id();
+    Trak.prototype.identify = function() {
+      var args, callback, distinct_id, properties;
+      args = this.sort_arguments(arguments, ['string', 'object', 'function']);
+      distinct_id = args[0] || this.distinct_id();
+      properties = args[1] || {};
+      callback = args[2] || null;
+      this.distinct_id(distinct_id);
       this.call('identify', {
         distinct_id: distinct_id,
         data: {
           properties: properties
         }
-      });
+      }, callback);
       return null;
     };
 
-    Trak.prototype.alias = function(a1, a2) {
-      var alias, distinct_id, update_distinct;
-      if (_.isString(a1) && _.isString(a2)) {
-        distinct_id = a1;
-        alias = a2;
-        update_distinct = false;
-      } else if (_.isString(a1) && _.isBoolean(a2)) {
-        distinct_id = this.distinct_id();
-        alias = a1;
-        update_distinct = false;
-      } else {
-        distinct_id = this.distinct_id();
-        alias = a1;
-        update_distinct = true;
-      }
+    Trak.prototype.alias = function() {
+      var alias, args, callback, distinct_id, update_distinct;
+      args = this.sort_arguments(arguments, ['string', 'string', 'boolean', 'function']);
+      distinct_id = (args[1] ? args[0] : void 0) || this.distinct_id();
+      alias = args[1] ? args[1] : args[0];
+      update_distinct = args[2] !== null ? args[2] : (args[1] ? false : true);
+      callback = args[3] || null;
       if (!alias) {
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an alias, see http://docs.trak.io/alias.html');
       }
@@ -3432,34 +3422,21 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
           distinct_id: distinct_id,
           alias: alias
         }
-      });
+      }, callback);
       if (update_distinct) this.distinct_id(alias);
       return null;
     };
 
-    Trak.prototype.track = function(a1, a2, a3, a4, a5) {
-      var channel, context, distinct_id, event, properties;
-      if (_.isString(a1) && (_.isObject(a2) || _.isUndefined(a2))) {
-        event = a1;
-        properties = a2;
-        context = a3;
-      } else if (_.isString(a1) && _.isString(a2) && (_.isObject(a3) || _.isUndefined(a3))) {
-        event = a1;
-        channel = a2;
-        properties = a3;
-        context = a4;
-      } else if (_.isString(a1) && _.isString(a2) && _.isString(a3)) {
-        distinct_id = a1;
-        event = a2;
-        channel = a3;
-        properties = a4;
-        context = a5;
-      }
-      if (!distinct_id) distinct_id = this.distinct_id();
-      if (!context) context = {};
-      _.merge(context, this.context());
-      if (!channel) channel = this.channel();
-      if (!properties) properties = {};
+    Trak.prototype.track = function() {
+      var args, callback, channel, context, distinct_id, event, properties;
+      args = this.sort_arguments(arguments, ['string', 'string', 'string', 'object', 'object', 'function']);
+      distinct_id = (args[2] ? arguments[0] : void 0) || this.distinct_id();
+      event = (args[2] ? args[1] : args[0]);
+      channel = (args[2] ? args[2] : args[1]) || this.channel();
+      properties = args[3] || {};
+      context = args[4] || {};
+      context = _.merge(context, this.context());
+      callback = args[5] || null;
       if (!event) {
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an event to track, see http://docs.trak.io/track.html');
       }
@@ -3471,17 +3448,20 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
           context: context,
           properties: properties
         }
-      });
+      }, callback);
       return null;
     };
 
-    Trak.prototype.page_view = function(url, title) {
-      if (url == null) url = this.url();
-      if (title == null) title = this.page_title();
+    Trak.prototype.page_view = function() {
+      var args, callback, title, url;
+      args = this.sort_arguments(arguments, ['string', 'string', 'function']);
+      url = args[0] || this.url();
+      title = args[1] || this.page_title();
+      callback = args[2] || null;
       return this.track('page_view', {
         url: url,
         page_title: title
-      });
+      }, callback);
     };
 
     Trak.prototype._protocol = 'https';
@@ -3601,6 +3581,23 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
 
     Trak.prototype.cookie_key = function(key) {
       return "_trak_" + (this.api_token()) + "_" + key;
+    };
+
+    Trak.prototype.sort_arguments = function(values, types) {
+      var r, type, value, _i, _len;
+      values = Array.prototype.slice.call(values);
+      r = [];
+      value = values.shift();
+      for (_i = 0, _len = types.length; _i < _len; _i++) {
+        type = types[_i];
+        if (type === typeof value) {
+          r.push(value);
+          value = values.shift();
+        } else {
+          r.push(null);
+        }
+      }
+      return r;
     };
 
     return Trak;
