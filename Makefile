@@ -6,7 +6,7 @@ build: ice
 	r.js -o build.js
 
 watch:
-	watch -n -0.1 make
+	guard
 
 min: build
 	uglifyjs -mc -o trak.io.min.js trak.io.js

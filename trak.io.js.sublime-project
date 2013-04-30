@@ -4,5 +4,12 @@
 		{
 			"path": "."
 		}
-	]
+	],
+  "build_systems":
+    [
+      {
+        "name": "Open Terminal",
+        "cmd": ["osascript", "$project_path/start-iterm-env.scpt"]
+      }
+    ]
 }

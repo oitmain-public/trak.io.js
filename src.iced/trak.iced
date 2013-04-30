@@ -6,7 +6,6 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       this.io = this
 
     initialize: (@_api_token, options = {}) ->
-      cookie.defaults.domain = this.get_cookie_domain()
       this.protocol(options.protocol)
       this.host(options.host) if options.host
       this.context(options.context) if options.context
@@ -149,7 +148,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
         this._distinct_id = value
       if !this._distinct_id and !(this._distinct_id = this.get_cookie('id'))
         this._distinct_id = this.generate_distinct_id()
-      this.set_cookie('id', this._distinct_id)
+      cookie.set(this.cookie_key('id'), this._distinct_id, {domain: this.get_root_domain()})
       this._distinct_id
 
     generate_distinct_id: ->
@@ -158,7 +157,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
           v = if c == 'x' then r else (r&0x3|0x8)
           v.toString(16);
 
-    get_cookie_domain: () ->
+    get_root_domain: () ->
       if matches = document.location.hostname.match(/[a-z0-9]+\.[a-z0-9]+$/i)
         "."+matches[0]
 

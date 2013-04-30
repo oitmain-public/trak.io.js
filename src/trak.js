@@ -11,7 +11,6 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
     Trak.prototype.initialize = function(_api_token, options) {
       this._api_token = _api_token;
       if (options == null) options = {};
-      cookie.defaults.domain = this.get_cookie_domain();
       this.protocol(options.protocol);
       if (options.host) this.host(options.host);
       if (options.context) this.context(options.context);
@@ -197,7 +196,9 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       if (!this._distinct_id && !(this._distinct_id = this.get_cookie('id'))) {
         this._distinct_id = this.generate_distinct_id();
       }
-      this.set_cookie('id', this._distinct_id);
+      cookie.set(this.cookie_key('id'), this._distinct_id, {
+        domain: this.get_root_domain()
+      });
       return this._distinct_id;
     };
 
@@ -210,7 +211,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       });
     };
 
-    Trak.prototype.get_cookie_domain = function() {
+    Trak.prototype.get_root_domain = function() {
       var matches;
       if (matches = document.location.hostname.match(/[a-z0-9]+\.[a-z0-9]+$/i)) {
         return "." + matches[0];
