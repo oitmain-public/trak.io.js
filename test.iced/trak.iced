@@ -5,7 +5,9 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
 
 
     afterEach ->
-      cookie.empty()
+      cookie.empty() # Only empties for the current domain
+      for key in cookie.utils.getKeys(cookie.all())
+        cookie.set key, '', { domain: '.lvh.me' }
       trak.io._protocol = 'https'
       trak.io._host = 'api.trak.io'
       trak.io._current_context = false
@@ -45,7 +47,7 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
         trak.io.protocol().should.equal 'https://'
         trak.io.host().should.equal 'api.trak.io'
         trak.io.current_context().should.eql {}
-        trak.io.channel().should.equal 'web_site'
+        trak.io.channel().should.equal window.location.hostname
 
       it "calls #page_view", ->
         sinon.stub(trak.io, 'track')
@@ -200,8 +202,8 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
 
     describe '#channel', ()->
 
-      it "returns 'web_site' by default", ->
-        trak.io.channel().should.equal 'web_site'
+      it "returns the current hostname by default", ->
+        trak.io.channel().should.equal window.location.hostname
 
       it "returns provided value if set", ->
         trak.io.channel('custom_channel').should.equal 'custom_channel'

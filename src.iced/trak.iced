@@ -132,7 +132,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
     _channel: false
     channel: (value)->
       if !this._channel and !(this._channel = this.get_cookie('channel'))
-        this._channel = 'web_site'
+        this._channel = document.location.hostname || 'web_site'
       if value
         this._channel = value
         this.set_cookie('channel', value)

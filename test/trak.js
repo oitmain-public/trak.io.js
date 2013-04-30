@@ -3,7 +3,15 @@
 requirejs(['trak', 'cookie'], function(Trak, cookie) {
   return describe('Trak', function() {
     afterEach(function() {
+      var key, _i, _len, _ref;
       cookie.empty();
+      _ref = cookie.utils.getKeys(cookie.all());
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        key = _ref[_i];
+        cookie.set(key, '', {
+          domain: '.lvh.me'
+        });
+      }
       trak.io._protocol = 'https';
       trak.io._host = 'api.trak.io';
       trak.io._current_context = false;
@@ -56,7 +64,7 @@ requirejs(['trak', 'cookie'], function(Trak, cookie) {
         trak.io.protocol().should.equal('https://');
         trak.io.host().should.equal('api.trak.io');
         trak.io.current_context().should.eql({});
-        return trak.io.channel().should.equal('web_site');
+        return trak.io.channel().should.equal(window.location.hostname);
       });
       it("calls #page_view", function() {
         sinon.stub(trak.io, 'track');
@@ -236,8 +244,8 @@ requirejs(['trak', 'cookie'], function(Trak, cookie) {
       });
     });
     return describe('#channel', function() {
-      it("returns 'web_site' by default", function() {
-        return trak.io.channel().should.equal('web_site');
+      it("returns the current hostname by default", function() {
+        return trak.io.channel().should.equal(window.location.hostname);
       });
       it("returns provided value if set", function() {
         trak.io.channel('custom_channel').should.equal('custom_channel');
