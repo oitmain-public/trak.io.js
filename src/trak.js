@@ -9,6 +9,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
     }
 
     Trak.prototype.initialize = function(_api_token, options) {
+      var me;
       this._api_token = _api_token;
       if (options == null) options = {};
       this.protocol(options.protocol);
@@ -16,11 +17,52 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       if (options.context) this.context(options.context);
       if (options.channel) this.channel(options.channel);
       this.distinct_id(options.distinct_id || null);
-      if (options.track_page_views !== false) return this.page_view();
+      if (options.track_page_views !== false) {
+        me = this;
+        return this.page_ready(function() {
+          return me.page_view();
+        });
+      }
     };
 
     Trak.prototype.initialise = function() {
       return this.initialize.apply(this, arguments);
+    };
+
+    Trak.prototype.page_ready_event_fired = false;
+
+    Trak.prototype.page_ready = function(fn) {
+      var do_scroll_check, idempotent_fn, toplevel;
+      idempotent_fn = function() {
+        if (this.page_ready_event_fired) return;
+        this.page_ready_event_fired = true;
+        return fn();
+      };
+      do_scroll_check = function() {
+        if (this.page_ready_event_fired) return;
+        try {
+          document.documentElement.doScroll("left");
+        } catch (e) {
+          setTimeout(do_scroll_check, 1);
+          return;
+        }
+        return idempotent_fn();
+      };
+      if (document.readyState === "complete") return idempotent_fn();
+      if (document.addEventListener) {
+        document.addEventListener("DOMContentLoaded", idempotent_fn, false);
+        return window.addEventListener("load", idempotent_fn, false);
+      } else if (document.attachEvent) {
+        document.attachEvent("onreadystatechange", idempotent_fn);
+        window.attachEvent("onload", idempotent_fn);
+        toplevel = false;
+        try {
+          toplevel = window.frameElement == null;
+        } catch (_error) {}
+        if (document.documentElement.doScroll && toplevel) {
+          return do_scroll_check();
+        }
+      }
     };
 
     Trak.prototype.jsonp = new JSONP();

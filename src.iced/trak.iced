@@ -13,11 +13,66 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       this.distinct_id(options.distinct_id || null)
 
       if options.track_page_views != false
-        this.page_view()
+        me = this
+        this.page_ready ->
+          me.page_view()
 
 
     initialise: ()->
       this.initialize.apply this, arguments
+
+    page_ready_event_fired: false
+    page_ready: (fn) ->
+
+      # Create an idempotent version of the 'fn' function
+      idempotent_fn = ->
+        return  if @page_ready_event_fired
+        @page_ready_event_fired = true
+        fn()
+
+
+      # The DOM ready check for Internet Explorer
+      do_scroll_check = ->
+        return  if @page_ready_event_fired
+
+        # If IE is used, use the trick by Diego Perini
+        # http://javascript.nwbox.com/IEContentLoaded/
+        try
+          document.documentElement.doScroll "left"
+        catch e
+          setTimeout do_scroll_check, 1
+          return
+
+        # Execute any waiting functions
+        idempotent_fn()
+
+
+      # If the browser ready event has already occured
+      return idempotent_fn()  if document.readyState is "complete"
+
+      # Mozilla, Opera and webkit nightlies currently support this event
+      if document.addEventListener
+
+        # Use the handy event callback
+        document.addEventListener "DOMContentLoaded", idempotent_fn, false
+
+        # A fallback to window.onload, that will always work
+        window.addEventListener "load", idempotent_fn, false
+
+      # If IE event model is used
+      else if document.attachEvent
+
+        # ensure firing before onload; maybe late but safe also for iframes
+        document.attachEvent "onreadystatechange", idempotent_fn
+
+        # A fallback to window.onload, that will always work
+        window.attachEvent "onload", idempotent_fn
+
+        # If IE and not a frame: continually check to see if the document is ready
+        toplevel = false
+        try
+          toplevel = not window.frameElement?
+        do_scroll_check()  if document.documentElement.doScroll and toplevel
 
 
     jsonp: new JSONP()

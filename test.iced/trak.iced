@@ -50,22 +50,22 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
         trak.io.channel().should.equal window.location.hostname
 
       it "calls #page_view", ->
-        sinon.stub(trak.io, 'track')
+        sinon.stub(trak.io, 'page_ready')
         sinon.stub(trak.io, 'url').returns('page_url')
         sinon.stub(trak.io, 'page_title').returns('A page title')
         trak.io.initialize('api_token_value')
-        trak.io.track.should.have.been.calledWith('page_view', { url: 'page_url', page_title: 'A page title' })
-        trak.io.track.restore()
+        trak.io.page_ready.should.have.been.called
+        trak.io.page_ready.restore()
         trak.io.page_title.restore()
         trak.io.url.restore()
 
       it "doesn't call #page_view if track_page_views", ->
-        sinon.stub(trak.io, 'track')
+        sinon.stub(trak.io, 'page_ready')
         sinon.stub(trak.io, 'url').returns('page_url')
         sinon.stub(trak.io, 'page_title').returns('A page title')
         trak.io.initialize('api_token_value', { track_page_views: false })
-        trak.io.track.should.not.have.been.called
-        trak.io.track.restore()
+        trak.io.page_ready.should.not.have.been.called
+        trak.io.page_ready.restore()
         trak.io.page_title.restore()
         trak.io.url.restore()
 
