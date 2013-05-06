@@ -3379,7 +3379,7 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
       if (options.context) this.context(options.context);
       if (options.channel) this.channel(options.channel);
       this.distinct_id(options.distinct_id || null);
-      if (options.track_page_views !== false) {
+      if (options.auto_track_page_views !== false) {
         me = this;
         return this.page_ready(function() {
           return me.page_view();

@@ -76,12 +76,12 @@ requirejs(['trak', 'cookie'], function(Trak, cookie) {
         trak.io.page_title.restore();
         return trak.io.url.restore();
       });
-      return it("doesn't call #page_view if track_page_views", function() {
+      return it("doesn't call #page_view if auto_track_page_views", function() {
         sinon.stub(trak.io, 'page_ready');
         sinon.stub(trak.io, 'url').returns('page_url');
         sinon.stub(trak.io, 'page_title').returns('A page title');
         trak.io.initialize('api_token_value', {
-          track_page_views: false
+          auto_track_page_views: false
         });
         trak.io.page_ready.should.not.have.been.called;
         trak.io.page_ready.restore();

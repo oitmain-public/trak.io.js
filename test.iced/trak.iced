@@ -59,11 +59,11 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
         trak.io.page_title.restore()
         trak.io.url.restore()
 
-      it "doesn't call #page_view if track_page_views", ->
+      it "doesn't call #page_view if auto_track_page_views", ->
         sinon.stub(trak.io, 'page_ready')
         sinon.stub(trak.io, 'url').returns('page_url')
         sinon.stub(trak.io, 'page_title').returns('A page title')
-        trak.io.initialize('api_token_value', { track_page_views: false })
+        trak.io.initialize('api_token_value', { auto_track_page_views: false })
         trak.io.page_ready.should.not.have.been.called
         trak.io.page_ready.restore()
         trak.io.page_title.restore()

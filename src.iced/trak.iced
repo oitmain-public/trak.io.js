@@ -12,7 +12,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       this.channel(options.channel) if options.channel
       this.distinct_id(options.distinct_id || null)
 
-      if options.track_page_views != false
+      if options.auto_track_page_views != false
         me = this
         this.page_ready ->
           me.page_view()
