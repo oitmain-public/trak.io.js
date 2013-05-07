@@ -45,7 +45,7 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
         trak = new Trak()
         trak.io.initialize('api_token_value')
         trak.io.protocol().should.equal 'https://'
-        trak.io.host().should.equal 'api.trak.io'
+        trak.io.host().should.equal 'api.trak.io/v1'
         trak.io.current_context().should.eql {}
         trak.io.channel().should.equal window.location.hostname
 

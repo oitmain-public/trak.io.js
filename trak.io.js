@@ -3513,7 +3513,7 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
       return "" + this._protocol + "://";
     };
 
-    Trak.prototype._host = 'api.trak.io';
+    Trak.prototype._host = 'api.trak.io/v1';
 
     Trak.prototype.host = function(value) {
       if (value) this._host = value;

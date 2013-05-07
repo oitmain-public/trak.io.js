@@ -135,7 +135,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       this._protocol = value if value
       "#{this._protocol}://"
 
-    _host: 'api.trak.io'
+    _host: 'api.trak.io/v1'
     host: (value)->
       this._host = value if value
       this._host
