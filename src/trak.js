@@ -212,6 +212,17 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       return document.title;
     };
 
+    Trak.prototype.url_params = function() {
+      return window.location.search;
+    };
+
+    Trak.prototype.get_distinct_id_url_param = function() {
+      var matches;
+      if ((matches = this.url_params().match(/\?.*trak_distinct_id\=([^&]+).*/))) {
+        return decodeURIComponent(matches[1]);
+      }
+    };
+
     Trak.prototype._channel = false;
 
     Trak.prototype.channel = function(value) {
@@ -235,7 +246,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
 
     Trak.prototype.distinct_id = function(value) {
       if (value) this._distinct_id = value;
-      if (!this._distinct_id && !(this._distinct_id = this.get_cookie('id'))) {
+      if (!this._distinct_id && !(this._distinct_id = this.get_distinct_id_url_param()) && !(this._distinct_id = this.get_cookie('id'))) {
         this._distinct_id = this.generate_distinct_id();
       }
       cookie.set(this.cookie_key('id'), this._distinct_id, {

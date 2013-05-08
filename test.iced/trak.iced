@@ -116,7 +116,6 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
         trak.io.initialize 'my_api_token'
         trak.io.api_token().should.equal 'my_api_token'
 
-
     describe '#distinct_id', ->
 
       it "generates custom distinct_id if non provided", ->
@@ -133,6 +132,10 @@ requirejs ['trak','cookie'], (Trak, cookie) ->
       it "gets distinct_id based on cookie", ->
         cookie.set("_trak_#{trak.io.api_token()}_id",'distinct_id_value')
         trak.io.distinct_id().should.equal 'distinct_id_value'
+
+      it "gets distinct_id from url", ->
+        sinon.stub(trak.io, 'url_params').returns('?a=a&trak_distinct_id=%7Basdfasdf%7D&b=b')
+        trak.io.distinct_id().should.equal '{asdfasdf}'
 
 
     describe '#context', ()->

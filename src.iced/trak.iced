@@ -184,6 +184,14 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
     page_title: ->
       document.title
 
+    url_params: ->
+      window.location.search
+
+    get_distinct_id_url_param: ->
+      if (matches = @url_params().match /\?.*trak_distinct_id\=([^&]+).*/)
+        decodeURIComponent(matches[1])
+
+
     _channel: false
     channel: (value)->
       if !this._channel and !(this._channel = this.get_cookie('channel'))
@@ -201,7 +209,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
     distinct_id: (value)->
       if value
         this._distinct_id = value
-      if !this._distinct_id and !(this._distinct_id = this.get_cookie('id'))
+      if !this._distinct_id and !(this._distinct_id = this.get_distinct_id_url_param()) and !(this._distinct_id = this.get_cookie('id'))
         this._distinct_id = this.generate_distinct_id()
       cookie.set(this.cookie_key('id'), this._distinct_id, {domain: this.get_root_domain()})
       this._distinct_id
