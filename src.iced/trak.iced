@@ -2,6 +2,8 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
 
   class Trak
 
+    loaded: true
+
     constructor: ->
       this.io = this
 

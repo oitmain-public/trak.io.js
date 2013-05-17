@@ -2,11 +2,11 @@
 <html>
   <head>
     <title>trak.io.js Example Page</title>
-
     <script type="text/javascript">
-      timeout = 1
+      timeout = 500
       var trak=trak||[];trak.io=trak.io||{};trak.io.load=function(e){var t=document.createElement("script");t.type="text/javascript",t.src="trak.io.js";var n=document.getElementsByTagName("script")[0];setTimeout(function(){n.parentNode.insertBefore(t,n);},timeout);var r=function(e){return function(){trak.push([e].concat(Array.prototype.slice.call(arguments,0)))}},i=["initialize","identify","track","alias","channel","source","host","protocol"];for(var s=0;s<i.length;s++) trak.io[i[s]]=r(i[s]);trak.io.initialize.apply(trak.io,arguments)};
-      trak.io.load('be0bbcc2805cb48c50f27b2ea763fa0bd7d14692', {protocol: 'http', host: 'lvh.me:3007'});
+      trak.io.load('2513f6a1eb4a20198b07c1f343499ec0f4f88e57', {protocol: 'http', host: 'lvh.me:3007/v1'});
+      trak.io.load('2513f6a1eb4a20198b07c1f343499ec0f4f88e57', {protocol: 'http', host: 'lvh.me:3007/v1'});
     </script>
 
 </head>

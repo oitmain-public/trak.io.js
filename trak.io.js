@@ -3366,6 +3366,8 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
   var Trak;
   return Trak = (function() {
 
+    Trak.prototype.loaded = true;
+
     function Trak() {
       this.io = this;
     }
@@ -3671,17 +3673,19 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
 
 define('trak.io',['trak', 'lodash', 'cookie'], function(Trak, _, cookie) {
   var item, method, queue, trak;
-  trak = new Trak();
-  queue = window.trak;
-  window.trak = trak;
-  while (queue && queue.length > 0) {
-    item = queue.shift();
-    method = item.shift();
-    if (trak.io[method]) trak.io[method].apply(trak.io, item);
+  if (!(window.trak && window.trak.loaded)) {
+    trak = new Trak();
+    queue = window.trak;
+    window.trak = trak;
+    while (queue && queue.length > 0) {
+      item = queue.shift();
+      method = item.shift();
+      if (trak.io[method]) trak.io[method].apply(trak.io, item);
+    }
+    cookie.defaults.expires = 3650;
+    cookie.defaults.path = '/';
+    return window.cookie = cookie;
   }
-  cookie.defaults.expires = 3650;
-  cookie.defaults.path = '/';
-  return window.cookie = cookie;
 });
 
 require(["trak.io"]);
