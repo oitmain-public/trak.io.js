@@ -156,13 +156,13 @@ requirejs ['jsonp','exceptions'], (JSONP, Exceptions) ->
         trak.io.context.restore();
 
       it "returns default params for alias", ->
-        jsonp.default_params('alias').should.eql({ token: 'api_token_value', data: { distinct_id: 'distinct_id_value', time: new Date() }})
+        jsonp.default_params('alias').should.eql({ token: 'api_token_value', data: { distinct_id: 'distinct_id_value' }})
 
       it "returns default params for identify", ->
-        jsonp.default_params('identify').should.eql({ token: 'api_token_value', data: { distinct_id: 'distinct_id_value', time: new Date(), properties: {} }})
+        jsonp.default_params('identify').should.eql({ token: 'api_token_value', data: { distinct_id: 'distinct_id_value', properties: {} }})
 
       it "returns default params for track", ->
-        jsonp.default_params('track').should.eql({ token: 'api_token_value', data: { distinct_id: 'distinct_id_value', time: new Date(), properties: {}, channel: 'channel_value', context: 'context_value' }})
+        jsonp.default_params('track').should.eql({ token: 'api_token_value', data: { distinct_id: 'distinct_id_value', properties: {}, channel: 'channel_value', context: 'context_value' }})
 
       it "returns empty object for unknown", ->
         jsonp.default_params('jibersih').should.eql {}

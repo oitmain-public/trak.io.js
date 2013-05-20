@@ -241,8 +241,7 @@ requirejs(['jsonp', 'exceptions'], function(JSONP, Exceptions) {
         return jsonp.default_params('alias').should.eql({
           token: 'api_token_value',
           data: {
-            distinct_id: 'distinct_id_value',
-            time: new Date()
+            distinct_id: 'distinct_id_value'
           }
         });
       });
@@ -251,7 +250,6 @@ requirejs(['jsonp', 'exceptions'], function(JSONP, Exceptions) {
           token: 'api_token_value',
           data: {
             distinct_id: 'distinct_id_value',
-            time: new Date(),
             properties: {}
           }
         });
@@ -261,7 +259,6 @@ requirejs(['jsonp', 'exceptions'], function(JSONP, Exceptions) {
           token: 'api_token_value',
           data: {
             distinct_id: 'distinct_id_value',
-            time: new Date(),
             properties: {},
             channel: 'channel_value',
             context: 'context_value'

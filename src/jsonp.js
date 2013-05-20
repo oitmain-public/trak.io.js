@@ -42,7 +42,6 @@ define(['exceptions', 'json2'], function(Exceptions, JSON) {
             token: trak.io.api_token(),
             data: {
               distinct_id: trak.io.distinct_id(),
-              time: new Date(),
               properties: {}
             }
           };
@@ -50,8 +49,7 @@ define(['exceptions', 'json2'], function(Exceptions, JSON) {
           return {
             token: trak.io.api_token(),
             data: {
-              distinct_id: trak.io.distinct_id(),
-              time: new Date()
+              distinct_id: trak.io.distinct_id()
             }
           };
         case 'track':
@@ -59,7 +57,6 @@ define(['exceptions', 'json2'], function(Exceptions, JSON) {
             token: trak.io.api_token(),
             data: {
               distinct_id: trak.io.distinct_id(),
-              time: new Date(),
               properties: {},
               channel: trak.io.channel(),
               context: trak.io.context()
