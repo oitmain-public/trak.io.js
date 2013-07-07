@@ -3627,8 +3627,12 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
 
     Trak.prototype.get_root_domain = function() {
       var matches;
-      if (matches = document.location.hostname.match(/[a-z0-9]+\.[a-z0-9]+$/i)) {
+      if (document.location.hostname.match(/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/i)) {
+        return document.location.hostname;
+      } else if (matches = document.location.hostname.match(/[a-z0-9]+\.[a-z0-9]+$/i)) {
         return "." + matches[0];
+      } else {
+        return document.location.hostname;
       }
     };
 

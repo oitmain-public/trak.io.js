@@ -223,8 +223,12 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
           v.toString(16);
 
     get_root_domain: () ->
-      if matches = document.location.hostname.match(/[a-z0-9]+\.[a-z0-9]+$/i)
+      if document.location.hostname.match(/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/i)
+        document.location.hostname
+      else if matches = document.location.hostname.match(/[a-z0-9]+\.[a-z0-9]+$/i)
         "."+matches[0]
+      else
+        document.location.hostname
 
     set_cookie: (key, value) ->
       cookie.set(this.cookie_key(key), value)
