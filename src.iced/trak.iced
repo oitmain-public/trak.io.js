@@ -115,7 +115,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       channel = (if args[2] then args[2] else args[1]) ||  this.channel()
       properties = args[3] || {}
       context = args[4] || {}
-      context = _.merge context, this.context()
+      context = _.merge this.context(), context
       callback = args[5] || null
 
       unless event

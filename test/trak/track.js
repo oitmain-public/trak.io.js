@@ -2,15 +2,16 @@
 
 requirejs(['exceptions'], function(Exceptions) {
   return describe('Trak', function() {
-    before(function() {
+    before_each(function() {
       sinon.stub(trak.io, 'call');
       sinon.stub(trak.io, 'distinct_id').returns('default_distinct_id');
       sinon.stub(trak.io, 'context').returns({
-        "default": 'context'
+        "default": 'context',
+        override: 'override'
       });
       return sinon.stub(trak.io, 'channel').returns('default_channel');
     });
-    after(function() {
+    after_each(function() {
       trak.io.call.restore();
       trak.io.distinct_id.restore();
       trak.io.context.restore();
@@ -32,7 +33,8 @@ requirejs(['exceptions'], function(Exceptions) {
             event: 'my_event',
             channel: 'default_channel',
             context: {
-              "default": 'context'
+              "default": 'context',
+              override: 'override'
             },
             properties: {}
           }
@@ -52,7 +54,8 @@ requirejs(['exceptions'], function(Exceptions) {
             event: 'my_event',
             channel: 'default_channel',
             context: {
-              "default": 'context'
+              "default": 'context',
+              override: 'override'
             },
             properties: properties
           }
@@ -66,7 +69,8 @@ requirejs(['exceptions'], function(Exceptions) {
           my: 'properties'
         };
         context = {
-          my: 'context'
+          my: 'context',
+          override: 'overriden'
         };
         trak.io.track('my_event', properties, context);
         return trak.io.call.should.have.been.calledWith('track', {
@@ -76,6 +80,7 @@ requirejs(['exceptions'], function(Exceptions) {
             channel: 'default_channel',
             context: {
               "default": 'context',
+              override: 'overriden',
               my: 'context'
             },
             properties: properties
@@ -103,7 +108,8 @@ requirejs(['exceptions'], function(Exceptions) {
             event: 'my_event',
             channel: 'my_channel',
             context: {
-              "default": 'context'
+              "default": 'context',
+              override: 'override'
             },
             properties: {}
           }
@@ -123,7 +129,8 @@ requirejs(['exceptions'], function(Exceptions) {
             event: 'my_event',
             channel: 'my_channel',
             context: {
-              "default": 'context'
+              "default": 'context',
+              override: 'override'
             },
             properties: properties
           }
@@ -145,7 +152,8 @@ requirejs(['exceptions'], function(Exceptions) {
           my: 'properties'
         };
         context = {
-          my: 'context'
+          my: 'context',
+          override: 'overriden'
         };
         trak.io.track('my_event', 'my_channel', properties, context);
         return trak.io.call.should.have.been.calledWith('track', {
@@ -155,6 +163,7 @@ requirejs(['exceptions'], function(Exceptions) {
             channel: 'my_channel',
             context: {
               "default": 'context',
+              override: 'overriden',
               my: 'context'
             },
             properties: properties
@@ -193,7 +202,8 @@ requirejs(['exceptions'], function(Exceptions) {
             event: 'my_event',
             channel: 'my_channel',
             context: {
-              "default": 'context'
+              "default": 'context',
+              override: 'override'
             },
             properties: {}
           }
@@ -221,7 +231,8 @@ requirejs(['exceptions'], function(Exceptions) {
             event: 'my_event',
             channel: 'my_channel',
             context: {
-              "default": 'context'
+              "default": 'context',
+              override: 'override'
             },
             properties: properties
           }
@@ -251,7 +262,8 @@ requirejs(['exceptions'], function(Exceptions) {
           my: 'properties'
         };
         context = {
-          my: 'context'
+          my: 'context',
+          override: 'overriden'
         };
         trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context);
         return trak.io.call.should.have.been.calledWith('track', {
@@ -261,6 +273,7 @@ requirejs(['exceptions'], function(Exceptions) {
             channel: 'my_channel',
             context: {
               "default": 'context',
+              override: 'overriden',
               my: 'context'
             },
             properties: properties

@@ -117,7 +117,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       channel = (args[2] ? args[2] : args[1]) || this.channel();
       properties = args[3] || {};
       context = args[4] || {};
-      context = _.merge(context, this.context());
+      context = _.merge(this.context(), context);
       callback = args[5] || null;
       if (!event) {
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an event to track, see http://docs.trak.io/track.html');

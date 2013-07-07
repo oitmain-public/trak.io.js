@@ -5,15 +5,16 @@ PHANTOM_OPTS = --setting web-security=false --setting local-to-remote-url-access
 build: ice
 	r.js -o build.js
 
-zip: build
-	-mkdir gzipped
-	gzip -9 trak.io.min.js -c > gzipped/trak.io.min.js
-
 watch:
 	guard
 
 min: build
 	uglifyjs -mc -o trak.io.min.js trak.io.js
+
+zip: min
+	-mkdir gzipped
+	gzip -9 trak.io.min.js -c > gzipped/trak.io.min.js
+
 
 server:
 	node server.js &
