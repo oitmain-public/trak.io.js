@@ -12,6 +12,7 @@
     <script src="../node_modules/sinon/pkg/sinon.js"></script>
     <script src="../components/sinon-chai/lib/sinon-chai.js"></script>
     <script src="../components/mocha/mocha.js"></script>
+    <script src="../components/cookie/cookie.js"></script>
 
     <script>
       window.mocha.setup({
@@ -20,6 +21,28 @@
       });
     </script>
     <script type='text/javascript' src="/trak.io.js"></script>
+
+    <script src="../components/requirejs/require.js"></script>
+    <script>
+      requirejs.config({
+        //By default load any module IDs from js/lib
+        baseUrl: '../src',
+        shim: {
+          json2: {
+            exports: 'JSON'
+          }
+        },
+        paths: {
+          cookie: '../components/cookie/cookie',
+          json2: '../components/json2/json2',
+          lodash: '../vendor/lodash'
+        }
+      });
+      window.mocha.setup({
+        ui : 'bdd',
+        ignoreLeaks : true
+      });
+    </script>
 
     <script type='text/javascript' src="trak/track.js"></script>
     <script type='text/javascript' src="trak/identify.js"></script>

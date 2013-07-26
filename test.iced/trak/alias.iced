@@ -1,4 +1,4 @@
-requirejs ['exceptions'], (Exceptions) ->
+requirejs [], () ->
   describe 'Trak', ->
 
     before ->
@@ -15,7 +15,7 @@ requirejs ['exceptions'], (Exceptions) ->
       it "raises Exceptions.MissingParameter", ->
         expect ->
           trak.io.alias()
-        .to.throw Exceptions.MissingParameter
+        .to.throw trak.Exceptions.MissingParameter
 
 
     describe '#alias(alias)', ->

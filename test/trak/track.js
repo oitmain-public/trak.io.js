@@ -2,7 +2,7 @@
 
 requirejs(['exceptions'], function(Exceptions) {
   return describe('Trak', function() {
-    before_each(function() {
+    beforeEach(function() {
       sinon.stub(trak.io, 'call');
       sinon.stub(trak.io, 'distinct_id').returns('default_distinct_id');
       sinon.stub(trak.io, 'context').returns({
@@ -11,7 +11,7 @@ requirejs(['exceptions'], function(Exceptions) {
       });
       return sinon.stub(trak.io, 'channel').returns('default_channel');
     });
-    after_each(function() {
+    afterEach(function() {
       trak.io.call.restore();
       trak.io.distinct_id.restore();
       trak.io.context.restore();
@@ -21,7 +21,7 @@ requirejs(['exceptions'], function(Exceptions) {
       return it("raises Exceptions.MissingParameter", function() {
         return expect(function() {
           return trak.io.track();
-        }).to["throw"](Exceptions.MissingParameter);
+        }).to["throw"](trak.Exceptions.MissingParameter);
       });
     });
     describe('#track(event)', function() {
@@ -142,7 +142,7 @@ requirejs(['exceptions'], function(Exceptions) {
           foo: 'bar'
         };
         trak.io.track('my_event', 'my_channel', properties);
-        return trak.io.channel.should.have.been.calledWithExactly();
+        return trak.io.channel().should.not.equal('my_channel');
       });
     });
     describe('#track(event, channel, properties, context)', function() {
@@ -179,7 +179,7 @@ requirejs(['exceptions'], function(Exceptions) {
           my: 'context'
         };
         trak.io.track('my_event', 'my_channel', properties, context);
-        return trak.io.context.should.have.been.calledWithExactly();
+        return trak.io.context().should.not.equal(context);
       });
       return it("doesn't change trak.io.channel()", function() {
         var context, properties;
@@ -190,7 +190,7 @@ requirejs(['exceptions'], function(Exceptions) {
           my: 'context'
         };
         trak.io.track('my_event', 'my_channel', properties, context);
-        return trak.io.channel.should.have.been.calledWithExactly();
+        return trak.io.channel().should.not.equal('my_channel');
       });
     });
     describe('#track(distinct_id, event, channel)', function() {
@@ -211,11 +211,11 @@ requirejs(['exceptions'], function(Exceptions) {
       });
       it("doesn't change trak.io.distinct_id()", function() {
         trak.io.track('my_distinct_id', 'my_event', 'my_channel');
-        return trak.io.distinct_id.should.have.been.calledWithExactly();
+        return trak.io.distinct_id().should.not.equal('my_distinct_id');
       });
       return it("doesn't change trak.io.channel()", function() {
         trak.io.track('my_distinct_id', 'my_event', 'my_channel');
-        return trak.io.channel.should.have.been.calledWithExactly();
+        return trak.io.channel().should.not.equal('my_channel');
       });
     });
     describe('#track(distinct_id, event, channel, properties)', function() {
@@ -244,7 +244,7 @@ requirejs(['exceptions'], function(Exceptions) {
           my: 'properties'
         };
         trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties);
-        return trak.io.distinct_id.should.have.been.calledWithExactly();
+        return trak.io.distinct_id().should.not.equal('my_distinct_id');
       });
       return it("doesn't change trak.io.channel()", function() {
         var properties;
@@ -252,7 +252,7 @@ requirejs(['exceptions'], function(Exceptions) {
           my: 'properties'
         };
         trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties);
-        return trak.io.channel.should.have.been.calledWithExactly();
+        return trak.io.channel().should.not.equal('my_channel');
       });
     });
     return describe('#track(distinct_id, event, channel, properties, context)', function() {
@@ -289,7 +289,7 @@ requirejs(['exceptions'], function(Exceptions) {
           my: 'context'
         };
         trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context);
-        return trak.io.distinct_id.should.have.been.calledWithExactly();
+        return trak.io.distinct_id().should.not.equal('my_distinct_id');
       });
       it("doesn't change trak.io.channel()", function() {
         var context, properties;
@@ -300,7 +300,7 @@ requirejs(['exceptions'], function(Exceptions) {
           my: 'context'
         };
         trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context);
-        return trak.io.channel.should.have.been.calledWithExactly();
+        return trak.io.channel().should.not.equal('my_channel');
       });
       return it("doesn't change trak.io.context()", function() {
         var context, properties;
@@ -311,7 +311,7 @@ requirejs(['exceptions'], function(Exceptions) {
           my: 'context'
         };
         trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context);
-        return trak.io.context.should.have.been.calledWithExactly();
+        return trak.io.context().should.not.equal(context);
       });
     });
   });

@@ -1,0 +1,367 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->  
+    <head>  
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">        
+        <meta name="viewport" content="width=device-width">  
+        <meta property="fb:admins" content="28118084" />
+        <meta property="fb:app_id" content="270730166282699" />
+        <meta property="og:description" content="Rentything.com | Make money sharing your stuff. Save money renting from others." /><meta property="og:title" content="An Online Rental Marketplace for Everything" /><meta property="og:image" content="https://www.rentything.com/images/placeholder.png" /><meta property="og:type" content="website" /><meta property="og:url" content="https://www.rentything.com" /><meta property="og:site_name" content="Rentything.com" />               
+         <!-- //comment out in production -->  
+        <link rel="shortcut icon" href="//www.rentything.com/yii/rentything/favicon.ico" type="image/x-icon" />
+        <meta name="description" content="Rentything.com | Make money sharing your stuff. Save money renting from others." />
+<meta name="keywords" content="rental, sharing economy, collaborative consumption, rent" />
+<link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" />
+<link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/font-awesome/3.0/css/font-awesome.css" />
+<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Corben" />
+<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Nobile" />
+<link rel="stylesheet" type="text/css" href="https://www.rentything.com/assets/c09989e0/app/styles/9fe89815.main.css" />
+<link rel="stylesheet" type="text/css" href="https://www.rentything.com/assets/c09989e0/app/scripts/400ad78d.amd-app.js" />
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+<script type="text/javascript" src="https://www.rentything.com/assets/c09989e0/app/scripts/400ad78d.amd-app.js"></script>
+<script type="text/javascript" src="https://js.stripe.com/v1/"></script>
+<title>Rentything | The easiest way to make money sharing the things you own and save money borrowing the things you don&#039;t</title>
+        <noscript>
+    <div class="alert alert-error">
+        <h3>Enable javascript so you don't lose out on the full experience other users are enjoying.</h3>
+    </div>            
+    </noscript>
+    <div class="alert" id="global-message" style="display: none;" data-dismiss="alert"></div>    
+    <link rel="author" href="humans.txt" />
+    <script type="text/javascript">
+      timeout = 100
+      var trak=trak||[];trak.io=trak.io||{};trak.io.load=function(e){var t=document.createElement("script");t.type="text/javascript",t.src="trak.io.js";var n=document.getElementsByTagName("script")[0];setTimeout(function(){n.parentNode.insertBefore(t,n);},timeout);var r=function(e){return function(){trak.push([e].concat(Array.prototype.slice.call(arguments,0)))}},i=["initialize","identify","track","alias","channel","source","host","protocol"];for(var s=0;s<i.length;s++) trak.io[i[s]]=r(i[s]);trak.io.initialize.apply(trak.io,arguments)};
+      trak.io.load('2513f6a1eb4a20198b07c1f343499ec0f4f88e57', {protocol: 'http', host: 'lvh.me:3007/v1'});
+    </script>
+</head>
+<body>    
+    <div id="modal"></div>
+    <div id="chat-bar"></div>
+    <div class="container" id="page">
+        <div id="header">           
+        </div><!-- header -->
+        <div id="mainmenu">       
+                                        <div class="navbar">
+        <div id="navbar-inner" class="navbar-inner navbar-fixed-top">
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>
+                <div id="brand-spinner" class="pull-left span2">
+                    <a class="brand" href="/">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>                    
+<i class="icon-spinner icon-spin" id="spinner"></i>
+                </div>
+                <div class="nav-collapse collapse">
+
+<ul class="pull-left nav nav-pills">
+<li>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+<li id="explore"><a href="/explore/offers/all/" title="Explore offers & requests"><i class="icon-cloud"></i> <small>Explore</small></a></li>
+<li><form class="form-search">
+ <div class="input-append">
+  <input type="search" placeholder="Search" class="input-medium search-query" id="searchArea">
+  <button type="submit" id="searchButton" class="btn"><i class="icon-search"></i></button>
+ </div>
+</form></li>
+</ul>
+
+                        <ul class="pull-right nav nav-pills">
+<li>
+<span class="label label-important" style="display:none;"></span>
+</li>
+<li>
+<form class="form-inline">                            
+                            <input class="input-small" type="text" id="inputUsername" placeholder="Username">
+                            <input class="input-small" type="password" id="inputPassword" placeholder="Password">     
+<div class="btn-group" id="header-group">
+  <button type="submit" class="btn btn-mini" id="loginButton" data-loading-text="Logging in..."><i class="icon-signin"></i> Sign in</button>                            
+  <button class="btn dropdown-toggle btn-mini" data-toggle="dropdown">
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <!-- dropdown menu links -->
+<li id="social_login"><a href="#" title="social network logins"><small><i class="icon-facebook"></i> Login with Facebook</small></a></li>
+  </ul>
+</div>                            
+<a href="/recovery" id="recoverUrl" title="Click here to recover your password"><small>Forgot?</small></a>
+                        </form></li>                            
+                        </ul>                        
+
+                </div>
+            </div>
+        </div>
+    </div>                                
+        </div><!-- mainmenu -->   
+        <!--[if lt IE 9]>
+      <p class="chromeframe">You are using an outdated browser that is not supported. <a href="http://browsehappy.com/" data-bypass>Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true" data-bypass>install Google Chrome Frame</a> to better experience this site.</p>
+    <![endif]-->
+        <div id="content">
+  <div class="row">
+    <div id="left-region" class="span7"></div>
+    <div id="right-region" class="span4"></div>
+
+</div>
+<div id="bottom-region"> <div id="landing-page" >    
+ <img id="hero_image"/>
+<div class="wello">
+  <!-- Carousel
+    ================================================== -->
+     <div class="myBackground" >
+    
+        <div class="landing-caption">    
+                 <h1>Rent stuff from & to anyone for anything</h1>
+                   <p class="lead">A crazy simple way to rent stuff online</p>   
+<br />
+<div class="var0" style="display:none;"> 
+<p>
+<button class="btn btn-success btn-large" data-goal="New User" id="registerButton2"><i class="icon-play-circle"></i> Open My Rental Store</button>
+</p>
+</div> 
+<div class="var1" style="display:none;">
+<div class="control-group">               
+            <div class="controls">
+                <a href="https://www.rentything.com/hybridauth/default/login/?provider=facebook" title="Connect with Facebook" data-bypass><button id="facebook" type="submit" class="btn btn-primary" ><i class="icon-facebook"></i> Connect with Facebook</button></a>
+            </div>
+</div>
+<p>
+<div class="lead">Or register with email</div>
+        <form>
+            <div class="control-group">
+                <label class="control-label" for="registerUsername">Username</label>
+                <div class="controls">
+                    <input type="text" id="registerUsername" class="inputs" placeholder="Your username" required="required" name="username">
+                    <span class="help-inline" style="display:none;"></span>
+                </div>
+            </div>
+            <div class="control-group ">
+                <label class="control-label" for="registerEmail">Email</label>
+                <div class="controls">
+                    <input name="email" type="email" id="registerEmail" class="inputs" placeholder="Enter your email" required="required">  
+                    <span class="help-inline" style="display:none;"></span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="registerPassword">Password</label>
+                <div class="controls">
+                    <input type="password" id="registerPassword" class="inputs" placeholder="Password" name="password" required="required" required pattern="(?=.*[a-zA-Z0-9])\w{4,}" name="pwd1" onchange="form.pwd2.pattern = this.value;">
+                    <span class="help-inline" style="display:none;"></span>
+                </div>
+            </div>        
+            <div class="control-group">
+                <div class="controls">
+                    <button type="submit" class="btn btn-success" id="registerButton" disabled="" data-loading-text="Registering..."><i class="icon-play-circle"></i> Get Started</button>
+                </div>
+            </div>            
+        </form>
+</p>
+         
+        
+</div>      
+<div class="var2" style="display:none;"> 
+<p>
+<button class="btn btn-success btn-large" data-goal="New User" id="registerButton2"><i class="icon-play-circle"></i> Open My Free Rental Store</button>
+</p>
+</div>
+<div class="var3" style="display:none;"> 
+<p>
+<button class="btn btn-success btn-large" data-goal="New User" id="registerButton2"><i class="icon-play-circle"></i> Open My Rental Store</button>
+</p>
+</div>
+   </div>
+    </div><!-- /.carousel -->
+
+</div>
+
+
+
+    <div class="container marketing">
+
+      <!-- Three columns of text below the carousel -->
+      <div class="row">
+ <div class="span4">
+         <img class="img-circle center" alt="140x140" style="width: 140px; height: 140px;" src="https://s3.amazonaws.com/rentything_images/uploads/images/landing/amp.jpg">
+          <h2><i class="icon-credit-card"></i> Turn your stuff into business</h2>
+<ul class="unstyled">
+          <li><i class="icon-check"></i> Pay your monthly bills with the earnings you'll get from renting out your stuff</li>
+<li><i class="icon-check"></i> Treat yourself to something nice</li>
+<li><i class="icon-check"></i> Recession proof your life & stay afloat</li>
+<li><i class="icon-check"></i> Meet awesome people</li>
+<li><i class="icon-check"></i> Get payments straight to your bank account</li>
+</ul>
+     
+
+        </div><!-- /.span4 -->
+        <div class="span4">
+        <img class="img-circle center" alt="140x140" style="width: 140px; height: 140px;" src="https://s3.amazonaws.com/rentything_images/uploads/images/landing/bike.jpg">  
+          <h2><i class="icon-money"></i> Why buy when you can rent?</h2>
+<ul class="unstyled">
+          <li><i class="icon-check"></i> Discover new activities easily</li>
+<li><i class="icon-check"></i> Save up for a big occasion by renting items you don't use often instead of buying</li>
+<li><i class="icon-check"></i> Help your community & support those around you</li>
+<li><i class="icon-check"></i> It's greener for the planet</li>
+</ul>
+     
+        </div><!-- /.span4 -->
+       
+        <div class="span4">
+      <img class="img-circle center" alt="140x140" style="width: 140px; height: 140px;" src="https://s3.amazonaws.com/rentything_images/uploads/images/landing/games.jpg">
+          <h2><i class="icon-lock"></i> Stay safe, secure & build trust</h2>
+<ul class="unstyled">
+          <li><i class="icon-check"></i> Easily see detailed profiles</li>
+<li><i class="icon-check"></i> Choose who you rent to and stuff from</li>
+<li><i class="icon-check"></i> Communicate easily with others</li>
+<li><i class="icon-check"></i> Built in trust system</li>
+<li><i class="icon-check"></i> Secure payment transactions</li>
+<li><i class="icon-check"></i> Real & authentic reviews</li>
+</ul> 
+          
+     
+        </div><!-- /.span4 -->
+      </div><!-- /.row -->
+</div> 
+<br />   
+
+   <!-- Marketing messaging and featurettes
+    ================================================== -->
+    <!-- Wrap the rest of the page in another container to center all the content. -->
+
+      <!-- START THE FEATURETTES -->
+
+      <hr class="featurette-divider">
+
+      <div class="featurette">
+      
+    <div class="thumbnail pull-right"><img  src="https://s3.amazonaws.com/rentything_images/uploads/images/landing/placeit.png"><span class="muted"><small class="pull-right">PlaceIt screenshot</small></span></div>
+ 
+    <h3 >You've come to the right place if you've ever...</h3>
+<ul class="unstyled">
+<li><i class="icon-ok icon-border"></i> Needed to make more money without working more hours or paying to learn new skills...</li>
+<li><i class="icon-ok icon-border"></i> Wanted something to borrow but didn't know where to get it...</li>
+<li><i class="icon-ok icon-border"></i> Wanted to share your stuff with others...</li>
+<li><i class="icon-ok icon-border"></i> Wanted to try and discover new activities & places...</li>
+</ul>
+
+
+</div>
+<br /><br />       
+      <hr class="featurette-divider">
+<!-- /END THE FEATURETTES -->
+
+  
+      <div class="row marketing" id="bottom-copy">
+        <div class="span6">
+          <h2>Your stuff pays for itself with Rentything</h2>
+              <p class="lead">Rent anything & everything... it's a breeze</p>      
+<p>Join a safe and trustworthy community of people to rent from and to. You decide who gets to rent your stuff.</p>
+         
+        </div>
+
+        <div class="span6">
+          <h2>Start renting in 60 seconds.</h2>
+              <p class="lead"></p> 
+<div class="var0" style="display:none;"> 
+<p>
+<button class="btn btn-success btn-large" data-goal="New User" id="registerButton2"><i class="icon-play-circle"></i> Open My Rental Store</button>
+</p>
+</div>   
+<div class="var1" style="display:none;"> 
+<p>
+<button class="btn btn-success btn-large" data-goal="New User" id="registerButton2"><i class="icon-play-circle"></i> Open My Rental Store</button>
+</p>
+</div>       
+<div class="var2" style="display:none;"> 
+<p>
+<button class="btn btn-success btn-large" data-goal="New User" id="registerButton2"><i class="icon-play-circle"></i> Open My Free Rental Store</button>
+</p>
+</div>
+<div class="var3" style="display:none;"> 
+<p>
+<button class="btn btn-success btn-large" data-goal="New User" id="registerButton2"><i class="icon-play-circle"></i> Open My Rental Store</button>
+</p>
+</div>
+  <p class="lead">Come join thousands of people just like you and take part in the sharing economy </p>       
+        </div>
+      </div>    
+
+</div></div>
+</div><!-- content -->
+  
+
+        <div class="clear"></div>
+        <div id="footer"><div class="row">
+    <div class="span2">
+        <h5>Company</h5>    
+        <a href="/about/" title="About Us"><i class="icon-info-sign"></i> About</a><br />
+        <a href="/help/" title="Help"><i class="icon-question-sign"></i> Help</a><br />
+        <a href="/terms/" title="Terms & Conditions"><i class="icon-legal"></i> Terms</a><br />
+            <a href="/privacy/" title="Privacy"><i class="icon-eye-open"></i> Privacy</a></div>                      
+    <div class="span2"><h5>Communities</h5>        
+            <a href="https://www.facebook.com/Rentything" title="Rentything Facebook fan page" data-bypass><i class="icon-facebook"></i> Facebook</a><br />
+            <a href="https://twitter.com/Rentything" title="Rentything's Twitter" data-bypass><i class="icon-twitter"></i> Twitter</a><br />
+            <a href="https://plus.google.com/106076991003112187560" rel="publisher" title="Rentything's Google+ community" data-bypass><i class="icon-google-plus"></i> Google+</a><br /> 
+            <a href="http://blog.rentything.com" title="Check out our blog" data-bypass><i class="icon-rss"></i> Blog</a>
+    </div>
+ <div class="span2"><h5>Partners</h5>    
+       <a href="https://mixpanel.com/f/partner" data-bypass><img src="https://mixpanel.com/site_media/images/partner/badge_blue.png" alt="Mobile Analytics" /></a>
+    </div>  
+ <div class="span2"><h5>Help Spread the Word</h5>    
+        <div class="fb-like" data-href="http://www.rentything.com/" data-layout="button_count" data-send="false" data-show-faces="false" data-width="90"></div><br />
+            <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://www.rentything.com/" data-text="Check out @rentything, an online rental marketplace. Make money renting your stuff out to others!" data-count="horizontal" data-via=""></a><br />
+            <g:plusone href="https://www.rentything.com/" size="small" callback="plusClick"></g:plusone>
+    </div>
+
+<div class="span2"><h5><i class="icon-lock"></i> Secure transactions</h5>    
+        <img src="https://s3.amazonaws.com/rentything_images/uploads/images/visa_32.png" alt="visa" /><img src="https://s3.amazonaws.com/rentything_images/uploads/images/amex_32.png" alt="amex" /><img src="https://s3.amazonaws.com/rentything_images/uploads/images/mastercard_32.png" alt="mastercard" />
+            <img src="https://s3.amazonaws.com/rentything_images/uploads/images/stripe_solid.png" alt="powered by Stripe" /><br /><img src="https://www.positivessl.com/images-new/positivessl-icon.png" width="50px" alt="Positive SSL" /><br />            
+    </div>
+
+
+    </div>
+            <br /><span>&copy; <?php echo date('Y'); ?>2013 by Rentything. Made in Canada with love.</span>                                    
+</div>                 
+        <script type="text/javascript">
+        var analytics = analytics || [];
+        analytics.load = function(apiKey) {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.async = true;
+            script.src = ('https:' === document.location.protocol ? 'https://' : 'http://') +
+                'd2dq2ahtl5zl1z.cloudfront.net' + '/analytics.js/v1/' + apiKey + '/analytics.min.js';
+            var first = document.getElementsByTagName('script')[0];
+            first.parentNode.insertBefore(script, first);
+            var factory = function (type) {
+                return function () {
+                    analytics.push([type].concat(Array.prototype.slice.call(arguments, 0)));
+                };
+            };
+            var methods = ['identify', 'track'];
+            for(var i = 0; i < methods.length; i++) {
+                analytics[methods[i]]=factory(methods[i]);
+            }
+        };
+        analytics.load('mbpmx89');
+        </script> 
+        <script type="text/javascript" charset="utf-8">
+        window.twttr = (function (d,s,id) {
+            var t, js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return; js=d.createElement(s); js.id=id;
+            js.src="//platform.twitter.com/widgets.js"; fjs.parentNode.insertBefore(js, fjs);
+            return window.twttr || (t = { _e: [], ready: function(f){ t._e.push(f) } });
+        }(document, "script", "twitter-wjs")); 
+        </script>        
+<script type="text/javascript">
+/*<![CDATA[*/
+require.config({
+        baseUrl: "//www.rentything.com/yii/rentything/assets/d33e9641",
+        waitSeconds: 15
+      });
+      require(["main"],function(){});
+/*]]>*/
+</script>
+</body>
+</html>

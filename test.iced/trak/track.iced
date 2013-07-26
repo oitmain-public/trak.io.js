@@ -2,13 +2,13 @@ requirejs ['exceptions'], (Exceptions) ->
 
   describe  'Trak', ->
 
-    before_each ->
+    beforeEach ->
       sinon.stub(trak.io, 'call')
       sinon.stub(trak.io, 'distinct_id').returns('default_distinct_id')
       sinon.stub(trak.io, 'context').returns({default: 'context', override: 'override'})
       sinon.stub(trak.io, 'channel').returns('default_channel')
 
-    after_each ->
+    afterEach ->
       trak.io.call.restore()
       trak.io.distinct_id.restore()
       trak.io.context.restore()
@@ -19,7 +19,7 @@ requirejs ['exceptions'], (Exceptions) ->
       it "raises Exceptions.MissingParameter", ->
         expect ->
           trak.io.track()
-        .to.throw Exceptions.MissingParameter
+        .to.throw trak.Exceptions.MissingParameter
 
     describe '#track(event)', ->
 
@@ -67,7 +67,7 @@ requirejs ['exceptions'], (Exceptions) ->
       it "doesn't change trak.io.channel()", ->
         properties = {foo: 'bar'}
         trak.io.track('my_event', 'my_channel', properties)
-        trak.io.channel.should.have.been.calledWithExactly()
+        trak.io.channel().should.not.equal 'my_channel'
 
     describe '#track(event, channel, properties, context)', ->
 
@@ -81,13 +81,13 @@ requirejs ['exceptions'], (Exceptions) ->
         properties = {my: 'properties'}
         context = {my: 'context'}
         trak.io.track('my_event', 'my_channel', properties, context)
-        trak.io.context.should.have.been.calledWithExactly()
+        trak.io.context().should.not.equal context
 
       it "doesn't change trak.io.channel()", ->
         properties = {foo: 'bar'}
         context = {my: 'context'}
         trak.io.track('my_event', 'my_channel', properties, context)
-        trak.io.channel.should.have.been.calledWithExactly()
+        trak.io.channel().should.not.equal 'my_channel'
 
 
     describe '#track(distinct_id, event, channel)', ->
@@ -98,11 +98,11 @@ requirejs ['exceptions'], (Exceptions) ->
 
       it "doesn't change trak.io.distinct_id()", ->
         trak.io.track('my_distinct_id', 'my_event', 'my_channel')
-        trak.io.distinct_id.should.have.been.calledWithExactly()
+        trak.io.distinct_id().should.not.equal 'my_distinct_id'
 
       it "doesn't change trak.io.channel()", ->
         trak.io.track('my_distinct_id', 'my_event', 'my_channel')
-        trak.io.channel.should.have.been.calledWithExactly()
+        trak.io.channel().should.not.equal 'my_channel'
 
 
     describe '#track(distinct_id, event, channel, properties)', ->
@@ -115,12 +115,12 @@ requirejs ['exceptions'], (Exceptions) ->
       it "doesn't change trak.io.distinct_id()", ->
         properties = {my: 'properties'}
         trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties)
-        trak.io.distinct_id.should.have.been.calledWithExactly()
+        trak.io.distinct_id().should.not.equal 'my_distinct_id'
 
       it "doesn't change trak.io.channel()", ->
         properties = {my: 'properties'}
         trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties)
-        trak.io.channel.should.have.been.calledWithExactly()
+        trak.io.channel().should.not.equal 'my_channel'
 
 
     describe '#track(distinct_id, event, channel, properties, context)', ->
@@ -135,19 +135,17 @@ requirejs ['exceptions'], (Exceptions) ->
         properties = {my: 'properties'}
         context = {my: 'context'}
         trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context)
-        trak.io.distinct_id.should.have.been.calledWithExactly()
+        trak.io.distinct_id().should.not.equal 'my_distinct_id'
 
       it "doesn't change trak.io.channel()", ->
         properties = {my: 'properties'}
         context = {my: 'context'}
         trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context)
-        trak.io.channel.should.have.been.calledWithExactly()
+        trak.io.channel().should.not.equal 'my_channel'
 
       it "doesn't change trak.io.context()", ->
         properties = {my: 'properties'}
         context = {my: 'context'}
         trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context)
-        trak.io.context.should.have.been.calledWithExactly()
-
-
+        trak.io.context().should.not.equal context
 

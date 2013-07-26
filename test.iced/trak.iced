@@ -1,13 +1,14 @@
-requirejs ['trak','cookie'], (Trak, cookie) ->
+requirejs ['trak'], (Trak) ->
 
 
   describe 'Trak', ->
 
 
     afterEach ->
-      cookie.empty() # Only empties for the current domain
-      for key in cookie.utils.getKeys(cookie.all())
-        cookie.set key, '', { domain: '.lvh.me' }
+      trak.cookie.empty() # Only empties for the current domain
+      for key in trak.cookie.utils.getKeys(trak.cookie.all())
+        trak.cookie.set key, 'a', { domain: '.lvh.me', expires: -1 }
+      trak.cookie.set('_trak_null_id','b', {expires: -1})
       trak.io._protocol = 'https'
       trak.io._host = 'api.trak.io'
       trak.io._current_context = false

@@ -3,6 +3,8 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
   class Trak
 
     loaded: true
+    Exceptions: Exceptions
+    cookie: cookie
 
     constructor: ->
       this.io = this
@@ -112,7 +114,8 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       args = this.sort_arguments(arguments, ['string', 'string', 'string', 'object', 'object', 'function'])
       distinct_id = (if args[2] then arguments[0]) || this.distinct_id()
       event = (if args[2] then args[1] else args[0])
-      channel = (if args[2] then args[2] else args[1]) ||  this.channel()
+
+      channel = (if args[2] then args[2] else args[1]) || this.channel()
       properties = args[3] || {}
       context = args[4] || {}
       context = _.merge this.context(), context

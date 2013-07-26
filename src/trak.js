@@ -6,6 +6,10 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
 
     Trak.prototype.loaded = true;
 
+    Trak.prototype.Exceptions = Exceptions;
+
+    Trak.prototype.cookie = cookie;
+
     function Trak() {
       this.io = this;
     }

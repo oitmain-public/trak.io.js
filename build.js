@@ -17,5 +17,6 @@
     lodash: '../vendor/lodash',
     json2: '../components/json2/json2',
     cookie: '../components/cookie/cookie'
-  }
+  },
+  wrap: true
 })
