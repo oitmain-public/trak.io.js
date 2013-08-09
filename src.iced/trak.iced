@@ -28,10 +28,11 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
     page_ready_event_fired: false
     page_ready: (fn) ->
 
+      me = this
       # Create an idempotent version of the 'fn' function
       idempotent_fn = ->
-        return  if @page_ready_event_fired
-        @page_ready_event_fired = true
+        return  if me.page_ready_event_fired
+        me.page_ready_event_fired = true
         fn()
 
 
@@ -132,7 +133,6 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       url = args[0] || this.url()
       title = args[1] || this.page_title()
       callback = args[2] || null
-
       this.track 'page_view', { url: url, page_title: title }, callback
 
     _protocol: 'https'

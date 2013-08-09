@@ -3397,10 +3397,11 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
     Trak.prototype.page_ready_event_fired = false;
 
     Trak.prototype.page_ready = function(fn) {
-      var do_scroll_check, idempotent_fn, toplevel;
+      var do_scroll_check, idempotent_fn, me, toplevel;
+      me = this;
       idempotent_fn = function() {
-        if (this.page_ready_event_fired) return;
-        this.page_ready_event_fired = true;
+        if (me.page_ready_event_fired) return;
+        me.page_ready_event_fired = true;
         return fn();
       };
       do_scroll_check = function() {
