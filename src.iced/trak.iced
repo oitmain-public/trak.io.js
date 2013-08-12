@@ -92,7 +92,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       properties = args[1] || {}
       callback = args[2] || null
 
-      this.distinct_id(distinct_id)
+      this.alias(distinct_id) if args[0]
       this.call 'identify', { distinct_id: distinct_id, data: { properties: properties }}, callback
       null
 

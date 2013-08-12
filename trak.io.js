@@ -3443,7 +3443,7 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
       distinct_id = args[0] || this.distinct_id();
       properties = args[1] || {};
       callback = args[2] || null;
-      this.distinct_id(distinct_id);
+      if (args[0]) this.alias(distinct_id);
       this.call('identify', {
         distinct_id: distinct_id,
         data: {
