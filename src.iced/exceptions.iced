@@ -7,6 +7,7 @@ define [
   'exceptions/missing_parameter',
   'exceptions/person_not_found',
   'exceptions/properties_object_invalid',
+  'exceptions/revenue_property_invalid',
   'exceptions/route_not_found',
   'exceptions/timeout',
   'exceptions/unknown'
@@ -19,6 +20,7 @@ define [
   MissingParameter,
   PersonNotFound,
   PropertiesObjectInvalid,
+  RevenuePropertyInvalid,
   RouteNotFound,
   Timeout,
   Unknown
@@ -33,6 +35,7 @@ define [
     MissingParameter: MissingParameter,
     PersonNotFound: PersonNotFound,
     PropertiesObjectInvalid: PropertiesObjectInvalid,
+    RevenuePropertyInvalid: RevenuePropertyInvalid,
     RouteNotFound: RouteNotFound,
     Timeout: Timeout,
     Unknown: Unknown
