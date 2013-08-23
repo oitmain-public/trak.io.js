@@ -243,3 +243,26 @@ requirejs ['trak'], (Trak) ->
         trak.io.root_domain('custom.lvh.me').should.equal 'custom.lvh.me'
         trak.io.root_domain().should.equal 'custom.lvh.me'
 
+
+    describe '#get_root_domain', ()->
+
+      it "returns ip address", ->
+        sinon.stub(trak.io, 'hostname').returns '127.0.0.1'
+        trak.io.get_root_domain().should.equal '127.0.0.1'
+        trak.io.hostname.restore()
+
+      it "returns 'localhost'", ->
+        sinon.stub(trak.io, 'hostname').returns 'localhost'
+        trak.io.get_root_domain().should.equal 'localhost'
+        trak.io.hostname.restore()
+
+      it "returns highest domain that a cookie can be set for", ->
+        sinon.stub(trak.io, 'hostname').returns 'a.b.c.d'
+        sinon.stub(trak.io, 'can_set_cookie', (options) -> options.domain == 'c.d' )
+        trak.io.get_root_domain().should.equal 'c.d'
+        trak.io.hostname.restore()
+
+      it "returns provided value if set", ->
+        trak.io.root_domain('custom.lvh.me').should.equal 'custom.lvh.me'
+        trak.io.root_domain().should.equal 'custom.lvh.me'
+

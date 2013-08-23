@@ -275,11 +275,35 @@ requirejs(['trak'], function(Trak) {
         return trak.io.channel().should.equal('cookie_channel');
       });
     });
-    return describe('#root_domain', function() {
+    describe('#root_domain', function() {
       it("returns the current root domain by default", function() {
         sinon.stub(trak.io, 'get_root_domain').returns('.lvh.me');
         trak.io.root_domain().should.equal('.lvh.me');
         return trak.io.get_root_domain.restore();
+      });
+      return it("returns provided value if set", function() {
+        trak.io.root_domain('custom.lvh.me').should.equal('custom.lvh.me');
+        return trak.io.root_domain().should.equal('custom.lvh.me');
+      });
+    });
+    return describe('#get_root_domain', function() {
+      it("returns ip address", function() {
+        sinon.stub(trak.io, 'hostname').returns('127.0.0.1');
+        trak.io.get_root_domain().should.equal('127.0.0.1');
+        return trak.io.hostname.restore();
+      });
+      it("returns 'localhost'", function() {
+        sinon.stub(trak.io, 'hostname').returns('localhost');
+        trak.io.get_root_domain().should.equal('localhost');
+        return trak.io.hostname.restore();
+      });
+      it("returns highest domain that a cookie can be set for", function() {
+        sinon.stub(trak.io, 'hostname').returns('a.b.c.d');
+        sinon.stub(trak.io, 'can_set_cookie', function(options) {
+          return options.domain === 'c.d';
+        });
+        trak.io.get_root_domain().should.equal('c.d');
+        return trak.io.hostname.restore();
       });
       return it("returns provided value if set", function() {
         trak.io.root_domain('custom.lvh.me').should.equal('custom.lvh.me');

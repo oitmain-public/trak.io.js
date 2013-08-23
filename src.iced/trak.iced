@@ -190,6 +190,9 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
     page_title: ->
       document.title
 
+    hostname: ->
+      document.location.hostname
+
     url_params: ->
       window.location.search
 
@@ -201,7 +204,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
     _channel: false
     channel: (value)->
       if !this._channel and !(this._channel = this.get_cookie('channel'))
-        this._channel = document.location.hostname || 'web_site'
+        this._channel = @hostname() || 'web_site'
       if value
         this._channel = value
         this.set_cookie('channel', value)
@@ -235,18 +238,28 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       @_root_domain
 
     get_root_domain: () ->
-      if document.location.hostname.match(/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/i) || document.location.hostname == 'localhost'
-        document.location.hostname
-      else if matches = document.location.hostname.match(/[a-z0-9]+\.[a-z0-9]+$/i)
-        "."+matches[0]
+      if @hostname().match(/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/i) || @hostname() == 'localhost'
+        @hostname()
       else
-        document.location.hostname
+        parts = @hostname().split('.')
+        domain = parts.pop()
+        while parts.length > 0
+          break if @can_set_cookie({domain: domain})
+          domain = "#{parts.pop()}.#{domain}"
+        domain
 
     set_cookie: (key, value) ->
       cookie.set(this.cookie_key(key), value)
 
     get_cookie: (key)->
       cookie.get(this.cookie_key(key))
+
+    can_set_cookie: (options) ->
+      cookie.set(@cookie_key('foo'), '')
+      cookie.set(@cookie_key('foo'), '', options)
+      cookie.set(@cookie_key('foo'), 'bar', options)
+      cookie.get(@cookie_key('foo')) == 'bar'
+
 
     cookie_key: (key)->
       "_trak_#{this.api_token()}_#{key}"

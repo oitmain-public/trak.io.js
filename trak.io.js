@@ -3599,6 +3599,10 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
       return document.title;
     };
 
+    Trak.prototype.hostname = function() {
+      return document.location.hostname;
+    };
+
     Trak.prototype.url_params = function() {
       return window.location.search;
     };
@@ -3614,7 +3618,7 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
 
     Trak.prototype.channel = function(value) {
       if (!this._channel && !(this._channel = this.get_cookie('channel'))) {
-        this._channel = document.location.hostname || 'web_site';
+        this._channel = this.hostname() || 'web_site';
       }
       if (value) {
         this._channel = value;
@@ -3660,13 +3664,19 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
     };
 
     Trak.prototype.get_root_domain = function() {
-      var matches;
-      if (document.location.hostname.match(/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/i) || document.location.hostname === 'localhost') {
-        return document.location.hostname;
-      } else if (matches = document.location.hostname.match(/[a-z0-9]+\.[a-z0-9]+$/i)) {
-        return "." + matches[0];
+      var domain, parts;
+      if (this.hostname().match(/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/i) || this.hostname() === 'localhost') {
+        return this.hostname();
       } else {
-        return document.location.hostname;
+        parts = this.hostname().split('.');
+        domain = parts.pop();
+        while (parts.length > 0) {
+          if (this.can_set_cookie({
+            domain: domain
+          })) break;
+          domain = "" + (parts.pop()) + "." + domain;
+        }
+        return domain;
       }
     };
 
@@ -3676,6 +3686,13 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
 
     Trak.prototype.get_cookie = function(key) {
       return cookie.get(this.cookie_key(key));
+    };
+
+    Trak.prototype.can_set_cookie = function(options) {
+      cookie.set(this.cookie_key('foo'), '');
+      cookie.set(this.cookie_key('foo'), '', options);
+      cookie.set(this.cookie_key('foo'), 'bar', options);
+      return cookie.get(this.cookie_key('foo')) === 'bar';
     };
 
     Trak.prototype.cookie_key = function(key) {
