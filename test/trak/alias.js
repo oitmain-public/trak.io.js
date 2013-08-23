@@ -2,11 +2,11 @@
 
 requirejs([], function() {
   return describe('Trak', function() {
-    before(function() {
-      sinon.stub(trak.io, 'call');
-      return trak.io._distinct_id = null;
+    beforeEach(function() {
+      trak.io._distinct_id = 'old_distinct_id';
+      return sinon.stub(trak.io, 'call');
     });
-    after(function() {
+    afterEach(function() {
       trak.io.call.restore();
       return trak.io._distinct_id = null;
     });
@@ -19,20 +19,25 @@ requirejs([], function() {
     });
     describe('#alias(alias)', function() {
       it("calls #call", function() {
-        var previous_id;
-        previous_id = trak.io.distinct_id();
+        trak.io._distinct_id = 'old_distinct_id';
         trak.io.alias('my_alias');
         return trak.io.call.should.have.been.calledWith('alias', {
           data: {
-            distinct_id: previous_id,
+            distinct_id: 'old_distinct_id',
             alias: 'my_alias'
           }
         });
       });
-      return it("sets current distinct_id to the alias", function() {
+      it("sets current distinct_id to the alias", function() {
+        trak.io._distinct_id = 'old_distinct_id';
         trak.io.alias('my_alias');
         trak.io.distinct_id().should.equal('my_alias');
         return cookie.get("_trak_" + (trak.io.api_token()) + "_id").should.equal('my_alias');
+      });
+      return it("doesn't make a call if the alias is the same as the current distinct_id", function() {
+        trak.io._distinct_id = 'bbb';
+        trak.io.alias('bbb');
+        return trak.io.call.should.not.have.been.called;
       });
     });
     describe('#alias(alias, false)', function() {
@@ -40,7 +45,7 @@ requirejs([], function() {
         trak.io.alias('my_alias');
         return trak.io.call.should.have.been.calledWith('alias', {
           data: {
-            distinct_id: trak.io.distinct_id(),
+            distinct_id: 'old_distinct_id',
             alias: 'my_alias'
           }
         });
@@ -63,12 +68,16 @@ requirejs([], function() {
           }
         });
       });
-      return it("doesn't set current distinct_id to the alias", function() {
+      it("doesn't set current distinct_id to the alias", function() {
         var previous_id;
         previous_id = trak.io.distinct_id();
         trak.io.alias('custom_distinct_id', 'my_alias');
         trak.io.distinct_id().should.equal(previous_id);
         return cookie.get("_trak_" + (trak.io.api_token()) + "_id").should.equal(previous_id);
+      });
+      return it("doesn't make a call if the alias is the same as the distinct_id", function() {
+        trak.io.alias('aaa', 'aaa');
+        return trak.io.call.should.not.have.been.called;
       });
     });
   });
