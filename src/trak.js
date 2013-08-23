@@ -23,6 +23,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       if (options.context) this.context(options.context);
       if (options.channel) this.channel(options.channel);
       this.distinct_id(options.distinct_id || null);
+      this.root_domain(options.root_domain || null);
       if (options.auto_track_page_views !== false) {
         me = this;
         return this.page_ready(function() {
@@ -257,7 +258,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
         this._distinct_id = this.generate_distinct_id();
       }
       cookie.set(this.cookie_key('id'), this._distinct_id, {
-        domain: this.get_root_domain()
+        domain: this.root_domain()
       });
       return this._distinct_id;
     };
@@ -271,9 +272,17 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       });
     };
 
+    Trak.prototype._root_domain = null;
+
+    Trak.prototype.root_domain = function(value) {
+      if (!value && !this._root_domain) this._root_domain = this.get_root_domain();
+      if (value) this._root_domain = value;
+      return this._root_domain;
+    };
+
     Trak.prototype.get_root_domain = function() {
       var matches;
-      if (document.location.hostname.match(/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/i)) {
+      if (document.location.hostname.match(/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/i) || document.location.hostname === 'localhost') {
         return document.location.hostname;
       } else if (matches = document.location.hostname.match(/[a-z0-9]+\.[a-z0-9]+$/i)) {
         return "." + matches[0];

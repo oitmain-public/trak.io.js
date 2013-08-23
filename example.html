@@ -5,7 +5,7 @@
     <script type="text/javascript">
       timeout = 500
       var trak=trak||[];trak.io=trak.io||{};trak.io.load=function(e){var t=document.createElement("script");t.type="text/javascript",t.src="trak.io.js";var n=document.getElementsByTagName("script")[0];setTimeout(function(){n.parentNode.insertBefore(t,n);},timeout);var r=function(e){return function(){trak.push([e].concat(Array.prototype.slice.call(arguments,0)))}},i=["initialize","identify","track","alias","channel","source","host","protocol"];for(var s=0;s<i.length;s++) trak.io[i[s]]=r(i[s]);trak.io.initialize.apply(trak.io,arguments)};
-      trak.io.load('demo_account', {protocol: 'http', host: 'lvh.me:3007/v1'});
+      trak.io.load('demo_account', {protocol: 'http', host: 'lvh.me:3007/v1', root_domain: '.lvh.co.uk'});
     </script>
 
 </head>

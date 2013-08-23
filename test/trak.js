@@ -20,7 +20,8 @@ requirejs(['trak'], function(Trak) {
       trak.io._host = 'api.trak.io';
       trak.io._current_context = false;
       trak.io._channel = false;
-      return trak.io._distinct_id = null;
+      trak.io._distinct_id = null;
+      return trak.io._root_domain = null;
     });
     describe('#initialize', function() {
       it("stores api token", function() {
@@ -61,14 +62,23 @@ requirejs(['trak'], function(Trak) {
         });
         return trak.io.distinct_id().should.equal('custom_distinct_id');
       });
+      it("stores root domain option", function() {
+        trak.io.initialize('api_token_value', {
+          root_domain: 'root_domain.co.uk'
+        });
+        return trak.io.root_domain().should.equal('root_domain.co.uk');
+      });
       it("set up default options", function() {
         var trak;
         trak = new Trak();
+        sinon.stub(trak.io, 'get_root_domain').returns('.lvh.me');
         trak.io.initialize('api_token_value');
         trak.io.protocol().should.equal('https://');
         trak.io.host().should.equal('api.trak.io/v1');
+        trak.io.get_root_domain().should.equal('.lvh.me');
         trak.io.current_context().should.eql({});
-        return trak.io.channel().should.equal(window.location.hostname);
+        trak.io.channel().should.equal(window.location.hostname);
+        return trak.io.get_root_domain.restore();
       });
       it("calls #page_view", function() {
         sinon.stub(trak.io, 'page_ready');
@@ -248,7 +258,7 @@ requirejs(['trak'], function(Trak) {
         return trak.io.context().foo.should.equal('bar');
       });
     });
-    return describe('#channel', function() {
+    describe('#channel', function() {
       it("returns the current hostname by default", function() {
         return trak.io.channel().should.equal(window.location.hostname);
       });
@@ -263,6 +273,17 @@ requirejs(['trak'], function(Trak) {
       return it("retrieve any additional channel in a cookie", function() {
         cookie.set("_trak_" + (trak.io.api_token()) + "_channel", 'cookie_channel');
         return trak.io.channel().should.equal('cookie_channel');
+      });
+    });
+    return describe('#root_domain', function() {
+      it("returns the current root domain by default", function() {
+        sinon.stub(trak.io, 'get_root_domain').returns('.lvh.me');
+        trak.io.root_domain().should.equal('.lvh.me');
+        return trak.io.get_root_domain.restore();
+      });
+      return it("returns provided value if set", function() {
+        trak.io.root_domain('custom.lvh.me').should.equal('custom.lvh.me');
+        return trak.io.root_domain().should.equal('custom.lvh.me');
       });
     });
   });

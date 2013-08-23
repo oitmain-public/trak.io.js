@@ -15,6 +15,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       this.context(options.context) if options.context
       this.channel(options.channel) if options.channel
       this.distinct_id(options.distinct_id || null)
+      this.root_domain(options.root_domain || null)
 
       if options.auto_track_page_views != false
         me = this
@@ -216,7 +217,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
         this._distinct_id = value
       if !this._distinct_id and !(this._distinct_id = this.get_distinct_id_url_param()) and !(this._distinct_id = this.get_cookie('id'))
         this._distinct_id = this.generate_distinct_id()
-      cookie.set(this.cookie_key('id'), this._distinct_id, {domain: this.get_root_domain()})
+      cookie.set(this.cookie_key('id'), this._distinct_id, {domain: this.root_domain()})
       this._distinct_id
 
     generate_distinct_id: ->
@@ -225,8 +226,16 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
           v = if c == 'x' then r else (r&0x3|0x8)
           v.toString(16);
 
+    _root_domain: null
+    root_domain: (value) ->
+      if !value && !@_root_domain
+        @_root_domain = @get_root_domain()
+      if value
+        @_root_domain = value
+      @_root_domain
+
     get_root_domain: () ->
-      if document.location.hostname.match(/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/i)
+      if document.location.hostname.match(/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/i) || document.location.hostname == 'localhost'
         document.location.hostname
       else if matches = document.location.hostname.match(/[a-z0-9]+\.[a-z0-9]+$/i)
         "."+matches[0]

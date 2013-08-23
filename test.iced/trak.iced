@@ -14,6 +14,7 @@ requirejs ['trak'], (Trak) ->
       trak.io._current_context = false
       trak.io._channel = false
       trak.io._distinct_id = null
+      trak.io._root_domain = null
 
 
     describe '#initialize', ->
@@ -42,13 +43,20 @@ requirejs ['trak'], (Trak) ->
         trak.io.initialize('api_token_value', {distinct_id: 'custom_distinct_id'})
         trak.io.distinct_id().should.equal 'custom_distinct_id'
 
+      it "stores root domain option", ->
+        trak.io.initialize('api_token_value', {root_domain: 'root_domain.co.uk'})
+        trak.io.root_domain().should.equal 'root_domain.co.uk'
+
       it "set up default options", ->
         trak = new Trak()
+        sinon.stub(trak.io, 'get_root_domain').returns('.lvh.me')
         trak.io.initialize('api_token_value')
         trak.io.protocol().should.equal 'https://'
         trak.io.host().should.equal 'api.trak.io/v1'
+        trak.io.get_root_domain().should.equal '.lvh.me'
         trak.io.current_context().should.eql {}
         trak.io.channel().should.equal window.location.hostname
+        trak.io.get_root_domain.restore()
 
       it "calls #page_view", ->
         sinon.stub(trak.io, 'page_ready')
@@ -116,6 +124,7 @@ requirejs ['trak'], (Trak) ->
       it "retuns provided api_token", ->
         trak.io.initialize 'my_api_token'
         trak.io.api_token().should.equal 'my_api_token'
+
 
     describe '#distinct_id', ->
 
@@ -222,4 +231,15 @@ requirejs ['trak'], (Trak) ->
         trak.io.channel().should.equal 'cookie_channel'
 
 
+    describe '#root_domain', ()->
+
+      it "returns the current root domain by default", ->
+        sinon.stub(trak.io, 'get_root_domain').returns('.lvh.me')
+        trak.io.root_domain().should.equal '.lvh.me'
+        trak.io.get_root_domain.restore()
+
+
+      it "returns provided value if set", ->
+        trak.io.root_domain('custom.lvh.me').should.equal 'custom.lvh.me'
+        trak.io.root_domain().should.equal 'custom.lvh.me'
 
