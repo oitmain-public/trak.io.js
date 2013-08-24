@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+
+require 's3'
+require 'cloudfront-invalidator'
+
+v = 1
+
+# AWS::S3::Base.establish_connection!(
+#   :access_key_id     => ENV["AWS_ACCESS_KEY_ID"],
+#   :secret_access_key => ENV["AWS_SECRET_ACCESS_KEY"]
+# )
+
+service = S3::Service.new(
+  :access_key_id => ENV["AWS_ACCESS_KEY_ID"],
+  :secret_access_key => ENV["AWS_SECRET_ACCESS_KEY"]
+)
+
+
+bucket = service.buckets.find 'js.trak.io'
+
+js_object = bucket.objects.find "v#{v.to_s}/trak.io.js"
+js_object.content = open(File.join(File.dirname(__FILE__), '../trak.io.js'))
+js_object.save
+
+min_object = bucket.objects.find "v#{v.to_s}/trak.io.min.js"
+min_object.content = open(File.join(File.dirname(__FILE__), '../gzipped/trak.io.min.js'))
+min_object.content_encoding = 'gzip'
+min_object.save
+
+invalidator = CloudfrontInvalidator.new(ENV["AWS_ACCESS_KEY_ID"], ENV["AWS_SECRET_ACCESS_KEY"], 'E1N2AUK37JI9WZ')
+list = ["/v#{v}/trak.io.js","/v#{v}/trak.io.min.js"]
+invalidator.invalidate(list)

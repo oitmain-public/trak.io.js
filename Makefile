@@ -15,6 +15,8 @@ zip: min
 	-mkdir gzipped
 	gzip -9 trak.io.min.js -c > gzipped/trak.io.min.js
 
+deploy: test zip
+	bin/deploy
 
 server:
 	node server.js &
@@ -34,8 +36,8 @@ install:
 # Runs all the tests on travis.
 test: test-server min
 	sleep 1
-	-$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.io.html -R dot
-	-$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.io.min.html -R dot
+	$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.io.html -R dot
+	$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.io.min.html -R dot
 	make kill-test
 
 # Runs only the non-minified core tests.

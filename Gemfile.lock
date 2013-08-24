@@ -1,0 +1,16 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    cloudfront-invalidator (0.2.0)
+      ruby-hmac
+    proxies (0.2.1)
+    ruby-hmac (0.4.0)
+    s3 (0.3.13)
+      proxies (~> 0.2.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  cloudfront-invalidator
+  s3
