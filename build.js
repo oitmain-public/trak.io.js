@@ -8,9 +8,6 @@
   shim: {
     json2: {
       exports: 'JSON'
-    },
-    lodash: {
-      exports: '_'
     }
   },
   paths: {
@@ -18,5 +15,8 @@
     json2: '../components/json2/json2',
     cookie: '../components/cookie/cookie'
   },
-  wrap: true
+  wrap: {
+    start: "(function() {",
+    end: "}());"
+  }
 })

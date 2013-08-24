@@ -12,7 +12,6 @@ define(['trak', 'lodash', 'cookie'], function(Trak, _, cookie) {
       if (trak.io[method]) trak.io[method].apply(trak.io, item);
     }
     cookie.defaults.expires = 3650;
-    cookie.defaults.path = '/';
-    return window.cookie = cookie;
+    return cookie.defaults.path = '/';
   }
 });

@@ -1,4 +1,4 @@
-define ['exceptions','json2'], (Exceptions, JSON) ->
+define ['exceptions','json2','lodash'], (Exceptions, JSON, _) ->
 
   class JSONP
 

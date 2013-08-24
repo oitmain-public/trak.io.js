@@ -15,4 +15,3 @@ define ['trak', 'lodash','cookie'], (Trak, _, cookie) ->
 
     cookie.defaults.expires = 3650;
     cookie.defaults.path = '/';
-    window.cookie = cookie

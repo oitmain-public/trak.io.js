@@ -5,6 +5,7 @@ expect = chai.expect;
 requirejs(['trak.io'], function() {
 
   $(document).ready(function() {
+    window.cookie = trak.cookie;
     // Log errors in IE for easier testing.
     if (window.onerror) {
       window.onerror = console.log
