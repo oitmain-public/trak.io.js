@@ -22,6 +22,8 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
         this.page_ready ->
           me.page_view()
 
+      this
+
 
     initialise: ()->
       this.initialize.apply this, arguments
@@ -95,7 +97,8 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
 
       this.alias(distinct_id) if args[0]
       this.call 'identify', { distinct_id: distinct_id, data: { properties: properties }}, callback
-      null
+
+      this
 
 
     alias: () ->
@@ -114,7 +117,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
         this.call 'alias', { data: { distinct_id: distinct_id, alias: alias }}, callback
         this.distinct_id(alias) if update_distinct
 
-      null
+      this
 
 
     track: () ->
@@ -132,7 +135,8 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an event to track, see http://docs.trak.io/track.html')
 
       this.call 'track', { data: { distinct_id: distinct_id, event: event, channel: channel, context: context, properties: properties }}, callback
-      null
+
+      this
 
     page_view: () ->
       args = this.sort_arguments(arguments, ['string', 'string', 'function'])
@@ -140,6 +144,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       title = args[1] || this.page_title()
       callback = args[2] || null
       this.track 'page_view', { url: url, page_title: title }, callback
+      this
 
     _protocol: 'https'
     protocol: (value)->

@@ -26,10 +26,11 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       this.root_domain(options.root_domain || null);
       if (options.auto_track_page_views !== false) {
         me = this;
-        return this.page_ready(function() {
+        this.page_ready(function() {
           return me.page_view();
         });
       }
+      return this;
     };
 
     Trak.prototype.initialise = function() {
@@ -92,7 +93,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
           properties: properties
         }
       }, callback);
-      return null;
+      return this;
     };
 
     Trak.prototype.alias = function() {
@@ -120,7 +121,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
         }, callback);
         if (update_distinct) this.distinct_id(alias);
       }
-      return null;
+      return this;
     };
 
     Trak.prototype.track = function() {
@@ -145,7 +146,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
           properties: properties
         }
       }, callback);
-      return null;
+      return this;
     };
 
     Trak.prototype.page_view = function() {
@@ -154,10 +155,11 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       url = args[0] || this.url();
       title = args[1] || this.page_title();
       callback = args[2] || null;
-      return this.track('page_view', {
+      this.track('page_view', {
         url: url,
         page_title: title
       }, callback);
+      return this;
     };
 
     Trak.prototype._protocol = 'https';
