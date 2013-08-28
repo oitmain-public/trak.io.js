@@ -3520,17 +3520,24 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
       alias = args[1] ? args[1] : args[0];
       update_distinct = args[2] !== null ? args[2] : (args[1] ? false : true);
       callback = args[3] || null;
-      if (alias === distinct_id) return null;
       if (!alias) {
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an alias, see http://docs.trak.io/alias.html');
       }
-      this.call('alias', {
-        data: {
-          distinct_id: distinct_id,
-          alias: alias
+      if (alias === distinct_id) {
+        if (callback) {
+          callback({
+            status: 'unnecessary'
+          });
         }
-      }, callback);
-      if (update_distinct) this.distinct_id(alias);
+      } else {
+        this.call('alias', {
+          data: {
+            distinct_id: distinct_id,
+            alias: alias
+          }
+        }, callback);
+        if (update_distinct) this.distinct_id(alias);
+      }
       return null;
     };
 

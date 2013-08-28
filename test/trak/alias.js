@@ -75,9 +75,17 @@ requirejs([], function() {
         trak.io.distinct_id().should.equal(previous_id);
         return cookie.get("_trak_" + (trak.io.api_token()) + "_id").should.equal(previous_id);
       });
-      return it("doesn't make a call if the alias is the same as the distinct_id", function() {
+      it("doesn't make a call if the alias is the same as the distinct_id", function() {
         trak.io.alias('aaa', 'aaa');
         return trak.io.call.should.not.have.been.called;
+      });
+      return it("still calls callback if alias is the same as the distinct_id", function() {
+        var callback;
+        callback = sinon.spy();
+        trak.io.alias('aaa', 'aaa', callback);
+        return callback.should.have.been.calledWith({
+          status: 'unnecessary'
+        });
       });
     });
   });

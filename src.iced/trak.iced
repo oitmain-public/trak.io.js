@@ -105,14 +105,17 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       update_distinct = if args[2] != null then args[2] else (if args[1] then false else true)
       callback = args[3] || null
 
-      return null if alias == distinct_id
-
       unless alias
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an alias, see http://docs.trak.io/alias.html')
 
-      this.call 'alias', { data: { distinct_id: distinct_id, alias: alias }}, callback
-      this.distinct_id(alias) if update_distinct
+      if alias == distinct_id
+        callback({status: 'unnecessary'}) if callback
+      else
+        this.call 'alias', { data: { distinct_id: distinct_id, alias: alias }}, callback
+        this.distinct_id(alias) if update_distinct
+
       null
+
 
     track: () ->
       args = this.sort_arguments(arguments, ['string', 'string', 'string', 'object', 'object', 'function'])
