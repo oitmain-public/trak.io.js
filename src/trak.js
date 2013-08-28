@@ -81,19 +81,33 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
     };
 
     Trak.prototype.identify = function() {
-      var args, callback, distinct_id, properties;
+      var args, callback, distinct_id, identify_call, me, properties, properties_length, property, v;
+      me = this;
       args = this.sort_arguments(arguments, ['string', 'object', 'function']);
       distinct_id = args[0] || this.distinct_id();
       properties = args[1] || null;
       callback = args[2] || null;
-      if (args[0]) this.alias(distinct_id);
-      if (properties) {
-        this.call('identify', {
-          distinct_id: distinct_id,
-          data: {
-            properties: properties
-          }
-        }, callback);
+      properties_length = 0;
+      for (property in properties) {
+        v = properties[property];
+        properties_length++;
+      }
+      identify_call = function(data) {
+        if (properties) {
+          return me.call('identify', {
+            data: {
+              distinct_id: distinct_id,
+              properties: properties
+            }
+          }, callback);
+        } else {
+          return callback(data);
+        }
+      };
+      if (args[0]) {
+        me.alias(distinct_id, identify_call);
+      } else if (properties && properties_length > 0) {
+        identify_call();
       } else if (callback) {
         callback({
           status: 'unnecessary'
