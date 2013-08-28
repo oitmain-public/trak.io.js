@@ -104,7 +104,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
         if properties
           me.call 'identify', { data: { distinct_id: distinct_id, properties: properties }}, callback
         else
-          callback(data)
+          callback(data) if callback
 
       if args[0]
         me.alias(distinct_id, identify_call)

@@ -101,7 +101,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
             }
           }, callback);
         } else {
-          return callback(data);
+          if (callback) return callback(data);
         }
       };
       if (args[0]) {

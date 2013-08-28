@@ -3519,7 +3519,7 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
             }
           }, callback);
         } else {
-          return callback(data);
+          if (callback) return callback(data);
         }
       };
       if (args[0]) {
