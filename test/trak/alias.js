@@ -58,7 +58,7 @@ requirejs([], function() {
         return cookie.get("_trak_" + (trak.io.api_token()) + "_id").should.equal(previous_id);
       });
     });
-    return describe('#alias(distinct_id, alias)', function() {
+    describe('#alias(distinct_id, alias)', function() {
       it("calls #call", function() {
         trak.io.alias('custom_distinct_id', 'my_alias');
         return trak.io.call.should.have.been.calledWith('alias', {
@@ -75,10 +75,12 @@ requirejs([], function() {
         trak.io.distinct_id().should.equal(previous_id);
         return cookie.get("_trak_" + (trak.io.api_token()) + "_id").should.equal(previous_id);
       });
-      it("doesn't make a call if the alias is the same as the distinct_id", function() {
+      return it("doesn't make a call if the alias is the same as the distinct_id", function() {
         trak.io.alias('aaa', 'aaa');
         return trak.io.call.should.not.have.been.called;
       });
+    });
+    return describe('#alias(distinct_id, alias, callback)', function() {
       return it("still calls callback if alias is the same as the distinct_id", function() {
         var callback;
         callback = sinon.spy();

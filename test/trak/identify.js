@@ -2,10 +2,10 @@
 
 requirejs([], function() {
   return describe('Trak', function() {
-    before(function() {
+    beforeEach(function() {
       return sinon.stub(trak.io, 'call');
     });
-    after(function() {
+    afterEach(function() {
       return trak.io.call.restore();
     });
     describe('#identify(properties)', function() {
@@ -24,19 +24,29 @@ requirejs([], function() {
       });
     });
     describe('#identify(distinct_id)', function() {
-      it("calls #call", function() {
-        trak.io.identify('my_distinct_id');
-        return trak.io.call.should.have.been.calledWith('identify', {
-          distinct_id: 'my_distinct_id',
-          data: {
-            properties: {}
-          }
-        });
+      beforeEach(function() {
+        return sinon.stub(trak.io, 'alias');
       });
-      return it("sets the distinct_id", function() {
+      afterEach(function() {
+        return trak.io.alias.restore();
+      });
+      it("doesn't bother with #call", function() {
         trak.io.identify('my_distinct_id');
-        trak.io.distinct_id().should.equal('my_distinct_id');
-        return cookie.get("_trak_" + (trak.io.api_token()) + "_id").should.equal('my_distinct_id');
+        return trak.io.call.should.not.have.been.calledWith('identify');
+      });
+      return it("calls alias with the distinct_id", function() {
+        trak.io.identify('my_distinct_id');
+        return trak.io.alias.should.have.been.calledWith('my_distinct_id');
+      });
+    });
+    describe('#identify(distinct_id, callback)', function() {
+      return it("executes callback immediately", function() {
+        var callback;
+        callback = sinon.spy();
+        trak.io.identify('my_distinct_id', callback);
+        return callback.should.have.been.calledWith({
+          status: 'unnecessary'
+        });
       });
     });
     return describe('#identify(distinct_id, properties)', function() {

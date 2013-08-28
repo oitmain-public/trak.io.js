@@ -66,6 +66,9 @@ requirejs [], () ->
         trak.io.alias('aaa','aaa')
         trak.io.call.should.not.have.been.called
 
+
+    describe '#alias(distinct_id, alias, callback)', ->
+
       it "still calls callback if alias is the same as the distinct_id", ->
         callback = sinon.spy()
         trak.io.alias('aaa','aaa', callback)

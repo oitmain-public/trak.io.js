@@ -3502,15 +3502,21 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
       var args, callback, distinct_id, properties;
       args = this.sort_arguments(arguments, ['string', 'object', 'function']);
       distinct_id = args[0] || this.distinct_id();
-      properties = args[1] || {};
+      properties = args[1] || null;
       callback = args[2] || null;
       if (args[0]) this.alias(distinct_id);
-      this.call('identify', {
-        distinct_id: distinct_id,
-        data: {
-          properties: properties
-        }
-      }, callback);
+      if (properties) {
+        this.call('identify', {
+          distinct_id: distinct_id,
+          data: {
+            properties: properties
+          }
+        }, callback);
+      } else if (callback) {
+        callback({
+          status: 'unnecessary'
+        });
+      }
       return this;
     };
 
@@ -3524,13 +3530,7 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
       if (!alias) {
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an alias, see http://docs.trak.io/alias.html');
       }
-      if (alias === distinct_id) {
-        if (callback) {
-          callback({
-            status: 'unnecessary'
-          });
-        }
-      } else {
+      if (alias !== distinct_id) {
         this.call('alias', {
           data: {
             distinct_id: distinct_id,
@@ -3538,6 +3538,10 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
           }
         }, callback);
         if (update_distinct) this.distinct_id(alias);
+      } else if (callback) {
+        callback({
+          status: 'unnecessary'
+        });
       }
       return this;
     };
