@@ -163,9 +163,13 @@ requirejs(['trak'], function(Trak) {
         cookie.set("_trak_" + (trak.io.api_token()) + "_id", 'distinct_id_value2');
         return trak.io.distinct_id().should.equal('distinct_id_value2');
       });
-      return it("gets distinct_id from url", function() {
+      it("gets distinct_id from url", function() {
         sinon.stub(trak.io, 'url_params').returns('?a=a&trak_distinct_id=%7Basdfasdf%7D&b=b');
         return trak.io.distinct_id().should.equal('{asdfasdf}');
+      });
+      return it("takes an numerical value for id", function() {
+        trak.io.distinct_id(1234);
+        return trak.io.distinct_id().should.eq('1234');
       });
     });
     describe('#context', function() {

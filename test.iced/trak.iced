@@ -147,6 +147,10 @@ requirejs ['trak'], (Trak) ->
         sinon.stub(trak.io, 'url_params').returns('?a=a&trak_distinct_id=%7Basdfasdf%7D&b=b')
         trak.io.distinct_id().should.equal '{asdfasdf}'
 
+      it "takes an numerical value for id", ->
+        trak.io.distinct_id(1234)
+        trak.io.distinct_id().should.eq('1234')
+
 
     describe '#context', ()->
 

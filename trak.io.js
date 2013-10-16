@@ -3705,6 +3705,7 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
     Trak.prototype._distinct_id = null;
 
     Trak.prototype.distinct_id = function(value) {
+      if (typeof value === 'number') value = value.toString();
       if (value) this._distinct_id = value;
       if (!this._distinct_id && !(this._distinct_id = this.get_distinct_id_url_param()) && !(this._distinct_id = this.get_cookie('id'))) {
         this._distinct_id = this.generate_distinct_id();

@@ -244,6 +244,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
 
     _distinct_id: null
     distinct_id: (value)->
+      value = value.toString() if typeof value == 'number'
       if value
         this._distinct_id = value
       if !this._distinct_id and !(this._distinct_id = this.get_distinct_id_url_param()) and !(this._distinct_id = this.get_cookie('id'))
