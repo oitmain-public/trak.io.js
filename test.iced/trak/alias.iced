@@ -35,6 +35,10 @@ requirejs [], () ->
         trak.io.alias('bbb')
         trak.io.call.should.not.have.been.called
 
+      it "takes an numerical value for id", ->
+        trak.io.alias(1234)
+        trak.io._distinct_id.should.eq('1234')
+
 
 
     describe '#alias(alias, false)', ->

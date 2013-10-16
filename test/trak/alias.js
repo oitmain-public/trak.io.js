@@ -34,10 +34,14 @@ requirejs([], function() {
         trak.io.distinct_id().should.equal('my_alias');
         return cookie.get("_trak_" + (trak.io.api_token()) + "_id").should.equal('my_alias');
       });
-      return it("doesn't make a call if the alias is the same as the current distinct_id", function() {
+      it("doesn't make a call if the alias is the same as the current distinct_id", function() {
         trak.io._distinct_id = 'bbb';
         trak.io.alias('bbb');
         return trak.io.call.should.not.have.been.called;
+      });
+      return it("takes an numerical value for id", function() {
+        trak.io.alias(1234);
+        return trak.io._distinct_id.should.eq('1234');
       });
     });
     describe('#alias(alias, false)', function() {

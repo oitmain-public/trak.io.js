@@ -3501,6 +3501,7 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
     Trak.prototype.identify = function() {
       var args, callback, distinct_id, identify_call, me, properties, properties_length, property, v;
       me = this;
+      if (typeof arguments[0] === 'number') arguments[0] = arguments[0].toString();
       args = this.sort_arguments(arguments, ['string', 'object', 'function']);
       distinct_id = args[0] || this.distinct_id();
       properties = args[1] || null;
@@ -3536,6 +3537,7 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
 
     Trak.prototype.alias = function() {
       var alias, args, callback, distinct_id, update_distinct;
+      if (typeof arguments[0] === 'number') arguments[0] = arguments[0].toString();
       args = this.sort_arguments(arguments, ['string', 'string', 'boolean', 'function']);
       distinct_id = (args[1] ? args[0] : void 0) || this.distinct_id();
       alias = args[1] ? args[1] : args[0];

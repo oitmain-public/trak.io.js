@@ -45,6 +45,10 @@ requirejs [], () ->
         trak.io.identify('my_distinct_id')
         trak.io.alias.should.have.been.calledWith('my_distinct_id')
 
+      it "takes an numerical value for id", ->
+        trak.io.identify(1234)
+        trak.io.alias.should.have.been.calledWith('1234')
+
 
     describe '#identify(distinct_id, callback)', ->
 
