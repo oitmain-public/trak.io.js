@@ -1,4 +1,4 @@
-define(["lodash"], function(lang){
+define(["lodash"], function(_){
 
 // module:
 //    dojo/io-query

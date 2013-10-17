@@ -1,5 +1,4 @@
 define ['trak', 'lodash','cookie'], (Trak, _, cookie) ->
-
   unless window.trak && window.trak.loaded
 
     trak = new Trak()

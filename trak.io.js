@@ -3148,7 +3148,7 @@ define('jsonp',['exceptions', 'json2', 'lodash'], function(Exceptions, JSON, _) 
   })();
 });
 
-define('io-query',["lodash"], function(lang){
+define('io-query',["lodash"], function(_){
 
 // module:
 //    dojo/io-query
