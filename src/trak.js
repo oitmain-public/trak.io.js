@@ -287,14 +287,16 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
     Trak.prototype._distinct_id = null;
 
     Trak.prototype.distinct_id = function(value) {
+      var options;
       if (typeof value === 'number') value = value.toString();
       if (value) this._distinct_id = value;
       if (!this._distinct_id && !(this._distinct_id = this.get_distinct_id_url_param()) && !(this._distinct_id = this.get_cookie('id'))) {
         this._distinct_id = this.generate_distinct_id();
       }
-      cookie.set(this.cookie_key('id'), this._distinct_id, {
+      options = this.root_domain() === 'localhost' ? {} : {
         domain: this.root_domain()
-      });
+      };
+      cookie.set(this.cookie_key('id'), this._distinct_id, options);
       return this._distinct_id;
     };
 

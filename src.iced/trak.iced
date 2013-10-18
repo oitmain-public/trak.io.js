@@ -249,7 +249,8 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
         this._distinct_id = value
       if !this._distinct_id and !(this._distinct_id = this.get_distinct_id_url_param()) and !(this._distinct_id = this.get_cookie('id'))
         this._distinct_id = this.generate_distinct_id()
-      cookie.set(this.cookie_key('id'), this._distinct_id, {domain: this.root_domain()})
+      options = if @root_domain() == 'localhost' then {} else {domain: @root_domain()}
+      cookie.set(this.cookie_key('id'), this._distinct_id, options)
       this._distinct_id
 
     generate_distinct_id: ->
