@@ -1,4 +1,3 @@
-
 PHANTOM = node_modules/.bin/mocha-phantomjs
 PHANTOM_OPTS = --setting web-security=false --setting local-to-remote-url-access=true
 
