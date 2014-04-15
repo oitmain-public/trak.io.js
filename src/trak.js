@@ -18,6 +18,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       if (options == null) {
         options = {};
       }
+      me = this;
       this.protocol(options.protocol);
       if (options.host) {
         this.host(options.host);
@@ -30,8 +31,15 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       }
       this.distinct_id(options.distinct_id || null);
       this.root_domain(options.root_domain || null);
+      if (options.automagic) {
+        require(['trak.automagic'], function(Automagic) {
+          me.automagic = new Automagic();
+          return me.automagic.initialize(options.automagic);
+        });
+      } else {
+        me.automagic = false;
+      }
       if (options.auto_track_page_views !== false) {
-        me = this;
         this.page_ready(function() {
           return me.page_view();
         });

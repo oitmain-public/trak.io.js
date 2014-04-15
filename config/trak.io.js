@@ -1,7 +1,7 @@
 ({
   name: '../bower_components/almond/almond',
-  baseUrl: 'src',
-  out: 'trak.io.js',
+  baseUrl: '../src',
+  out: '../trak.io.js',
   optimize: 'none',
   include: 'trak.io',
   insertRequire: ['trak.io'],

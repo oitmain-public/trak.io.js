@@ -89,7 +89,7 @@ requirejs(['trak'], function(Trak) {
         trak.io.page_title.restore();
         return trak.io.url.restore();
       });
-      return it("doesn't call #page_view if auto_track_page_views", function() {
+      it("doesn't call #page_view if auto_track_page_views", function() {
         sinon.stub(trak.io, 'page_ready');
         sinon.stub(trak.io, 'url').returns('page_url');
         sinon.stub(trak.io, 'page_title').returns('A page title');
@@ -100,6 +100,21 @@ requirejs(['trak'], function(Trak) {
         trak.io.page_ready.restore();
         trak.io.page_title.restore();
         return trak.io.url.restore();
+      });
+      it("should not set up automagic by default", function() {
+        var trak;
+        trak = new Trak();
+        trak.io.initialize('api_token_value');
+        return trak.io.automagic.should.equal(false);
+      });
+      return it("should set up automagic if specified", function() {
+        var trak;
+        trak = new Trak();
+        trak.io.initialize('api_token_value', {
+          automagic: true
+        });
+        trak.io.automagic.should.not.equal(false);
+        return trak.io.automagic.should.have.been.called;
       });
     });
     describe('#initialise', function() {

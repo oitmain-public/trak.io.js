@@ -10,6 +10,8 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       this.io = this
 
     initialize: (@_api_token, options = {}) ->
+      me = this
+
       this.protocol(options.protocol)
       this.host(options.host) if options.host
       this.context(options.context) if options.context
@@ -17,8 +19,14 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       this.distinct_id(options.distinct_id || null)
       this.root_domain(options.root_domain || null)
 
+      if options.automagic
+        require ['trak.automagic'], (Automagic) ->
+          me.automagic = new Automagic()
+          me.automagic.initialize(options.automagic)
+      else
+        me.automagic = false
+
       if options.auto_track_page_views != false
-        me = this
         this.page_ready ->
           me.page_view()
 
