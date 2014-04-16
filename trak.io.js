@@ -3496,7 +3496,7 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
       me = this;
       script.onload = function() {
         me.automagic(new Automagic);
-        return me.automagic.initialize(options);
+        return me.automagic().initialize(options);
       };
       return document.head.appendChild(script);
     };

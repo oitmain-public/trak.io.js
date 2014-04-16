@@ -48,7 +48,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       me = this
       script.onload = ->
         me.automagic(new Automagic)
-        me.automagic.initialize options
+        me.automagic().initialize(options)
 
       document.head.appendChild(script)
 

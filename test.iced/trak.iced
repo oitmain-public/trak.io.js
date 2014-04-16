@@ -95,7 +95,7 @@ requirejs ['trak'], (Trak) ->
 
           done()
 
-        setTimeout load, 500
+        setTimeout load, 10000
 
 
     describe '#initialise', ->

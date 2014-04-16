@@ -119,7 +119,7 @@ requirejs(['trak'], function(Trak) {
           document.getElementById('trakio-automagic').should.not.equal["null"];
           return done();
         };
-        return setTimeout(load, 500);
+        return setTimeout(load, 10000);
       });
     });
     describe('#initialise', function() {
