@@ -63,7 +63,8 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
         me.automagic(automagic).initialize(options)
         options.test_hooks[1] automagic
 
-      document.head.appendChild(script)
+      head = document.head || document.getElementByTagName("head")[0]
+      head.insertBefore(script, head.firstChild)
 
 
     page_ready_event_fired: false
@@ -78,15 +79,15 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
 
 
       # The DOM ready check for Internet Explorer
-      do_scroll_check = ->
+      do_oll_check = ->
         return  if @page_ready_event_fired
 
         # If IE is used, use the trick by Diego Perini
-        # http://javascript.nwbox.com/IEContentLoaded/
+        # http://javaipt.nwbox.com/IEContentLoaded/
         try
           document.documentElement.doScroll "left"
         catch e
-          setTimeout do_scroll_check, 1
+          setTimeout do_oll_check, 1
           return
 
         # Execute any waiting functions
@@ -118,7 +119,7 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
         toplevel = false
         try
           toplevel = not window.frameElement?
-        do_scroll_check()  if document.documentElement.doScroll and toplevel
+        do_oll_check()  if document.documentElement.doScroll and toplevel
 
 
     jsonp: new JSONP()

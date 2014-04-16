@@ -3483,7 +3483,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
     Trak.prototype.automagic = false;
 
     Trak.prototype.load_automagic = function(options) {
-      var me, script, script_src;
+      var head, me, script, script_src;
       if (options === true) {
         options = {};
       }
@@ -3509,13 +3509,14 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
         me.automagic(automagic).initialize(options);
         return options.test_hooks[1](automagic);
       };
-      return document.head.appendChild(script);
+      head = document.head || document.getElementByTagName("head")[0];
+      return head.insertBefore(script, head.firstChild);
     };
 
     Trak.prototype.page_ready_event_fired = false;
 
     Trak.prototype.page_ready = function(fn) {
-      var do_scroll_check, idempotent_fn, me, toplevel;
+      var do_oll_check, idempotent_fn, me, toplevel;
       me = this;
       idempotent_fn = function() {
         if (me.page_ready_event_fired) {
@@ -3524,7 +3525,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
         me.page_ready_event_fired = true;
         return fn();
       };
-      do_scroll_check = function() {
+      do_oll_check = function() {
         var e;
         if (this.page_ready_event_fired) {
           return;
@@ -3533,7 +3534,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
           document.documentElement.doScroll("left");
         } catch (_error) {
           e = _error;
-          setTimeout(do_scroll_check, 1);
+          setTimeout(do_oll_check, 1);
           return;
         }
         return idempotent_fn();
@@ -3552,7 +3553,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
           toplevel = window.frameElement == null;
         } catch (_error) {}
         if (document.documentElement.doScroll && toplevel) {
-          return do_scroll_check();
+          return do_oll_check();
         }
       }
     };

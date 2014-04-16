@@ -101,8 +101,9 @@ requirejs(['trak', 'trak.io'], function(Trak, trak) {
         return trak.io.url.restore();
       });
       it("should not set up automagic by default", function() {
-        trak = new Trak();
-        trak.io.initialize('api_token_value');
+        trak.io.initialize('api_token_value', {
+          auto_track_page_views: false
+        });
         trak.io.automagic().should.equal(false);
         return $("script[src='//" + document.location.host + "/" + script_name + "']").length.should.equal(0);
       });

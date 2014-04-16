@@ -77,8 +77,7 @@ requirejs ['trak','trak.io'], (Trak,trak) ->
         trak.io.url.restore()
 
       it "should not set up automagic by default", ->
-        trak = new Trak()
-        trak.io.initialize('api_token_value')
+        trak.io.initialize('api_token_value', { auto_track_page_views: false })
         trak.io.automagic().should.equal false
         $("script[src='//#{document.location.host}/#{script_name}']").length.should.equal(0)
 
@@ -89,6 +88,7 @@ requirejs ['trak','trak.io'], (Trak,trak) ->
           automagic: true
         script_name = if document.location.pathname == '/test/trak.io.min.html' then 'trak.automagic.min.js' else 'trak.automagic.js'
         $("script[src='//d29p64779x43zo.cloudfront.net/v1/#{script_name}']").length.should.equal(1)
+
 
       it "should load automagic from specified host", (done) ->
         trak = new Trak()
