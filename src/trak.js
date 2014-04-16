@@ -64,10 +64,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
         test_hooks: [function() {}, function() {}]
       }, options);
       script = document.createElement('script');
-      console.log(trak);
-      console.log(this);
       if (this.minified) {
-        console.log(this.minified);
         script_src = 'trak.automagic.min.js';
       } else {
         script_src = 'trak.automagic.js';

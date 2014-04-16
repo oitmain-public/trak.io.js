@@ -3492,10 +3492,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
         test_hooks: [function() {}, function() {}]
       }, options);
       script = document.createElement('script');
-      console.log(trak);
-      console.log(this);
       if (this.minified) {
-        console.log(this.minified);
         script_src = 'trak.automagic.min.js';
       } else {
         script_src = 'trak.automagic.js';
@@ -3897,6 +3894,7 @@ define('trak.io', ['Trak', 'lodash', 'cookie'], function(Trak, _, cookie) {
     trak = new Trak();
     queue = window.trak;
     window.trak = trak;
+    window.Trak = window.trak.Trak = Trak;
     while (queue && queue.length > 0) {
       item = queue.shift();
       method = item.shift();
@@ -3910,6 +3908,4 @@ define('trak.io', ['Trak', 'lodash', 'cookie'], function(Trak, _, cookie) {
   return window.trak;
 });
 
-
-require(["trak.io"]);
-}());
+return require('trak.io'); }());

@@ -2,7 +2,10 @@
 chai.should();
 expect = chai.expect;
 
+
 requirejs(['trak.io'], function(trak) {
+  define('Trak', [], function() { return trak.Trak })
+
   $(document).ready(function() {
     window.cookie = trak.cookie;
     // Log errors in IE for easier testing.

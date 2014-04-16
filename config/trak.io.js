@@ -4,7 +4,6 @@
   out: '../trak.io.js',
   optimize: 'none',
   include: 'trak.io',
-  insertRequire: ['trak.io'],
   shim: {
     json2: {
       exports: 'JSON'
@@ -17,6 +16,6 @@
   },
   wrap: {
     start: "(function() {",
-    end: "}());"
+    end: "return require('trak.io'); }());"
   }
 })

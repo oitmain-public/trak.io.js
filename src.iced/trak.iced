@@ -46,10 +46,7 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
         ]
       , options
       script = document.createElement('script')
-      console.log trak
-      console.log @
       if @minified
-        console.log @minified
         script_src = 'trak.automagic.min.js'
       else
         script_src = 'trak.automagic.js'
@@ -349,4 +346,3 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
         else
           r.push null
       r
-

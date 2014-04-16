@@ -8,6 +8,7 @@ define 'trak.io', ['Trak', 'lodash','cookie'], (Trak, _, cookie) ->
     # proper analytics.js method.
     queue = window.trak
     window.trak = trak
+    window.Trak = window.trak.Trak = Trak
     while queue and queue.length > 0
       item = queue.shift()
       method = item.shift()
