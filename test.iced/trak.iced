@@ -81,17 +81,21 @@ requirejs ['trak'], (Trak) ->
       it "should not set up automagic by default", ->
         trak = new Trak()
         trak.io.initialize('api_token_value')
-        trak.io.automagic.should.equal false
+        trak.io.automagic().should.equal false
 
-      it "should set up automagic if specified", ->
+      it "should set up automagic if specified", (done) ->
         trak = new Trak()
         trak.io.initialize('api_token_value', { automagic: true })
 
-        setTimeout 2000, ->
-          trak.io.automagic.should.not.equal false
-          trak.io.automagic.initialize.should.have.been.called
+        load = ->
+          trak.io.automagic().should.not.equal false
+          trak.io.automagic().initialize.should.have.been.called
 
           document.getElementById('trakio-automagic').should.not.equal.null
+
+          done()
+
+        setTimeout load, 500
 
 
     describe '#initialise', ->

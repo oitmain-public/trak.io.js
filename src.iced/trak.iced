@@ -20,7 +20,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       if options.automagic
         this.load_automagic(options.automagic) unless this.automagic
       else
-        this.automagic = false
+        this.automagic(false)
 
       me = this
       if options.auto_track_page_views != false
@@ -33,19 +33,24 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
     initialise: ()->
       this.initialize.apply this, arguments
 
-    load_automagic: (options = {}) ->
-      head = document.head || document.getElementsByTagName('head')[0]
+
+    automagic: false
+    load_automagic: (options = { minified: false }) ->
 
       script = document.createElement('script')
-      script.src = '/trak.automagic.js'
-      script.async = false
+
+      if options.minified
+        script.src = '/trak.automagic.min.js'
+      else
+        script.src = '/trak.automagic.js'
+
 
       me = this
       script.onload = ->
         me.automagic(new Automagic)
-        me.automagic.initialize
+        me.automagic.initialize options
 
-      head.appendChild(script)
+      document.head.appendChild(script)
 
 
     page_ready_event_fired: false

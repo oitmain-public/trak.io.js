@@ -35,7 +35,7 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
           this.load_automagic(options.automagic);
         }
       } else {
-        this.automagic = false;
+        this.automagic(false);
       }
       me = this;
       if (options.auto_track_page_views !== false) {
@@ -50,21 +50,27 @@ define(['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(JSONP, 
       return this.initialize.apply(this, arguments);
     };
 
+    Trak.prototype.automagic = false;
+
     Trak.prototype.load_automagic = function(options) {
-      var head, me, script;
+      var me, script;
       if (options == null) {
-        options = {};
+        options = {
+          minified: false
+        };
       }
-      head = document.head || document.getElementsByTagName('head')[0];
       script = document.createElement('script');
-      script.src = '/trak.automagic.js';
-      script.async = false;
+      if (options.minified) {
+        script.src = '/trak.automagic.min.js';
+      } else {
+        script.src = '/trak.automagic.js';
+      }
       me = this;
       script.onload = function() {
         me.automagic(new Automagic);
-        return me.automagic.initialize;
+        return me.automagic.initialize(options);
       };
-      return head.appendChild(script);
+      return document.head.appendChild(script);
     };
 
     Trak.prototype.page_ready_event_fired = false;

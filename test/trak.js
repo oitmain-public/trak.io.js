@@ -105,19 +105,21 @@ requirejs(['trak'], function(Trak) {
         var trak;
         trak = new Trak();
         trak.io.initialize('api_token_value');
-        return trak.io.automagic.should.equal(false);
+        return trak.io.automagic().should.equal(false);
       });
-      return it("should set up automagic if specified", function() {
-        var trak;
+      return it("should set up automagic if specified", function(done) {
+        var load, trak;
         trak = new Trak();
         trak.io.initialize('api_token_value', {
           automagic: true
         });
-        return setTimeout(2000, function() {
-          trak.io.automagic.should.not.equal(false);
-          trak.io.automagic.initialize.should.have.been.called;
-          return document.getElementById('trakio-automagic').should.not.equal["null"];
-        });
+        load = function() {
+          trak.io.automagic().should.not.equal(false);
+          trak.io.automagic().initialize.should.have.been.called;
+          document.getElementById('trakio-automagic').should.not.equal["null"];
+          return done();
+        };
+        return setTimeout(load, 500);
       });
     });
     describe('#initialise', function() {
