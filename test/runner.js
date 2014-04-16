@@ -2,8 +2,7 @@
 chai.should();
 expect = chai.expect;
 
-requirejs(['trak.io'], function() {
-
+requirejs(['trak.io'], function(trak) {
   $(document).ready(function() {
     window.cookie = trak.cookie;
     // Log errors in IE for easier testing.

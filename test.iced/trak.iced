@@ -1,8 +1,6 @@
-requirejs ['trak'], (Trak) ->
-
+requirejs ['trak','trak.io'], (Trak,trak) ->
 
   describe 'Trak', ->
-
 
     afterEach ->
       trak.cookie.empty() # Only empties for the current domain
@@ -82,20 +80,34 @@ requirejs ['trak'], (Trak) ->
         trak = new Trak()
         trak.io.initialize('api_token_value')
         trak.io.automagic().should.equal false
+        $("script[src='//#{document.location.host}/#{script_name}']").length.should.equal(0)
 
-      it "should set up automagic if specified", (done) ->
+      it "should set up automagic if set to true", ->
         trak = new Trak()
-        trak.io.initialize('api_token_value', { automagic: true })
+        trak.io.initialize 'api_token_value',
+          auto_track_page_views: false
+          automagic: true
+        script_name = if document.location.pathname == '/test/trak.io.min.html' then 'trak.automagic.min.js' else 'trak.automagic.js'
+        $("script[src='//d29p64779x43zo.cloudfront.net/v1/#{script_name}']").length.should.equal(1)
 
-        load = ->
-          trak.io.automagic().should.not.equal false
-          trak.io.automagic().initialize.should.have.been.called
+      it "should load automagic from specified host", (done) ->
+        trak = new Trak()
+        trak.io.initialize 'api_token_value',
+          auto_track_page_views: false
+          automagic:
+            host: document.location.host
+            test_hooks: [
+              (automagic) ->
+                automagic.initialize = sinon.spy()
+              ,(automagic) ->
+                trak.io.automagic().initialize.should.have.been.called
+                trak.io.automagic().should.not.equal false
+                done()
+            ]
+        script_name = if document.location.pathname == '/test/trak.io.min.html' then 'trak.automagic.min.js' else 'trak.automagic.js'
+        console.log "script[src='//#{document.location.host}/#{script_name}']"
+        $("script[src='//#{document.location.host}/#{script_name}']").length.should.equal(1)
 
-          document.getElementById('trakio-automagic').should.not.equal.null
-
-          done()
-
-        setTimeout load, 10000
 
 
     describe '#initialise', ->

@@ -1,4 +1,5 @@
-define ['trak', 'lodash','cookie'], (Trak, _, cookie) ->
+define 'trak.io', ['Trak', 'lodash','cookie'], (Trak, _, cookie) ->
+
   unless window.trak && window.trak.loaded
 
     trak = new Trak()
@@ -14,3 +15,4 @@ define ['trak', 'lodash','cookie'], (Trak, _, cookie) ->
 
     cookie.defaults.expires = 3650;
     cookie.defaults.path = '/';
+  window.trak

@@ -19,7 +19,7 @@
         ignoreLeaks : true
       });
     </script>
-    <script type='text/javascript' src="/trak.io.js"></script>
+    <!-- <script type='text/javascript' src="/trak.io.js"></script> -->
 
     <script src="../bower_components/requirejs/require.js"></script>
     <script>
@@ -34,7 +34,9 @@
         paths: {
           cookie: '../bower_components/cookie.js/cookie',
           json2: '../bower_components/json2/json2',
-          lodash: '../vendor/lodash'
+          lodash: '../vendor/lodash',
+          trak: '../trak.io',
+          'trak.io': '../trak.io'
         }
       });
       window.mocha.setup({

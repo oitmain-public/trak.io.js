@@ -1,10 +1,11 @@
-define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,ioQuery,cookie,_) ->
+define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,ioQuery,cookie,_) ->
 
   class Trak
 
     loaded: true
     Exceptions: Exceptions
     cookie: cookie
+    minified: false
 
     constructor: ->
       this.io = this
@@ -18,7 +19,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       this.root_domain(options.root_domain || null)
 
       if options.automagic
-        this.load_automagic(options.automagic) unless this.automagic
+        this.load_automagic(options.automagic) unless this._automagic
       else
         this.automagic(false)
 
@@ -35,20 +36,32 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
 
 
     automagic: false
-    load_automagic: (options = { minified: false }) ->
-
+    load_automagic: (options) ->
+      options = {} if options == true
+      options = _.merge
+        host: 'd29p64779x43zo.cloudfront.net/v1'
+        test_hooks: [
+          ()->,
+          ()->
+        ]
+      , options
       script = document.createElement('script')
-
-      if options.minified
-        script.src = '/trak.automagic.min.js'
+      console.log trak
+      console.log @
+      if @minified
+        console.log @minified
+        script_src = 'trak.automagic.min.js'
       else
-        script.src = '/trak.automagic.js'
+        script_src = 'trak.automagic.js'
 
-
+      script.src = "//#{options.host}/#{script_src}"
       me = this
+
       script.onload = ->
-        me.automagic(new Automagic)
-        me.automagic().initialize(options)
+        automagic = new Automagic
+        options.test_hooks[0] automagic
+        me.automagic(automagic).initialize(options)
+        options.test_hooks[1] automagic
 
       document.head.appendChild(script)
 

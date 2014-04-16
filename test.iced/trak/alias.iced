@@ -1,4 +1,5 @@
 requirejs [], () ->
+
   describe 'Trak', ->
 
     beforeEach ->

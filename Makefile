@@ -12,6 +12,7 @@ watch:
 min: build
 	uglifyjs -mc -o trak.io.min.js trak.io.js
 	uglifyjs -mc -o trak.automagic.min.js trak.automagic.js
+	sed -i '' -e's/prototype.minified\=\!1/prototype.minified=!0/g' trak.io.min.js
 
 zip: min
 	-mkdir gzipped
