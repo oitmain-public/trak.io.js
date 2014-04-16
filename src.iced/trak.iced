@@ -50,7 +50,8 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
         me.automagic(new Automagic)
         me.automagic().initialize(options)
 
-      document.head.insertBefore(script, document.head.firstChild)
+      head = document.head || document.getElementByTagName("head")[0]
+      head.insertBefore(script, head.firstChild)
 
 
     page_ready_event_fired: false
@@ -65,15 +66,15 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
 
 
       # The DOM ready check for Internet Explorer
-      do_scroll_check = ->
+      do_oll_check = ->
         return  if @page_ready_event_fired
 
         # If IE is used, use the trick by Diego Perini
-        # http://javascript.nwbox.com/IEContentLoaded/
+        # http://javaipt.nwbox.com/IEContentLoaded/
         try
           document.documentElement.doScroll "left"
         catch e
-          setTimeout do_scroll_check, 1
+          setTimeout do_oll_check, 1
           return
 
         # Execute any waiting functions
@@ -105,7 +106,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
         toplevel = false
         try
           toplevel = not window.frameElement?
-        do_scroll_check()  if document.documentElement.doScroll and toplevel
+        do_oll_check()  if document.documentElement.doScroll and toplevel
 
 
     jsonp: new JSONP()
