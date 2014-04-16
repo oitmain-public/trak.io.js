@@ -10,8 +10,6 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       this.io = this
 
     initialize: (@_api_token, options = {}) ->
-      me = this
-
       this.protocol(options.protocol)
       this.host(options.host) if options.host
       this.context(options.context) if options.context
@@ -20,12 +18,11 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       this.root_domain(options.root_domain || null)
 
       if options.automagic
-        require ['trak.automagic'], (Automagic) ->
-          me.automagic = new Automagic()
-          me.automagic.initialize(options.automagic)
+        this.load_automagic(options.automagic) unless this.automagic
       else
-        me.automagic = false
+        this.automagic = false
 
+      me = this
       if options.auto_track_page_views != false
         this.page_ready ->
           me.page_view()
@@ -35,6 +32,21 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
 
     initialise: ()->
       this.initialize.apply this, arguments
+
+    load_automagic: (options = {}) ->
+      head = document.head || document.getElementsByTagName('head')[0]
+
+      script = document.createElement('script')
+      script.src = '/trak.automagic.js'
+      script.async = false
+
+      me = this
+      script.onload = ->
+        me.automagic(new Automagic)
+        me.automagic.initialize
+
+      head.appendChild(script)
+
 
     page_ready_event_fired: false
     page_ready: (fn) ->
@@ -181,6 +193,11 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
     host: (value)->
       this._host = value if value
       this._host
+
+    _automagic: false
+    automagic: (value) ->
+      this._automagic = value if value
+      this._automagic
 
     _current_context: false
     current_context: (key, value)->

@@ -113,8 +113,11 @@ requirejs(['trak'], function(Trak) {
         trak.io.initialize('api_token_value', {
           automagic: true
         });
-        trak.io.automagic.should.not.equal(false);
-        return trak.io.automagic.should.have.been.called;
+        return setTimeout(2000, function() {
+          trak.io.automagic.should.not.equal(false);
+          trak.io.automagic.initialize.should.have.been.called;
+          return document.getElementById('trakio-automagic').should.not.equal["null"];
+        });
       });
     });
     describe('#initialise', function() {

@@ -3446,7 +3446,6 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
       if (options == null) {
         options = {};
       }
-      me = this;
       this.protocol(options.protocol);
       if (options.host) {
         this.host(options.host);
@@ -3460,13 +3459,13 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
       this.distinct_id(options.distinct_id || null);
       this.root_domain(options.root_domain || null);
       if (options.automagic) {
-        require(['trak.automagic'], function(Automagic) {
-          me.automagic = new Automagic();
-          return me.automagic.initialize(options.automagic);
-        });
+        if (!this.automagic) {
+          this.load_automagic(options.automagic);
+        }
       } else {
-        me.automagic = false;
+        this.automagic = false;
       }
+      me = this;
       if (options.auto_track_page_views !== false) {
         this.page_ready(function() {
           return me.page_view();
@@ -3477,6 +3476,23 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
 
     Trak.prototype.initialise = function() {
       return this.initialize.apply(this, arguments);
+    };
+
+    Trak.prototype.load_automagic = function(options) {
+      var head, me, script;
+      if (options == null) {
+        options = {};
+      }
+      head = document.head || document.getElementsByTagName('head')[0];
+      script = document.createElement('script');
+      script.src = '/trak.automagic.js';
+      script.async = false;
+      me = this;
+      script.onload = function() {
+        me.automagic(new Automagic);
+        return me.automagic.initialize;
+      };
+      return head.appendChild(script);
     };
 
     Trak.prototype.page_ready_event_fired = false;
@@ -3656,6 +3672,15 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
         this._host = value;
       }
       return this._host;
+    };
+
+    Trak.prototype._automagic = false;
+
+    Trak.prototype.automagic = function(value) {
+      if (value) {
+        this._automagic = value;
+      }
+      return this._automagic;
     };
 
     Trak.prototype._current_context = false;

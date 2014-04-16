@@ -86,8 +86,12 @@ requirejs ['trak'], (Trak) ->
       it "should set up automagic if specified", ->
         trak = new Trak()
         trak.io.initialize('api_token_value', { automagic: true })
-        trak.io.automagic.should.not.equal false
-        trak.io.automagic.should.have.been.called
+
+        setTimeout 2000, ->
+          trak.io.automagic.should.not.equal false
+          trak.io.automagic.initialize.should.have.been.called
+
+          document.getElementById('trakio-automagic').should.not.equal.null
 
 
     describe '#initialise', ->

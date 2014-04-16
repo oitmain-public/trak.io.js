@@ -1,12 +1,12 @@
-define ['trak'], (Trak) ->
+class Automagic
 
-  class Automagic
+  initialize: (options = {}) ->
 
-    initialize: (options = {}) ->
+    elem = document.createElement('div')
+    elem.setAttribute('id', 'trakio-automagic')
 
-      elem = document.createElement('div')
-      elem.setAttribute('id', 'trakio-automagic')
+    document.body.appendChild(elem)
 
-      document.body.appendChild(elem)
+    this
 
-      this
+window.Automagic = Automagic
