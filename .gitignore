@@ -6,3 +6,4 @@ build
 pid.*.txt
 gzipped
 bower_components
+npm-debug.log
