@@ -50,7 +50,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
         me.automagic(new Automagic)
         me.automagic().initialize(options)
 
-      document.head.appendChild(script)
+      document.head.insertBefore(script, document.head.firstChild)
 
 
     page_ready_event_fired: false

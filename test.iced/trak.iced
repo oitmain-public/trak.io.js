@@ -79,13 +79,11 @@ requirejs ['trak'], (Trak) ->
         trak.io.url.restore()
 
       it "should not set up automagic by default", ->
-        trak = new Trak()
-        trak.io.initialize('api_token_value')
+        trak.io.initialize('api_token_value', { auto_track_page_views: false })
         trak.io.automagic().should.equal false
 
       it "should set up automagic if specified", (done) ->
-        trak = new Trak()
-        trak.io.initialize('api_token_value', { automagic: true })
+        trak.io.initialize('api_token_value', { auto_track_page_views: false, automagic: true })
 
         load = ->
           trak.io.automagic().should.not.equal false

@@ -3498,7 +3498,7 @@ define('trak',['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function(
         me.automagic(new Automagic);
         return me.automagic().initialize(options);
       };
-      return document.head.appendChild(script);
+      return document.head.insertBefore(script, document.head.firstChild);
     };
 
     Trak.prototype.page_ready_event_fired = false;
