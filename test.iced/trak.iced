@@ -1,4 +1,4 @@
-requirejs ['trak','trak.io'], (Trak,trak) ->
+requirejs ['Trak','trak.io'], (Trak,trak) ->
 
   describe 'Trak', ->
 
