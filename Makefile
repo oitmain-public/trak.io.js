@@ -1,4 +1,5 @@
-PHANTOM = node_modules/.bin/mocha-phantomjs
+
+PHANTOM = mocha-phantomjs
 PHANTOM_OPTS = --setting web-security=false --setting local-to-remote-url-access=true
 
 build: ice
@@ -29,8 +30,13 @@ test-server:
 	node server.js -p 8001 &
 
 install:
-	component install
 	npm install
+	npm install -g bower
+	npm install -g iced-coffee-script
+	npm install -g mocha-phantomjs phantomjs
+	npm install -g requirejs
+	npm install -g uglify-js
+	bower install
 
 # Runs all the tests on travis.
 test: test-server min
@@ -56,11 +62,3 @@ kill-test:
 kill:
 	kill -9 `cat pid.8000.txt`
 	rm pid.8000.txt
-
-# components: component.json
-#	@component install --dev
-
-# clean:
-#	rm -fr build components template.js
-
-# .PHONY: clean

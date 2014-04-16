@@ -1,0 +1,32 @@
+{
+  "name": "trak.io.js",
+  "main": "trak.io.js",
+  "version": "0.0.0",
+  "private": true,
+  "authors": [
+    "Tobie Warburton <tobie@trak.io>",
+    "Matthew Spence <matt@trak.io>"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "mocha": "~1.18.2",
+    "chai": "~1.9.1",
+    "sinon-chai": "~2.5.0",
+    "chai-jquery": "~1.2.1",
+    "cookie": "https://github.com/tw/cookie.js",
+    "cookie.js": "git@github.com:tw/cookie.js.git"
+  },
+  "dependencies": {
+    "requirejs": "~2.1.11",
+    "lodash": "~2.4.1",
+    "json2": "*",
+    "dojo": "~1.9.3",
+    "almond": "~0.2.9"
+  }
+}

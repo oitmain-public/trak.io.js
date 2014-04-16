@@ -1,5 +1,5 @@
 ({
-  name: '../components/almond/almond',
+  name: '../bower_components/almond/almond',
   baseUrl: 'src',
   out: 'trak.io.js',
   optimize: 'none',
@@ -12,8 +12,8 @@
   },
   paths: {
     lodash: '../vendor/lodash',
-    json2: '../components/json2/json2',
-    cookie: '../components/cookie/cookie'
+    json2: '../bower_components/json2/json2',
+    cookie: '../bower_components/cookie.js/cookie'
   },
   wrap: {
     start: "(function() {",

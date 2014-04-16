@@ -5,13 +5,13 @@
 
     <title>Tests | trak.io.js</title>
 
-    <link rel="stylesheet" href="../components/mocha/mocha.css">
+    <link rel="stylesheet" href="../bower_components/mocha/mocha.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script src="../components/chai/chai.js"></script>
-    <script src="../components/chai-jquery/chai-jquery.js"></script>
+    <script src="../bower_components/chai/chai.js"></script>
+    <script src="../bower_components/chai-jquery/chai-jquery.js"></script>
     <script src="../node_modules/sinon/pkg/sinon.js"></script>
-    <script src="../components/sinon-chai/lib/sinon-chai.js"></script>
-    <script src="../components/mocha/mocha.js"></script>
+    <script src="../bower_components/sinon-chai/lib/sinon-chai.js"></script>
+    <script src="../bower_components/mocha/mocha.js"></script>
 
     <script>
       window.mocha.setup({
@@ -20,8 +20,8 @@
       });
     </script>
     <script type='text/javascript' src="/trak.io.js"></script>
-    
-    <script src="../components/requirejs/require.js"></script>
+
+    <script src="../bower_components/requirejs/require.js"></script>
     <script>
       requirejs.config({
         //By default load any module IDs from js/lib
@@ -32,8 +32,8 @@
           }
         },
         paths: {
-          cookie: '../components/cookie/cookie',
-          json2: '../components/json2/json2',
+          cookie: '../bower_components/cookie.js/cookie',
+          json2: '../bower_components/json2/json2',
           lodash: '../vendor/lodash'
         }
       });
