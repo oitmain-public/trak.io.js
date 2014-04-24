@@ -11,9 +11,7 @@
     }
   },
   paths: {
-    lodash: '../vendor/lodash',
-    json2: '../bower_components/json2/json2',
-    cookie: '../bower_components/cookie.js/cookie'
+    json2: '../bower_components/json2/json2'
   },
   wrap: {
     start: "(function() {",

@@ -2,8 +2,8 @@ describe 'Automagic', ->
 
   describe '#initialize', ->
 
-    it 'should add a div', ->
+    it 'should add data-automagic attribute to body', ->
       automagic = new Automagic()
       automagic.initialize()
 
-      document.getElementById('trakio-automagic').should.not.equal.null
+      document.body.hasAttribute('data-automagic').should.eql true
