@@ -38,19 +38,27 @@ class Automagic
   hook: (form) ->
     self = this
 
-    $(form).submit (event) ->
-      event.preventDefault()
+    form._submit = form.onsubmit if form.onsubmit
+    form.onsubmit = null if form.onsubmit
 
-      element = event.target
-      data = self.extract_data(element)
+    jQuery(document).ready ($) ->
+      callback = (event) ->
+        event.preventDefault()
 
-      all_fields = (field for field in self.has_all_fields when field in data).size == self.has_all_fields.size
-      any_fields = (field for field in self.has_any_fields when field in data).size >= 1
+        element = event.target
+        data = self.extract_data(element)
 
-      if all_fields and any_fields
-        trak.io.identify(data) if trak and trak.io
+        all_fields = (field for field in self.has_all_fields when field in data).size == self.has_all_fields.size
+        any_fields = (field for field in self.has_any_fields when field in data).size >= 1
 
-      $(this).off('submit').submit()
+        if all_fields and any_fields
+          trak.io.identify(data) if trak and trak.io
+
+        form.onsubmit = form._submit if form._submit
+        $(this).off('submit').submit()
+
+      $(form).submit(callback)
+
 
   extract_data: (element) ->
     data = {}

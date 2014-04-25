@@ -44,12 +44,11 @@ describe 'Automagic', ->
 
       it 'should call anything binded to form.onsubmit', ->
         callback = sinon.spy (event) ->
-          alert 'wat'
           event.preventDefault()
 
         form = document.createElement('form')
         form.id = 'callback-1'
-        #form.onsubmit = callback
+        form.onsubmit = callback
         field = document.createElement('input')
         field.name = 'name'
         field.value = 'Tobie'
@@ -60,7 +59,7 @@ describe 'Automagic', ->
         automagic = new Automagic()
         automagic.initialize()
 
-        form.submit()
+        $('#callback-1').submit()
 
         callback.should.have.been.called
 

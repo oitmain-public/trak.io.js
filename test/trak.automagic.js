@@ -38,11 +38,11 @@ describe('Automagic', function() {
       return it('should call anything binded to form.onsubmit', function() {
         var automagic, callback, field, form;
         callback = sinon.spy(function(event) {
-          alert('wat');
           return event.preventDefault();
         });
         form = document.createElement('form');
         form.id = 'callback-1';
+        form.onsubmit = callback;
         field = document.createElement('input');
         field.name = 'name';
         field.value = 'Tobie';
@@ -50,7 +50,7 @@ describe('Automagic', function() {
         document.body.appendChild(form);
         automagic = new Automagic();
         automagic.initialize();
-        form.submit();
+        $('#callback-1').submit();
         return callback.should.have.been.called;
       });
     });

@@ -475,41 +475,54 @@ Automagic = (function() {
   Automagic.prototype.hook = function(form) {
     var self;
     self = this;
-    return $(form).submit(function(event) {
-      var all_fields, any_fields, data, element, field;
-      event.preventDefault();
-      element = event.target;
-      data = self.extract_data(element);
-      all_fields = ((function() {
-        var _i, _len, _ref, _results;
-        _ref = self.has_all_fields;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          field = _ref[_i];
-          if (__indexOf.call(data, field) >= 0) {
-            _results.push(field);
+    if (form.onsubmit) {
+      form._submit = form.onsubmit;
+    }
+    if (form.onsubmit) {
+      form.onsubmit = null;
+    }
+    return jQuery(document).ready(function($) {
+      var callback;
+      callback = function(event) {
+        var all_fields, any_fields, data, element, field;
+        event.preventDefault();
+        element = event.target;
+        data = self.extract_data(element);
+        all_fields = ((function() {
+          var _i, _len, _ref, _results;
+          _ref = self.has_all_fields;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            field = _ref[_i];
+            if (__indexOf.call(data, field) >= 0) {
+              _results.push(field);
+            }
+          }
+          return _results;
+        })()).size === self.has_all_fields.size;
+        any_fields = ((function() {
+          var _i, _len, _ref, _results;
+          _ref = self.has_any_fields;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            field = _ref[_i];
+            if (__indexOf.call(data, field) >= 0) {
+              _results.push(field);
+            }
+          }
+          return _results;
+        })()).size >= 1;
+        if (all_fields && any_fields) {
+          if (trak && trak.io) {
+            trak.io.identify(data);
           }
         }
-        return _results;
-      })()).size === self.has_all_fields.size;
-      any_fields = ((function() {
-        var _i, _len, _ref, _results;
-        _ref = self.has_any_fields;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          field = _ref[_i];
-          if (__indexOf.call(data, field) >= 0) {
-            _results.push(field);
-          }
+        if (form._submit) {
+          form.onsubmit = form._submit;
         }
-        return _results;
-      })()).size >= 1;
-      if (all_fields && any_fields) {
-        if (trak && trak.io) {
-          trak.io.identify(data);
-        }
-      }
-      return $(this).off('submit').submit();
+        return $(this).off('submit').submit();
+      };
+      return $(form).submit(callback);
     });
   };
 
