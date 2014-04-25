@@ -36,25 +36,21 @@ class Automagic
     this
 
   hook: (form) ->
-    old_handler = form.onsubmit
-    form.onsubmit = null if old_handler
+    self = this
 
-    callback = (event) ->
+    $(form).submit (event) ->
+      event.preventDefault()
+
       element = event.target
-      data = extract_data(element)
+      data = self.extract_data(element)
 
-      all_fields = (field for field in this.has_all_fields when field in data).size == this.has_all_fields.size
-      any_fields = (field for field in this.has_any_fields when field in data).size >= 1
+      all_fields = (field for field in self.has_all_fields when field in data).size == self.has_all_fields.size
+      any_fields = (field for field in self.has_any_fields when field in data).size >= 1
 
       if all_fields and any_fields
         trak.io.identify(data) if trak and trak.io
 
-        old_handler() if old_handler
-
-    if window.addEventListener
-      form.addEventListener('submit', callback, false) # modern browsers
-    else if window.attachEvent
-      form.attachEvent('onsubmit', callback) # older IE
+      $(this).off('submit').submit()
 
   extract_data: (element) ->
     data = {}

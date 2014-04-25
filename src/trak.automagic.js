@@ -49,18 +49,16 @@ Automagic = (function() {
   };
 
   Automagic.prototype.hook = function(form) {
-    var callback, old_handler;
-    old_handler = form.onsubmit;
-    if (old_handler) {
-      form.onsubmit = null;
-    }
-    callback = function(event) {
+    var self;
+    self = this;
+    return $(form).submit(function(event) {
       var all_fields, any_fields, data, element, field;
+      event.preventDefault();
       element = event.target;
-      data = extract_data(element);
+      data = self.extract_data(element);
       all_fields = ((function() {
         var _i, _len, _ref, _results;
-        _ref = this.has_all_fields;
+        _ref = self.has_all_fields;
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           field = _ref[_i];
@@ -69,10 +67,10 @@ Automagic = (function() {
           }
         }
         return _results;
-      }).call(this)).size === this.has_all_fields.size;
+      })()).size === self.has_all_fields.size;
       any_fields = ((function() {
         var _i, _len, _ref, _results;
-        _ref = this.has_any_fields;
+        _ref = self.has_any_fields;
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           field = _ref[_i];
@@ -81,21 +79,14 @@ Automagic = (function() {
           }
         }
         return _results;
-      }).call(this)).size >= 1;
+      })()).size >= 1;
       if (all_fields && any_fields) {
         if (trak && trak.io) {
           trak.io.identify(data);
         }
-        if (old_handler) {
-          return old_handler();
-        }
       }
-    };
-    if (window.addEventListener) {
-      return form.addEventListener('submit', callback, false);
-    } else if (window.attachEvent) {
-      return form.attachEvent('onsubmit', callback);
-    }
+      return $(this).off('submit').submit();
+    });
   };
 
   Automagic.prototype.extract_data = function(element) {

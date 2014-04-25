@@ -1,5 +1,8 @@
 describe 'Automagic', ->
 
+  afterEach ->
+    $('form').remove()
+
   describe '#create_hooks', ->
 
     it 'should add data-automagic attribute to body', ->
@@ -36,6 +39,30 @@ describe 'Automagic', ->
       automagic.initialize()
 
       addEventListener.should.have.been.calledWith('submit')
+
+    describe 'the callback when the form is submitted', ->
+
+      it 'should call anything binded to form.onsubmit', ->
+        callback = sinon.spy (event) ->
+          alert 'wat'
+          event.preventDefault()
+
+        form = document.createElement('form')
+        form.id = 'callback-1'
+        #form.onsubmit = callback
+        field = document.createElement('input')
+        field.name = 'name'
+        field.value = 'Tobie'
+        form.appendChild(field)
+
+        document.body.appendChild(form)
+
+        automagic = new Automagic()
+        automagic.initialize()
+
+        form.submit()
+
+        callback.should.have.been.called
 
 
   describe '#extract_data', ->
