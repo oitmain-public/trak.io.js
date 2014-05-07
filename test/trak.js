@@ -145,7 +145,17 @@ describe('Trak', function() {
     });
   });
   describe('#page_ready', function() {
-    return it("doesn't call #page_view if auto_track_page_views");
+    return it("doesn't call #page_view if auto_track_page_views is false", function() {
+      var trak;
+      trak = new Trak();
+      trak.io.initialize('api_token_value', {
+        auto_track_page_views: false
+      });
+      sinon.stub(trak.io, 'page_view');
+      trak.io.page_ready();
+      trak.io.page_view.should.not.have.been.called;
+      return trak.io.page_view.restore();
+    });
   });
   describe('#initialise', function() {
     return it("aliases #initialize", function() {
