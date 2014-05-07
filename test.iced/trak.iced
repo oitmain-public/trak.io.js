@@ -16,37 +16,37 @@ describe 'Trak', ->
   describe '#initialize', ->
 
     it "stores api token", ->
-      trak.io.initialize('api_token_value')
+      trak.io.initialize('api_token_value', { auto_track_page_views: false })
       trak.io.api_token().should.equal 'api_token_value'
 
     it "stores protocol option", ->
-      trak.io.initialize('api_token_value', {protocol: 'http'})
+      trak.io.initialize('api_token_value', { protocol: 'http', auto_track_page_views: false })
       trak.io.protocol().should.equal 'http://'
 
     it "stores host option", ->
-      trak.io.initialize('api_token_value', {host: 'custom_host.com'})
+      trak.io.initialize('api_token_value', { host: 'custom_host.com', auto_track_page_views: false  })
       trak.io.host().should.equal 'custom_host.com'
 
     it "stores context option", ->
-      trak.io.initialize('api_token_value', {context: {foo: 'bar'}})
+      trak.io.initialize('api_token_value', { context: { foo: 'bar' }, auto_track_page_views: false })
       trak.io.current_context().should.eql {foo: 'bar'}
 
     it "stores channel option", ->
-      trak.io.initialize('api_token_value', {channel: 'custom_channel'})
+      trak.io.initialize('api_token_value', { channel: 'custom_channel', auto_track_page_views: false })
       trak.io.channel().should.equal 'custom_channel'
 
     it "stores distinct_id option", ->
-      trak.io.initialize('api_token_value', {distinct_id: 'custom_distinct_id'})
+      trak.io.initialize('api_token_value', { distinct_id: 'custom_distinct_id', auto_track_page_views: false })
       trak.io.distinct_id().should.equal 'custom_distinct_id'
 
     it "stores root domain option", ->
-      trak.io.initialize('api_token_value', {root_domain: 'root_domain.co.uk'})
+      trak.io.initialize('api_token_value', { root_domain: 'root_domain.co.uk', auto_track_page_views: false })
       trak.io.root_domain().should.equal 'root_domain.co.uk'
 
     it "set up default options", ->
       trak = new Trak()
       sinon.stub(trak.io, 'get_root_domain').returns('.lvh.me')
-      trak.io.initialize('api_token_value')
+      trak.io.initialize('api_token_value', { auto_track_page_views: false })
       trak.io.protocol().should.equal 'https://'
       trak.io.host().should.equal 'api.trak.io/v1'
       trak.io.get_root_domain().should.equal '.lvh.me'
@@ -54,30 +54,20 @@ describe 'Trak', ->
       trak.io.channel().should.equal window.location.hostname
       trak.io.get_root_domain.restore()
 
-    it "calls #page_view", ->
-      sinon.stub(trak.io, 'page_ready')
-      sinon.stub(trak.io, 'url').returns('page_url')
-      sinon.stub(trak.io, 'page_title').returns('A page title')
-      trak.io.initialize('api_token_value')
-      trak.io.page_ready.should.have.been.called
-      trak.io.page_ready.restore()
-      trak.io.page_title.restore()
-      trak.io.url.restore()
-
-    it "doesn't call #page_view if auto_track_page_views", ->
-      sinon.stub(trak.io, 'page_ready')
+    it "calls #on_page_ready", ->
+      sinon.stub(trak.io, 'on_page_ready')
       sinon.stub(trak.io, 'url').returns('page_url')
       sinon.stub(trak.io, 'page_title').returns('A page title')
       trak.io.initialize('api_token_value', { auto_track_page_views: false })
-      trak.io.page_ready.should.not.have.been.called
-      trak.io.page_ready.restore()
+      trak.io.on_page_ready.should.have.been.calledWith trak.io.page_ready
+      trak.io.on_page_ready.restore()
       trak.io.page_title.restore()
       trak.io.url.restore()
 
     it "should not set up automagic by default", ->
       trak.io.initialize('api_token_value', { auto_track_page_views: false })
-      trak.io.automagic().should.equal false
-      script_name = if document.location.pathname == '/test/trak.io.min.html' then 'trak.automagic.min.js' else 'trak.automagic.js'
+      trak.io.automagic.should.equal false
+      script_name = if document.location.pathname == '/test/trak.io.min.html' then 'trak.io.automagic.min.js' else 'trak.io.automagic.js'
       $("script[src='//#{document.location.host}/#{script_name}']").length.should.equal(0)
 
     it "should set up automagic if set to true", ->
@@ -85,8 +75,10 @@ describe 'Trak', ->
       trak.io.initialize 'api_token_value',
         auto_track_page_views: false
         automagic: true
-      script_name = if document.location.pathname == '/test/trak.io.min.html' then 'trak.automagic.min.js' else 'trak.automagic.js'
-      $("script[src='//d29p64779x43zo.cloudfront.net/v1/#{script_name}']").length.should.equal(1)
+      script_name = if document.location.pathname == '/test/trak.io.min.html' then 'trak.io.automagic.min.js' else 'trak.io.automagic.js'
+      script = $("script[src='//d29p64779x43zo.cloudfront.net/v1/#{script_name}']")
+      script.length.should.equal(1)
+      script.remove()
 
 
     it "should load automagic from specified host", (done) ->
@@ -99,14 +91,25 @@ describe 'Trak', ->
             (automagic) ->
               automagic.initialize = sinon.spy()
             ,(automagic) ->
-              trak.io.automagic().initialize.should.have.been.called
-              trak.io.automagic().should.not.equal false
+              automagic.initialize.should.have.been.called
+              automagic.should.not.equal false
               done()
           ]
-      script_name = if document.location.pathname == '/test/trak.io.min.html' then 'trak.automagic.min.js' else 'trak.automagic.js'
-      $("script[src='//#{document.location.host}/#{script_name}']").length.should.equal(1)
+      script_name = if document.location.pathname == '/test/trak.io.min.html' then 'trak.io.automagic.min.js' else 'trak.io.automagic.js'
+      script = $("script[src='//#{document.location.host}/#{script_name}']")
+      script.length.should.equal(1)
 
+  describe '#page_ready', ->
 
+    it "doesn't call #page_view if auto_track_page_views"#, ->
+      # sinon.stub(trak.io, 'page_ready')
+      # sinon.stub(trak.io, 'url').returns('page_url')
+      # sinon.stub(trak.io, 'page_title').returns('A page title')
+      # trak.io.initialize('api_token_value', { auto_track_page_views: false })
+      # trak.io.page_ready.should.not.have.been.called
+      # trak.io.page_ready.restore()
+      # trak.io.page_title.restore()
+      # trak.io.url.restore()
 
   describe '#initialise', ->
 
@@ -225,10 +228,12 @@ describe 'Trak', ->
     it "merges provided with defaults", ->
       sinon.stub(trak.io, 'url').returns('http://example.com/?a=b&c=d')
       sinon.stub(trak.io, 'referer').returns('http://referer.com/?a=b&c=d')
+      title = if document.location.pathname == '/test/trak.io.min.html' then 'Tests | trak.io.min.js' else 'Tests | trak.io.js'
+
       trak.io.context({foo: 'bar'}).should.eql
         ip: null
         user_agent: navigator.userAgent
-        page_title: 'Tests | trak.io.js'
+        page_title: title
         url: 'http://example.com/?a=b&c=d'
         referer: 'http://referer.com/?a=b&c=d'
         params: {a: 'b', c: 'd'}

@@ -48,7 +48,7 @@ describe('JSONP', function() {
       return expect(function() {
         return jsonp.callback({
           status: "error",
-          exception: "TrakioAPI::Exceptions::DataObjectInvalid"
+          exception: "DataObjectInvalid"
         });
       }).to["throw"](Exceptions.DataObjectInvalid);
     });
@@ -56,7 +56,7 @@ describe('JSONP', function() {
       return expect(function() {
         return jsonp.callback({
           status: "error",
-          exception: "TrakioAPI::Exceptions::DuplicatedDistinctIds"
+          exception: "DuplicatedDistinctIds"
         });
       }).to["throw"](Exceptions.DuplicatedDistinctIds);
     });
@@ -64,7 +64,7 @@ describe('JSONP', function() {
       return expect(function() {
         return jsonp.callback({
           status: "error",
-          exception: "TrakioAPI::Exceptions::InternalServiceError"
+          exception: "InternalServiceError"
         });
       }).to["throw"](Exceptions.InternalServiceError);
     });
@@ -72,7 +72,7 @@ describe('JSONP', function() {
       return expect(function() {
         return jsonp.callback({
           status: "error",
-          exception: "TrakioAPI::Exceptions::InvalidToken"
+          exception: "InvalidToken"
         });
       }).to["throw"](Exceptions.InvalidToken);
     });
@@ -80,7 +80,7 @@ describe('JSONP', function() {
       return expect(function() {
         return jsonp.callback({
           status: "error",
-          exception: "TrakioAPI::Exceptions::MissingParameter"
+          exception: "MissingParameter"
         });
       }).to["throw"](Exceptions.MissingParameter);
     });
@@ -88,7 +88,7 @@ describe('JSONP', function() {
       return expect(function() {
         return jsonp.callback({
           status: "error",
-          exception: "TrakioAPI::Exceptions::PersonNotFound"
+          exception: "PersonNotFound"
         });
       }).to["throw"](Exceptions.PersonNotFound);
     });
@@ -96,7 +96,7 @@ describe('JSONP', function() {
       return expect(function() {
         return jsonp.callback({
           status: "error",
-          exception: "TrakioAPI::Exceptions::PropertiesObjectInvalid"
+          exception: "PropertiesObjectInvalid"
         });
       }).to["throw"](Exceptions.PropertiesObjectInvalid);
     });
@@ -104,7 +104,7 @@ describe('JSONP', function() {
       return expect(function() {
         return jsonp.callback({
           status: "error",
-          exception: "TrakioAPI::Exceptions::RouteNotFound"
+          exception: "RouteNotFound"
         });
       }).to["throw"](Exceptions.RouteNotFound);
     });
@@ -112,7 +112,7 @@ describe('JSONP', function() {
       return expect(function() {
         return jsonp.callback({
           status: "error",
-          exception: "TrakioAPI::Exceptions::Timeout"
+          exception: "Timeout"
         });
       }).to["throw"](Exceptions.Timeout);
     });
@@ -120,7 +120,7 @@ describe('JSONP', function() {
       return expect(function() {
         return jsonp.callback({
           status: "error",
-          exception: "TrakioAPI::Exceptions::NotAKnownException"
+          exception: "NotAKnownException"
         });
       }).to["throw"](Exceptions.Unknown);
     });
@@ -290,17 +290,17 @@ describe('JSONP', function() {
   });
   return describe('#jsonp', function() {
     it("creates and inserts a script tag for the provided url", function() {
-      jsonp.jsonp('/empty.json');
-      return $("script[src^='/empty.json']").should.exist;
+      jsonp.jsonp('/test/empty.json');
+      return $("script[src^='/test/empty.json']").should.exist;
     });
     it("adds its own callback param", function() {
-      jsonp.jsonp('/empty.json');
+      jsonp.jsonp('/test/empty.json');
       return $("script[src$='callback=__trak" + (jsonp.count - 1) + "']").should.exist;
     });
     it("when __trak* called cleans up and calls callback", function() {
       var callback;
       callback = sinon.stub(jsonp, 'callback');
-      jsonp.jsonp('/empty.json');
+      jsonp.jsonp('/test/empty.json');
       window["__trak" + (jsonp.count - 1)]({
         some: 'data'
       });
@@ -314,7 +314,7 @@ describe('JSONP', function() {
       var callback, clock;
       clock = sinon.useFakeTimers();
       callback = sinon.stub(jsonp, 'callback');
-      jsonp.jsonp('/empty.json');
+      jsonp.jsonp('/test/empty.json');
       clock.tick(10001);
       callback.should.have.been.calledWith({
         status: 'error',

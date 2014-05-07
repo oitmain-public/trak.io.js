@@ -2,32 +2,42 @@
 PHANTOM = mocha-phantomjs
 PHANTOM_OPTS = --setting web-security=false --setting local-to-remote-url-access=true
 
-build: ice
+build: build_trakio build_automagic
+
+build_trakio: ice_src
 	r.js -o config/trak.io.js
-	r.js -o config/trak.automagic.js
+
+build_automagic: ice_src
+	r.js -o config/trak.io.automagic.js
 
 watch:
-	guard
+	guard --latency 0
 
 min: build
 	uglifyjs -mc -o trak.io.min.js trak.io.js
-	uglifyjs -mc -o trak.automagic.min.js trak.automagic.js
+	uglifyjs -mc -o trak.io.automagic.min.js trak.io.automagic.js
 	sed -i '' -e's/prototype.minified\=\!1/prototype.minified=!0/g' trak.io.min.js
 
 zip: min
 	-mkdir gzipped
 	gzip -9 trak.io.min.js -c > gzipped/trak.io.min.js
-	gzip -9 trak.automagic.min.js -c > gzipped/trak.automagic.min.js
+	gzip -9 trak.io.automagic.min.js -c > gzipped/trak.io.automagic.min.js
 
-deploy: test zip
+deploy: build_and_test zip just_deploy
+
+just_deploy:
 	bin/deploy
 
 server:
 	node server.js &
 
-ice:
-	iced -b -o test -c test.iced
-	iced -b -o src -c src.iced
+ice: ice_tests ice_src
+
+ice_tests:
+	iced --bare --output test --compile test.iced
+
+ice_src:
+	iced --bare --output src --compile src.iced
 
 # Starts the testing server.
 test-server:
@@ -43,12 +53,14 @@ install:
 	bower install
 
 # Runs all the tests on travis.
-test: test-server min
+build_and_test: min test
+
+test: test-server
 	sleep 1
 	$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.io.html -R dot
 	$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.io.min.html -R dot
-	$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.automagic.html -R dot
-	$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.automagic.min.html -R dot
+	$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.io.automagic.html -R dot
+	$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.io.automagic.min.html -R dot
 	make kill-test
 
 # Runs only the non-minified core tests.

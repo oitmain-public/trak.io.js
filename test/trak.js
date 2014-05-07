@@ -23,18 +23,22 @@ describe('Trak', function() {
   });
   describe('#initialize', function() {
     it("stores api token", function() {
-      trak.io.initialize('api_token_value');
+      trak.io.initialize('api_token_value', {
+        auto_track_page_views: false
+      });
       return trak.io.api_token().should.equal('api_token_value');
     });
     it("stores protocol option", function() {
       trak.io.initialize('api_token_value', {
-        protocol: 'http'
+        protocol: 'http',
+        auto_track_page_views: false
       });
       return trak.io.protocol().should.equal('http://');
     });
     it("stores host option", function() {
       trak.io.initialize('api_token_value', {
-        host: 'custom_host.com'
+        host: 'custom_host.com',
+        auto_track_page_views: false
       });
       return trak.io.host().should.equal('custom_host.com');
     });
@@ -42,7 +46,8 @@ describe('Trak', function() {
       trak.io.initialize('api_token_value', {
         context: {
           foo: 'bar'
-        }
+        },
+        auto_track_page_views: false
       });
       return trak.io.current_context().should.eql({
         foo: 'bar'
@@ -50,19 +55,22 @@ describe('Trak', function() {
     });
     it("stores channel option", function() {
       trak.io.initialize('api_token_value', {
-        channel: 'custom_channel'
+        channel: 'custom_channel',
+        auto_track_page_views: false
       });
       return trak.io.channel().should.equal('custom_channel');
     });
     it("stores distinct_id option", function() {
       trak.io.initialize('api_token_value', {
-        distinct_id: 'custom_distinct_id'
+        distinct_id: 'custom_distinct_id',
+        auto_track_page_views: false
       });
       return trak.io.distinct_id().should.equal('custom_distinct_id');
     });
     it("stores root domain option", function() {
       trak.io.initialize('api_token_value', {
-        root_domain: 'root_domain.co.uk'
+        root_domain: 'root_domain.co.uk',
+        auto_track_page_views: false
       });
       return trak.io.root_domain().should.equal('root_domain.co.uk');
     });
@@ -70,7 +78,9 @@ describe('Trak', function() {
       var trak;
       trak = new Trak();
       sinon.stub(trak.io, 'get_root_domain').returns('.lvh.me');
-      trak.io.initialize('api_token_value');
+      trak.io.initialize('api_token_value', {
+        auto_track_page_views: false
+      });
       trak.io.protocol().should.equal('https://');
       trak.io.host().should.equal('api.trak.io/v1');
       trak.io.get_root_domain().should.equal('.lvh.me');
@@ -78,25 +88,15 @@ describe('Trak', function() {
       trak.io.channel().should.equal(window.location.hostname);
       return trak.io.get_root_domain.restore();
     });
-    it("calls #page_view", function() {
-      sinon.stub(trak.io, 'page_ready');
-      sinon.stub(trak.io, 'url').returns('page_url');
-      sinon.stub(trak.io, 'page_title').returns('A page title');
-      trak.io.initialize('api_token_value');
-      trak.io.page_ready.should.have.been.called;
-      trak.io.page_ready.restore();
-      trak.io.page_title.restore();
-      return trak.io.url.restore();
-    });
-    it("doesn't call #page_view if auto_track_page_views", function() {
-      sinon.stub(trak.io, 'page_ready');
+    it("calls #on_page_ready", function() {
+      sinon.stub(trak.io, 'on_page_ready');
       sinon.stub(trak.io, 'url').returns('page_url');
       sinon.stub(trak.io, 'page_title').returns('A page title');
       trak.io.initialize('api_token_value', {
         auto_track_page_views: false
       });
-      trak.io.page_ready.should.not.have.been.called;
-      trak.io.page_ready.restore();
+      trak.io.on_page_ready.should.have.been.calledWith(trak.io.page_ready);
+      trak.io.on_page_ready.restore();
       trak.io.page_title.restore();
       return trak.io.url.restore();
     });
@@ -105,22 +105,24 @@ describe('Trak', function() {
       trak.io.initialize('api_token_value', {
         auto_track_page_views: false
       });
-      trak.io.automagic().should.equal(false);
-      script_name = document.location.pathname === '/test/trak.io.min.html' ? 'trak.automagic.min.js' : 'trak.automagic.js';
+      trak.io.automagic.should.equal(false);
+      script_name = document.location.pathname === '/test/trak.io.min.html' ? 'trak.io.automagic.min.js' : 'trak.io.automagic.js';
       return $("script[src='//" + document.location.host + "/" + script_name + "']").length.should.equal(0);
     });
     it("should set up automagic if set to true", function() {
-      var script_name, trak;
+      var script, script_name, trak;
       trak = new Trak();
       trak.io.initialize('api_token_value', {
         auto_track_page_views: false,
         automagic: true
       });
-      script_name = document.location.pathname === '/test/trak.io.min.html' ? 'trak.automagic.min.js' : 'trak.automagic.js';
-      return $("script[src='//d29p64779x43zo.cloudfront.net/v1/" + script_name + "']").length.should.equal(1);
+      script_name = document.location.pathname === '/test/trak.io.min.html' ? 'trak.io.automagic.min.js' : 'trak.io.automagic.js';
+      script = $("script[src='//d29p64779x43zo.cloudfront.net/v1/" + script_name + "']");
+      script.length.should.equal(1);
+      return script.remove();
     });
     return it("should load automagic from specified host", function(done) {
-      var script_name, trak;
+      var script, script_name, trak;
       trak = new Trak();
       trak.io.initialize('api_token_value', {
         auto_track_page_views: false,
@@ -130,16 +132,20 @@ describe('Trak', function() {
             function(automagic) {
               return automagic.initialize = sinon.spy();
             }, function(automagic) {
-              trak.io.automagic().initialize.should.have.been.called;
-              trak.io.automagic().should.not.equal(false);
+              automagic.initialize.should.have.been.called;
+              automagic.should.not.equal(false);
               return done();
             }
           ]
         }
       });
-      script_name = document.location.pathname === '/test/trak.io.min.html' ? 'trak.automagic.min.js' : 'trak.automagic.js';
-      return $("script[src='//" + document.location.host + "/" + script_name + "']").length.should.equal(1);
+      script_name = document.location.pathname === '/test/trak.io.min.html' ? 'trak.io.automagic.min.js' : 'trak.io.automagic.js';
+      script = $("script[src='//" + document.location.host + "/" + script_name + "']");
+      return script.length.should.equal(1);
     });
+  });
+  describe('#page_ready', function() {
+    return it("doesn't call #page_view if auto_track_page_views");
   });
   describe('#initialise', function() {
     return it("aliases #initialize", function() {
@@ -264,14 +270,16 @@ describe('Trak', function() {
       return added_to.add.should.equal('bar');
     });
     it("merges provided with defaults", function() {
+      var title;
       sinon.stub(trak.io, 'url').returns('http://example.com/?a=b&c=d');
       sinon.stub(trak.io, 'referer').returns('http://referer.com/?a=b&c=d');
+      title = document.location.pathname === '/test/trak.io.min.html' ? 'Tests | trak.io.min.js' : 'Tests | trak.io.js';
       trak.io.context({
         foo: 'bar'
       }).should.eql({
         ip: null,
         user_agent: navigator.userAgent,
-        page_title: 'Tests | trak.io.js',
+        page_title: title,
         url: 'http://example.com/?a=b&c=d',
         referer: 'http://referer.com/?a=b&c=d',
         params: {

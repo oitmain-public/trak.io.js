@@ -73,7 +73,7 @@ define(['exceptions', 'json2', 'lodash'], function(Exceptions, JSON, _) {
         if (callback) {
           return callback(data);
         }
-      } else if (data.exception && (exception_class = Exceptions[data.exception.match(/\:\:([a-zA-Z0-9]+)$/)[1]])) {
+      } else if (data.exception && (exception_class = Exceptions[data.exception])) {
         throw new exception_class(data.message, data.code, data.details, data);
       } else {
         throw new Exceptions.Unknown(data.message, data.code, data.details, data);

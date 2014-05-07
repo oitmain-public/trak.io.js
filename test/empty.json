@@ -1,0 +1,4 @@
+// This file is used by the JSONP test suite
+if (__trak0) {
+  __trak0({"status":"success"})
+}

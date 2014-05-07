@@ -2,12 +2,13 @@
 <html>
   <head>
     <title>trak.io.js Example Page</title>
-    
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
     <!-- // <script src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js'></script> -->
+
     <script type="text/javascript">
       timeout = 0
       var trak=trak||[];trak.io=trak.io||{};trak.io.load=function(e){var t=document.createElement("script");t.type="text/javascript",t.src="trak.io.js";var n=document.getElementsByTagName("script")[0];setTimeout(function(){n.parentNode.insertBefore(t,n);},timeout);var r=function(e){return function(){trak.push([e].concat(Array.prototype.slice.call(arguments,0)))}},i=["initialize","identify","track","alias","channel","source","host","protocol"];for(var s=0;s<i.length;s++) trak.io[i[s]]=r(i[s]);trak.io.initialize.apply(trak.io,arguments)};
-      trak.io.load('demo_account', {protocol: 'http', host: 'lvh.me:3007/v1'  });
+      trak.io.load('0c164d3411b1fbe8a4e58028e16e8f2708e65659', {protocol: 'http', host: '192.168.1.73:3007/v1', automagic: { host: '192.168.1.73:8000'} });
     </script>
     <!--<script type="text/javascript">
       var analytics=analytics||[];(function(){var e=["identify","track","trackLink","trackForm","trackClick","trackSubmit","page","pageview","ab","alias","ready","group"],t=function(e){return function(){analytics.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var n=0;n<e.length;n++)analytics[e[n]]=t(e[n])})(),analytics.load=function(e){var t=document.createElement("script");t.type="text/javascript",t.async=!0,t.src=("https:"===document.location.protocol?"https://":"http://")+"d2dq2ahtl5zl1z.cloudfront.net/analytics.js/v1/"+e+"/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(t,n)};
@@ -17,10 +18,15 @@
       window.heap=window.heap||[];heap.load=function(a){window._heapid=a;var b=document.createElement("script");b.type="text/javascript",b.async=!0,b.src=("https:"===document.location.protocol?"https:":"http:")+"//cdn.heapanalytics.com/js/heap.js";var c=document.getElementsByTagName("script")[0];c.parentNode.insertBefore(b,c);var d=function(a){return function(){heap.push([a].concat(Array.prototype.slice.call(arguments,0)))}},e=["identify","track"];for(var f=0;f<e.length;f++)heap[e[f]]=d(e[f])};
       heap.load("1086952247");
     </script>-->
-  
+
 </head>
 
 <body>
   <a href='example.html?c=d'>change</a>
+
+  <form action='example.html?c=d'>
+    <input name='username' />
+    <input type='submit' value='submit'/>
+  </form>
 </body>
 </html>

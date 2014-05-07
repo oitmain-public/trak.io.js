@@ -41,52 +41,52 @@ describe 'JSONP', ->
 
     it "raises a DataObjectInvalid exception", ->
       expect(->
-        jsonp.callback({ status: "error", exception: "TrakioAPI::Exceptions::DataObjectInvalid" })
+        jsonp.callback({ status: "error", exception: "DataObjectInvalid" })
       ).to.throw(Exceptions.DataObjectInvalid)
 
     it "raises a DuplicatedDistinctIds exception", ->
       expect(->
-        jsonp.callback({ status: "error", exception: "TrakioAPI::Exceptions::DuplicatedDistinctIds" })
+        jsonp.callback({ status: "error", exception: "DuplicatedDistinctIds" })
       ).to.throw(Exceptions.DuplicatedDistinctIds)
 
     it "raises a InternalServiceError exception", ->
       expect(->
-        jsonp.callback({ status: "error", exception: "TrakioAPI::Exceptions::InternalServiceError" })
+        jsonp.callback({ status: "error", exception: "InternalServiceError" })
       ).to.throw(Exceptions.InternalServiceError)
 
     it "raises a InvalidToken exception", ->
       expect(->
-        jsonp.callback({ status: "error", exception: "TrakioAPI::Exceptions::InvalidToken" })
+        jsonp.callback({ status: "error", exception: "InvalidToken" })
       ).to.throw(Exceptions.InvalidToken)
 
     it "raises a MissingParameter exception", ->
       expect(->
-        jsonp.callback({ status: "error", exception: "TrakioAPI::Exceptions::MissingParameter" })
+        jsonp.callback({ status: "error", exception: "MissingParameter" })
       ).to.throw(Exceptions.MissingParameter)
 
     it "raises a PersonNotFound exception", ->
       expect(->
-        jsonp.callback({ status: "error", exception: "TrakioAPI::Exceptions::PersonNotFound" })
+        jsonp.callback({ status: "error", exception: "PersonNotFound" })
       ).to.throw(Exceptions.PersonNotFound)
 
     it "raises a PropertiesObjectInvalid exception", ->
       expect(->
-        jsonp.callback({ status: "error", exception: "TrakioAPI::Exceptions::PropertiesObjectInvalid" })
+        jsonp.callback({ status: "error", exception: "PropertiesObjectInvalid" })
       ).to.throw(Exceptions.PropertiesObjectInvalid)
 
     it "raises a RouteNotFound exception", ->
       expect(->
-        jsonp.callback({ status: "error", exception: "TrakioAPI::Exceptions::RouteNotFound" })
+        jsonp.callback({ status: "error", exception: "RouteNotFound" })
       ).to.throw(Exceptions.RouteNotFound)
 
     it "raises a Timeout exception", ->
       expect(->
-        jsonp.callback({ status: "error", exception: "TrakioAPI::Exceptions::Timeout" })
+        jsonp.callback({ status: "error", exception: "Timeout" })
       ).to.throw(Exceptions.Timeout)
 
     it "raises an Unknown exception if exception is unknown", ->
       expect(->
-        jsonp.callback({ status: "error", exception: "TrakioAPI::Exceptions::NotAKnownException" })
+        jsonp.callback({ status: "error", exception: "NotAKnownException" })
       ).to.throw(Exceptions.Unknown)
 
     it "sets the exception's code", ->
@@ -182,16 +182,16 @@ describe 'JSONP', ->
   describe '#jsonp', ->
 
     it "creates and inserts a script tag for the provided url", ->
-      jsonp.jsonp('/empty.json')
-      $("script[src^='/empty.json']").should.exist
+      jsonp.jsonp('/test/empty.json')
+      $("script[src^='/test/empty.json']").should.exist
 
     it "adds its own callback param", ->
-      jsonp.jsonp('/empty.json')
+      jsonp.jsonp('/test/empty.json')
       $("script[src$='callback=__trak#{jsonp.count-1}']").should.exist
 
     it "when __trak* called cleans up and calls callback", ->
       callback = sinon.stub(jsonp, 'callback')
-      jsonp.jsonp('/empty.json')
+      jsonp.jsonp('/test/empty.json')
       window["__trak#{jsonp.count-1}"]({some: 'data'})
       callback.should.have.been.calledWith({some: 'data'})
       $("script[src$='callback=__trak#{jsonp.count-1}']").should.not.exist
@@ -200,7 +200,7 @@ describe 'JSONP', ->
     it "triggers #callback with timeout error if script hasn't executed by timeout", ->
       clock = sinon.useFakeTimers()
       callback = sinon.stub(jsonp, 'callback')
-      jsonp.jsonp('/empty.json')
+      jsonp.jsonp('/test/empty.json')
       clock.tick(10001)
       callback.should.have.been.calledWith({ status: 'error', exception: 'TrakioAPI::Exceptions::Timeout', message: "The server failed to respond in time."})
       $("script[src$='callback=__trak#{jsonp.count-1}']").should.not.exist

@@ -19,6 +19,7 @@
     "chai": "~1.9.1",
     "sinon-chai": "~2.5.0",
     "chai-jquery": "~1.2.1",
+    "blade": "3.2.7",
     "cookie": "https://github.com/tw/cookie.js",
     "cookie.js": "git@github.com:tw/cookie.js.git"
   },
@@ -27,6 +28,8 @@
     "lodash": "~2.4.1",
     "json2": "*",
     "dojo": "~1.9.3",
-    "almond": "~0.2.9"
+    "almond": "~0.2.9",
+    "sizzle": "~1.10.19",
+    "jquery": "~2.1.0"
   }
 }
