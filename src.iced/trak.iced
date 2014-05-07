@@ -1,37 +1,75 @@
-define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,ioQuery,cookie,_) ->
+define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,ioQuery,cookie,_) ->
 
   class Trak
 
     loaded: true
     Exceptions: Exceptions
     cookie: cookie
+    minified: false
+
+    @instances: []
 
     constructor: ->
-      this.io = this
+      @io = @
 
-    initialize: (@_api_token, options = {}) ->
-      this.protocol(options.protocol)
-      this.host(options.host) if options.host
-      this.context(options.context) if options.context
-      this.channel(options.channel) if options.channel
-      this.distinct_id(options.distinct_id || null)
-      this.root_domain(options.root_domain || null)
+    initialize: (@_api_token, @options = {}) =>
 
-      if options.auto_track_page_views != false
-        me = this
-        this.page_ready ->
-          me.page_view()
+      @protocol(@options.protocol)
+      @host(@options.host) if @options.host
+      @context(@options.context) if @options.context
+      @channel(@options.channel) if @options.channel
+      @distinct_id(@options.distinct_id || null)
+      @root_domain(@options.root_domain || null)
+      @page_ready_event_fired = false
 
-      this
+      if @options.automagic
+        @load_automagic(@options.automagic) unless @automagic
+      else
+        @automagic = false
+
+      me = @
+
+      @on_page_ready @page_ready
+
+      Trak.instances.push @
+      @
 
 
-    initialise: ()->
-      this.initialize.apply this, arguments
+    initialise: ()=>
+      @initialize.apply @, arguments
+
+
+    load_automagic: (options) =>
+      @automagic_options = options
+      script = document.createElement('script')
+      host = options.host || 'd29p64779x43zo.cloudfront.net/v1'
+      if @minified
+        script_src = 'trak.io.automagic.min.js'
+      else
+        script_src = 'trak.io.automagic.js'
+
+      script.src = "//#{host}/#{script_src}"
+      me = @
+
+      head = document.head || document.getElementsByTagName("head")[0]
+      head.insertBefore(script, head.firstChild)
+
+
+    loaded_automagic: =>
+      @automagic = new Trak.Automagic
+
+      @automagic_options.test_hooks[0] @automagic if @automagic_options && @automagic_options.test_hooks && @automagic_options.test_hooks[0]
+      @automagic.initialize(@automagic_options)
+      @automagic_options.test_hooks[1] @automagic if @automagic_options && @automagic_options.test_hooks && @automagic_options.test_hooks[1]
+
+
+    page_ready: ()=>
+      if @options.auto_track_page_views != false
+        @page_view()
 
     page_ready_event_fired: false
-    page_ready: (fn) ->
-
-      me = this
+    on_page_ready: (fn) =>
+      me = @
       # Create an idempotent version of the 'fn' function
       idempotent_fn = ->
         return  if me.page_ready_event_fired
@@ -40,15 +78,15 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
 
 
       # The DOM ready check for Internet Explorer
-      do_scroll_check = ->
+      do_oll_check = ->
         return  if @page_ready_event_fired
 
         # If IE is used, use the trick by Diego Perini
-        # http://javascript.nwbox.com/IEContentLoaded/
+        # http://javaipt.nwbox.com/IEContentLoaded/
         try
           document.documentElement.doScroll "left"
         catch e
-          setTimeout do_scroll_check, 1
+          setTimeout do_oll_check, 1
           return
 
         # Execute any waiting functions
@@ -80,21 +118,21 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
         toplevel = false
         try
           toplevel = not window.frameElement?
-        do_scroll_check()  if document.documentElement.doScroll and toplevel
+        do_oll_check()  if document.documentElement.doScroll and toplevel
 
 
     jsonp: new JSONP()
 
-    call: () ->
-      this.jsonp.call.apply this.jsonp, arguments
+    call: () =>
+      @jsonp.call.apply @jsonp, arguments
 
 
-    identify: () ->
+    identify: () =>
 
       me = this
       arguments[0] = arguments[0].toString() if typeof arguments[0] == 'number'
-      args = this.sort_arguments(arguments, ['string', 'object', 'function'])
-      distinct_id = args[0] || this.distinct_id()
+      args = @sort_arguments(arguments, ['string', 'object', 'function'])
+      distinct_id = args[0] || @distinct_id()
       properties = args[1] || null
       callback = args[2] || null
 
@@ -119,10 +157,10 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       this
 
 
-    alias: () ->
+    alias: () =>
       arguments[0] = arguments[0].toString() if typeof arguments[0] == 'number'
-      args = this.sort_arguments(arguments, ['string', 'string', 'boolean', 'function'])
-      distinct_id = (if args[1] then args[0]) || this.distinct_id()
+      args = @sort_arguments(arguments, ['string', 'string', 'boolean', 'function'])
+      distinct_id = (if args[1] then args[0]) || @distinct_id()
       alias = if args[1] then args[1] else args[0]
       update_distinct = if args[2] != null then args[2] else (if args[1] then false else true)
       callback = args[3] || null
@@ -130,83 +168,83 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
       unless alias
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an alias, see http://docs.trak.io/alias.html')
       if alias != distinct_id
-        this.call 'alias', { data: { distinct_id: distinct_id, alias: alias }}, callback
-        this.distinct_id(alias) if update_distinct
+        @call 'alias', { data: { distinct_id: distinct_id, alias: alias }}, callback
+        @distinct_id(alias) if update_distinct
       else if callback
         callback({status: 'unnecessary'})
 
       this
 
 
-    track: () ->
-      args = this.sort_arguments(arguments, ['string', 'string', 'string', 'object', 'object', 'function'])
-      distinct_id = (if args[2] then arguments[0]) || this.distinct_id()
+    track: () =>
+      args = @sort_arguments(arguments, ['string', 'string', 'string', 'object', 'object', 'function'])
+      distinct_id = (if args[2] then arguments[0]) || @distinct_id()
       event = (if args[2] then args[1] else args[0])
 
-      channel = (if args[2] then args[2] else args[1]) || this.channel()
+      channel = (if args[2] then args[2] else args[1]) || @channel()
       properties = args[3] || {}
       context = args[4] || {}
-      context = _.merge this.context(), context
+      context = _.merge @context(), context
       callback = args[5] || null
 
       unless event
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an event to track, see http://docs.trak.io/track.html')
 
-      this.call 'track', { data: { distinct_id: distinct_id, event: event, channel: channel, context: context, properties: properties }}, callback
+      @call 'track', { data: { distinct_id: distinct_id, event: event, channel: channel, context: context, properties: properties }}, callback
 
       this
 
-    page_view: () ->
-      args = this.sort_arguments(arguments, ['string', 'string', 'function'])
-      url = args[0] || this.url()
-      title = args[1] || this.page_title()
+    page_view: () =>
+      args = @sort_arguments(arguments, ['string', 'string', 'function'])
+      url = args[0] || @url()
+      title = args[1] || @page_title()
       callback = args[2] || null
-      this.track 'page_view', { url: url, page_title: title }, callback
+      @track 'page_view', { url: url, page_title: title }, callback
       this
 
     _protocol: 'https'
-    protocol: (value)->
-      this._protocol = value if value
-      "#{this._protocol}://"
+    protocol: (value) =>
+      @_protocol = value if value
+      "#{@_protocol}://"
 
     _host: 'api.trak.io/v1'
-    host: (value)->
-      this._host = value if value
-      this._host
+    host: (value) =>
+      @_host = value if value
+      @_host
 
     _current_context: false
-    current_context: (key, value)->
+    current_context: (key, value) =>
 
-      unless this._current_context
-        if c = this.get_cookie('context')
-          this._current_context = JSON.parse(c)
+      unless @_current_context
+        if c = @get_cookie('context')
+          @_current_context = JSON.parse(c)
         else
-          this._current_context = {}
+          @_current_context = {}
 
       if typeof key == 'object'
-        _.merge this._current_context, key
+        _.merge @_current_context, key
       else if key and value
-        this._current_context[key] = value
+        @_current_context[key] = value
 
-      this.set_cookie('context',JSON.stringify(this._current_context))
-      this._current_context
+      @set_cookie('context',JSON.stringify(@_current_context))
+      @_current_context
 
-    default_context: ->
-      url = this.url()
-      referer = this.referer()
+    default_context: =>
+      url = @url()
+      referer = @referer()
       {
         ip: null
         user_agent: navigator.userAgent
-        page_title: this.page_title()
+        page_title: @page_title()
         url: url
         params: if url.indexOf("?") > 0 then ioQuery.queryToObject(url.substring(url.indexOf("?") + 1, url.length)) else {}
         referer: referer
         referer_params: if referer.indexOf("?") > 0 then ioQuery.queryToObject(referer.substring(referer.indexOf("?") + 1, referer.length)) else {}
       }
 
-    context: (key, value)->
+    context: (key, value) =>
       r = {}
-      _.merge r, this.default_context(), this.current_context(key, value)
+      _.merge r, @default_context(), @current_context(key, value)
       r
 
     url: ->
@@ -231,27 +269,27 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
 
     _channel: false
     channel: (value)->
-      if !this._channel and !(this._channel = this.get_cookie('channel'))
-        this._channel = @hostname() || 'web_site'
+      if !@_channel and !(@_channel = @get_cookie('channel'))
+        @_channel = @hostname() || 'web_site'
       if value
-        this._channel = value
-        this.set_cookie('channel', value)
-      this._channel
+        @_channel = value
+        @set_cookie('channel', value)
+      @_channel
 
     _api_token: null
     api_token: ->
-      this._api_token
+      @_api_token
 
     _distinct_id: null
     distinct_id: (value)->
       value = value.toString() if typeof value == 'number'
       if value
-        this._distinct_id = value
-      if !this._distinct_id and !(this._distinct_id = this.get_distinct_id_url_param()) and !(this._distinct_id = this.get_cookie('id'))
-        this._distinct_id = this.generate_distinct_id()
+        @_distinct_id = value
+      if !@_distinct_id and !(@_distinct_id = @get_distinct_id_url_param()) and !(@_distinct_id = @get_cookie('id'))
+        @_distinct_id = @generate_distinct_id()
       options = if @root_domain() == 'localhost' then {} else {domain: @root_domain()}
-      cookie.set(this.cookie_key('id'), this._distinct_id, options)
-      this._distinct_id
+      cookie.set(@cookie_key('id'), @_distinct_id, options)
+      @_distinct_id
 
     generate_distinct_id: ->
       'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace /[xy]/g, (c) ->
@@ -279,10 +317,10 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
         domain
 
     set_cookie: (key, value) ->
-      cookie.set(this.cookie_key(key), value)
+      cookie.set(@cookie_key(key), value)
 
     get_cookie: (key)->
-      cookie.get(this.cookie_key(key))
+      cookie.get(@cookie_key(key))
 
     can_set_cookie: (options) ->
       cookie.set(@cookie_key('foo'), '')
@@ -292,7 +330,7 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
 
 
     cookie_key: (key)->
-      "_trak_#{this.api_token()}_#{key}"
+      "_trak_#{@api_token()}_#{key}"
 
     sort_arguments: (values, types) ->
       values = Array.prototype.slice.call(values)
@@ -305,4 +343,3 @@ define ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Exceptions,io
         else
           r.push null
       r
-

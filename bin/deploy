@@ -1,32 +1,56 @@
 #!/usr/bin/env ruby
 
 require 's3'
+require 'yaml'
 require 'cloudfront-invalidator'
 
 v = 1
 
-# AWS::S3::Base.establish_connection!(
-#   :access_key_id     => ENV["AWS_ACCESS_KEY_ID"],
-#   :secret_access_key => ENV["AWS_SECRET_ACCESS_KEY"]
-# )
+aws_config = YAML.load_file(File.expand_path('~/.aws/awscli_config.yml'))
 
 service = S3::Service.new(
-  :access_key_id => ENV["AWS_ACCESS_KEY_ID"],
-  :secret_access_key => ENV["AWS_SECRET_ACCESS_KEY"]
+  :access_key_id => aws_config["aws_access_key_id"],
+  :secret_access_key => aws_config["aws_secret_access_key"]
 )
-
 
 bucket = service.buckets.find 'js.trak.io'
 
-js_object = bucket.objects.find "v#{v.to_s}/trak.io.js"
+js_object = begin
+  bucket.objects.find "v#{v.to_s}/trak.io.js"
+rescue S3::Error::NoSuchKey
+  bucket.objects.build "v#{v.to_s}/trak.io.js"
+end
 js_object.content = open(File.join(File.dirname(__FILE__), '../trak.io.js'))
 js_object.save
 
-min_object = bucket.objects.find "v#{v.to_s}/trak.io.min.js"
+min_object = begin
+  bucket.objects.find "v#{v.to_s}/trak.io.min.js"
+rescue S3::Error::NoSuchKey
+  bucket.objects.build "v#{v.to_s}/trak.io.min.js"
+end
 min_object.content = open(File.join(File.dirname(__FILE__), '../gzipped/trak.io.min.js'))
 min_object.content_encoding = 'gzip'
 min_object.save
 
-invalidator = CloudfrontInvalidator.new(ENV["AWS_ACCESS_KEY_ID"], ENV["AWS_SECRET_ACCESS_KEY"], 'E1N2AUK37JI9WZ')
-list = ["/v#{v}/trak.io.js","/v#{v}/trak.io.min.js"]
+automagic_object = begin
+  bucket.objects.find "v#{v.to_s}/trak.io.automagic.js"
+rescue S3::Error::NoSuchKey
+  bucket.objects.build "v#{v.to_s}/trak.io.automagic.js"
+end
+automagic_object.content = open(File.join(File.dirname(__FILE__), '../trak.io.automagic.js'))
+automagic_object.content_type = 'application/x-javascript'
+automagic_object.save
+
+automagic_min_object = begin
+  bucket.objects.find "v#{v.to_s}/trak.io.automagic.min..js"
+rescue S3::Error::NoSuchKey
+  bucket.objects.build "v#{v.to_s}/trak.io.automagic.min.js"
+end
+automagic_min_object.content = open(File.join(File.dirname(__FILE__), '../gzipped/trak.io.automagic.min.js'))
+automagic_min_object.content_type = 'application/x-javascript'
+automagic_min_object.content_encoding = 'gzip'
+automagic_min_object.save
+
+invalidator = CloudfrontInvalidator.new(aws_config["aws_access_key_id"], aws_config["aws_secret_access_key"], 'E1N2AUK37JI9WZ')
+list = ["/v#{v}/trak.io.js","/v#{v}/trak.io.min.js","/v#{v}/trak.io.automagic.min.js","/v#{v}/trak.io.automagic.js"]
 invalidator.invalidate(list)

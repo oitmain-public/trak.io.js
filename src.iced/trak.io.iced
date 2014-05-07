@@ -1,4 +1,5 @@
-define ['trak', 'lodash','cookie'], (Trak, _, cookie) ->
+define 'trak.io', ['Trak', 'lodash','cookie'], (Trak, _, cookie) ->
+
   unless window.trak && window.trak.loaded
 
     trak = new Trak()
@@ -7,6 +8,7 @@ define ['trak', 'lodash','cookie'], (Trak, _, cookie) ->
     # proper analytics.js method.
     queue = window.trak
     window.trak = trak
+    window.Trak = window.trak.Trak = Trak
     while queue and queue.length > 0
       item = queue.shift()
       method = item.shift()
@@ -14,3 +16,4 @@ define ['trak', 'lodash','cookie'], (Trak, _, cookie) ->
 
     cookie.defaults.expires = 3650;
     cookie.defaults.path = '/';
+  window.trak

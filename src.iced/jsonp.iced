@@ -41,7 +41,7 @@ define ['exceptions','json2','lodash'], (Exceptions, JSON, _) ->
     callback: (data, callback) ->
       if data and data.status and data.status == 'success'
         callback data if callback
-      else if data.exception and exception_class = Exceptions[data.exception.match(/\:\:([a-zA-Z0-9]+)$/)[1]]
+      else if data.exception and exception_class = Exceptions[data.exception]
         throw new exception_class(data.message, data.code, data.details, data)
       else
         throw new Exceptions.Unknown(data.message, data.code, data.details, data)

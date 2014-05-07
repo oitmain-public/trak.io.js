@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
 
-    <title>Tests | trak.io.js</title>
+    <title>Tests | trak.io.automagic.js</title>
 
     <link rel="stylesheet" href="../bower_components/mocha/mocha.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
@@ -12,9 +12,15 @@
     <script src="../node_modules/sinon/pkg/sinon.js"></script>
     <script src="../bower_components/sinon-chai/lib/sinon-chai.js"></script>
     <script src="../bower_components/mocha/mocha.js"></script>
-    <script src="helper.js"></script>
 
-    <script src="../trak.io.js"></script>
+    <script>
+      window.mocha.setup({
+        ui : 'bdd',
+        ignoreLeaks : true
+      });
+    </script>
+    <script type='text/javascript' src="../trak.io.js"></script>
+    <script type='text/javascript' src="../trak.io.automagic.js"></script>
 
     <script src="../bower_components/requirejs/require.js"></script>
     <script>
@@ -24,37 +30,30 @@
         shim: {
           json2: {
             exports: 'JSON'
-          },
-          'trak.io': {
-            exports: 'trak'
           }
         },
         paths: {
           cookie: '../bower_components/cookie.js/cookie',
           json2: '../bower_components/json2/json2',
           lodash: '../vendor/lodash',
-          'trak.io': '../trak.io'
+          sizzle: '../bower_components/sizzle/dist/sizzle'
         }
       });
-
       window.mocha.setup({
         ui : 'bdd',
         ignoreLeaks : true
       });
     </script>
+    <script src="../node_modules/haml/lib/haml.js"></script>
+    <script src="helper.js"></script>
 
-    <script type='text/javascript' src="trak/track.js"></script>
-    <script type='text/javascript' src="trak/alias.js"></script>
-    <script type='text/javascript' src="trak/page_view.js"></script>
-    <script type='text/javascript' src="trak/identify.js"></script>
-    <script type='text/javascript' src="jsonp.js"></script>
-    <script type='text/javascript' src="trak.js"></script>
-
+    <script type='text/javascript' src="trakio/automagic.js"></script>
+    <script type='text/javascript' src="trakio/automagic/identify.js"></script>
     <script type='text/javascript' src="runner.js"></script>
 
   </head>
   <body>
-    <h1>trak.io.js Tests</h1>
+    <h1>trak.io.automagic.js Tests</h1>
     <div id="mocha"></div>
   </body>
 </html>
