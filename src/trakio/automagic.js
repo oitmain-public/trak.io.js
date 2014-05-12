@@ -97,7 +97,6 @@ define(['trakio/lodash', 'trakio/automagic/identify'], function(_, Identify) {
     Automagic.prototype.bind_to_form_submit = function(form) {
       var me;
       me = this;
-      form.setAttribute('style', 'backgound:red');
       return _.addEvent(form, 'submit', this.form_submitted);
     };
 

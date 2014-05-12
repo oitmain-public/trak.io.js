@@ -4867,7 +4867,7 @@ define('trakio/automagic/identify',['trakio/lodash'], function(_) {
       try {
         event.preventDefault();
         form = event.srcElement || event.target;
-        callback || (callback = function() {
+        callback || (callback = function(data) {
           return form.submit();
         });
         if (_.matches(form, this.options.form_selector)) {
@@ -5043,7 +5043,6 @@ define('trakio/automagic',['trakio/lodash', 'trakio/automagic/identify'], functi
     Automagic.prototype.bind_to_form_submit = function(form) {
       var me;
       me = this;
-      form.setAttribute('style', 'backgound:red');
       return _.addEvent(form, 'submit', this.form_submitted);
     };
 

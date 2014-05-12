@@ -16,8 +16,9 @@ define [
       try
         event.preventDefault()
         form = event.srcElement || event.target
-        callback ||= ()->
+        callback ||= (data)->
           form.submit()
+
         if _.matches form, @options.form_selector
           properties = @map_properties(form)
 

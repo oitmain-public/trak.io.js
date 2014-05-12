@@ -64,7 +64,6 @@ define [
 
     bind_to_form_submit: (form) =>
       me = @
-      form.setAttribute('style','backgound:red')
       _.addEvent(form, 'submit', @form_submitted)
 
 

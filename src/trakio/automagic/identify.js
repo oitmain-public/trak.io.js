@@ -24,7 +24,7 @@ define(['trakio/lodash'], function(_) {
       try {
         event.preventDefault();
         form = event.srcElement || event.target;
-        callback || (callback = function() {
+        callback || (callback = function(data) {
           return form.submit();
         });
         if (_.matches(form, this.options.form_selector)) {
