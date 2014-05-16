@@ -12,7 +12,8 @@ describe 'trakio/automagic', ->
     %form.a_form
       %input
   """
-  event = memoize().as -> new MockEvent('submit',form())
+  event = memoize().as -> new MockEvent('submit',form(), { callback: callback(), automagic_ready: {} })
+  callback = memoize().as -> sinon.spy()
 
   before (done)->
     requirejs ['trakio/lodash'], (lodash) ->
@@ -23,6 +24,10 @@ describe 'trakio/automagic', ->
 
     it "initializes Automagic.Identify", ->
       automagic_initialized().identify.should.be.an.instanceof Trak.Automagic.Identify
+
+
+    it "initializes Automagic.Track", ->
+      automagic_initialized().track.should.be.an.instanceof Trak.Automagic.Track
 
 
     it "calls #page_ready if trak.io.page_ready_event_fired is true", ->
@@ -70,49 +75,77 @@ describe 'trakio/automagic', ->
       automagic().identify.page_ready.should.have.been.called
 
 
+    it "calls trakio/automagic/track#page_ready", ->
+      sinon.stub(automagic_initialized().track, 'page_ready')
+
+      automagic().page_ready()
+      automagic().track.page_ready.should.have.been.called
+
+
   describe '#bind_events', ->
 
     it "binds to all forms' submit", ->
-      sinon.stub(automagic(), 'bind_to_form_submit')
+      sinon.stub(automagic(), 'bind_event')
       form()
       second_form()
       automagic_initialized().bind_events()
 
-      automagic().bind_to_form_submit.should.have.been.calledWith(form())
-      automagic().bind_to_form_submit.should.have.been.calledWith(second_form())
+      automagic().bind_event.should.have.been.calledWith(form())
+      automagic().bind_event.should.have.been.calledWith(second_form())
 
 
     context "when there is a form that doesn't match", ->
 
-      value(automagic_options).equals -> { form_selector: '.my_form'}
+      value(automagic_options).equals -> { selector: '.my_form'}
 
       it "only binds to matching forms", ->
-        sinon.stub(automagic(), 'bind_to_form_submit')
+        sinon.stub(automagic(), 'bind_event')
         form()
         second_form()
 
         automagic_initialized().bind_events()
 
-        automagic().bind_to_form_submit.should.have.been.calledWith(form())
-        automagic().bind_to_form_submit.should.not.have.been.calledWith(second_form())
+        automagic().bind_event.should.have.been.calledWith(form())
+        automagic().bind_event.should.not.have.been.calledWith(second_form())
 
 
-  describe '#bind_to_form_submit', ->
+  describe '#bind_event', ->
 
     it 'adds a callback to the form', ->
       sinon.stub(form(), 'addEventListener')
 
-      automagic().bind_to_form_submit(form())
+      automagic().bind_event(form(), 'submit')
 
-      form().addEventListener.should.have.been.calledWith('submit',automagic().form_submitted)
+      form().addEventListener.should.have.been.calledWith('submit',automagic().event_fired)
 
 
-  describe '#form_submitted', ->
+  describe '#event_fired', ->
 
-    it "calls trakio/automagic/identify#form_submitted", ->
-      sinon.stub(automagic_initialized().identify, 'form_submitted').returns(false)
+    it "calls trakio/automagic/identify#event_fired", ->
+      sinon.stub(automagic_initialized().identify, 'event_fired').returns(false)
+      sinon.stub(automagic_initialized().track, 'event_fired').returns(false)
 
-      automagic().form_submitted(event())
+      automagic().event_fired(event(),()->)
 
-      automagic().identify.form_submitted.should.have.been.calledWith(event())
+      automagic().identify.event_fired.should.have.been.calledWith(form(), event(), sinon.match.func, sinon.match.object)
+      automagic().identify.event_fired.restore()
+
+
+    it "calls trakio/automagic/track#event_fired", ->
+      sinon.stub(automagic_initialized().track, 'event_fired').returns(false)
+
+      automagic().event_fired(event(),()->)
+
+      automagic().track.event_fired.should.have.been.calledWith(form(), event(), sinon.match.func, sinon.match.object)
+
+      automagic().track.event_fired.restore()
+
+    it "calls the callback once", ->
+      sinon.stub(trak.io, 'track')
+      automagic_initialized().event_fired(event(), callback())
+      trak.io.track.yield()
+
+      callback().should.have.been.calledOnce
+      trak.io.track.restore()
+
 

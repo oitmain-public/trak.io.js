@@ -12,33 +12,33 @@ define [
       # Nothing to do here at the moment
 
 
-    form_submitted: (event, callback)=>
+    event_fired: (element, event, callback, automagic_ready)=>
       try
-        event.preventDefault()
-        form = event.srcElement || event.target
-        callback ||= (data)->
-          form.submit()
-
-        if _.matches form, @options.form_selector
-          properties = @map_properties(form)
-
-          has_any = _.filter(properties,(value,key)=> _.contains(@options.has_any_fields, key)).length > 0
-          has_all = _.filter(properties,(value,key)=> _.contains(@options.has_all_fields, key)).length >= @options.has_all_fields.length
-
-          if has_any && has_all
-            trak.io.identify(@distinct_id(form), properties, callback)
-          else
+        if _.matches(element, @options.selector) && @options.should_identify.call(@automagic, element, event)
+          trak.io.identify(@distinct_id(element), @map_properties(element), ()->
+            automagic_ready.identify = true
             callback()
-        else
-          callback()
-        false
-      catch
-        callback()
+          )
+
+      catch e
+        trak.io.debug_error e
+
+      automagic_ready.identify = true
+      callback()
 
 
-    distinct_id: (form)=>
+    should_identify: (element, event)=>
+      properties = @map_properties(element)
+
+      has_any = _.filter(properties,(value,key)=> _.contains(@options.has_any_fields, key)).length > 0
+      has_all = _.filter(properties,(value,key)=> _.contains(@options.has_all_fields, key)).length >= @options.has_all_fields.length
+
+      has_any && has_all
+
+
+    distinct_id: (element)=>
       r = {}
-      for property, value of @map_properties(form)
+      for property, value of @map_properties(element)
         if (index = _.indexOf(@options.distinct_ids, property)) > -1
           r[index] = value
 

@@ -7,7 +7,8 @@ define(['trakio/lodash'], function(_) {
     function Identify() {
       this.map_properties = __bind(this.map_properties, this);
       this.distinct_id = __bind(this.distinct_id, this);
-      this.form_submitted = __bind(this.form_submitted, this);
+      this.should_identify = __bind(this.should_identify, this);
+      this.event_fired = __bind(this.event_fired, this);
       this.page_ready = __bind(this.page_ready, this);
       this.initialize = __bind(this.initialize, this);
     }
@@ -19,44 +20,43 @@ define(['trakio/lodash'], function(_) {
 
     Identify.prototype.page_ready = function() {};
 
-    Identify.prototype.form_submitted = function(event, callback) {
-      var form, has_all, has_any, properties;
+    Identify.prototype.event_fired = function(element, event, callback, automagic_ready) {
+      var e;
       try {
-        event.preventDefault();
-        form = event.srcElement || event.target;
-        callback || (callback = function(data) {
-          return form.submit();
-        });
-        if (_.matches(form, this.options.form_selector)) {
-          properties = this.map_properties(form);
-          has_any = _.filter(properties, (function(_this) {
-            return function(value, key) {
-              return _.contains(_this.options.has_any_fields, key);
-            };
-          })(this)).length > 0;
-          has_all = _.filter(properties, (function(_this) {
-            return function(value, key) {
-              return _.contains(_this.options.has_all_fields, key);
-            };
-          })(this)).length >= this.options.has_all_fields.length;
-          if (has_any && has_all) {
-            trak.io.identify(this.distinct_id(form), properties, callback);
-          } else {
-            callback();
-          }
-        } else {
-          callback();
+        if (_.matches(element, this.options.selector) && this.options.should_identify.call(this.automagic, element, event)) {
+          trak.io.identify(this.distinct_id(element), this.map_properties(element), function() {
+            automagic_ready.identify = true;
+            return callback();
+          });
         }
-        return false;
       } catch (_error) {
-        return callback();
+        e = _error;
+        trak.io.debug_error(e);
       }
+      automagic_ready.identify = true;
+      return callback();
     };
 
-    Identify.prototype.distinct_id = function(form) {
+    Identify.prototype.should_identify = function(element, event) {
+      var has_all, has_any, properties;
+      properties = this.map_properties(element);
+      has_any = _.filter(properties, (function(_this) {
+        return function(value, key) {
+          return _.contains(_this.options.has_any_fields, key);
+        };
+      })(this)).length > 0;
+      has_all = _.filter(properties, (function(_this) {
+        return function(value, key) {
+          return _.contains(_this.options.has_all_fields, key);
+        };
+      })(this)).length >= this.options.has_all_fields.length;
+      return has_any && has_all;
+    };
+
+    Identify.prototype.distinct_id = function(element) {
       var index, key, property, r, value, _ref;
       r = {};
-      _ref = this.map_properties(form);
+      _ref = this.map_properties(element);
       for (property in _ref) {
         value = _ref[property];
         if ((index = _.indexOf(this.options.distinct_ids, property)) > -1) {

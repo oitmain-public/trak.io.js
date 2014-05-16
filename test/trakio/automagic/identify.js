@@ -4,7 +4,10 @@ describe('trakio/automagic/identify', function() {
   var automagic, automagic_options, callback, event, form;
   form = memoized().as_haml("%form.a_form\n  %input{ name: \"user[a_username_field]\", value: \"username_value\" }\n  %input{ name: \"user[an_email_field]\", value: \"email_value\" }\n  %input{ name: \"user[a_name_field]\", value: \"name_value\" }\n  %input{ name: \"user[a_first_name_field]\", value: \"first_name_value\" }\n  %input{ name: \"user[a_last_name_field]\", value: \"last_name_value\" }\n  %input{ name: \"user[a_company_field]\", value: \"company_value\" }\n  %input{ name: \"user[a_position_field]\", value: \"position_value\" }\n  %input{ name: \"user[an_organisation_field]\", value: \"organisation_value\" }\n  %input{ name: \"user[an_industry_field]\", value: \"industry_value\" }\n  %input{ name: \"user[an_location_field]\", value: \"location_value\" }\n  %input{ name: \"user[an_latlng_field]\", value: \"latlng_value\" }\n  %input{ name: \"user[an_birthday_field]\", value: \"birthday_value\" }");
   event = memoize().as(function() {
-    return new MockEvent('submit', form());
+    return new MockEvent('submit', form(), {
+      automagic_ready: {},
+      callback: callback()
+    });
   });
   automagic = memoize().as(function() {
     return new Trak.Automagic().initialize(automagic_options());
@@ -23,16 +26,26 @@ describe('trakio/automagic/identify', function() {
     });
   });
   beforeEach(function() {
-    return sinon.stub(trak.io, 'identify');
+    sinon.stub(trak.io, 'identify');
+    return sinon.stub(trak.io, 'track');
   });
   afterEach(function() {
     if (trak.io.identify.restore) {
-      return trak.io.identify.restore();
+      trak.io.identify.restore();
+    }
+    if (trak.io.track.restore) {
+      return trak.io.track.restore();
     }
   });
-  return describe('#form_submitted', function() {
+  return describe('#event_fired', function() {
+    it("passes callback along to trak.io.identify", function() {
+      automagic().identify.event_fired(form(), event(), callback(), {});
+      trak.io.identify.should.have.been.calledWith(sinon.match.string, sinon.match.object, sinon.match.func);
+      trak.io.identify["yield"]();
+      return callback().should.have.been.called;
+    });
     it("sends all values according to the property map", function() {
-      automagic().form_submitted(event());
+      automagic().event_fired(event(), function() {});
       return trak.io.identify.should.have.been.calledWith('username_value', {
         username: "username_value",
         name: "name_value",
@@ -48,14 +61,10 @@ describe('trakio/automagic/identify', function() {
         birthday: "birthday_value"
       });
     });
-    it("passes callback along to trak.io.identify", function() {
-      automagic().form_submitted(event(), callback());
-      return trak.io.identify.should.have.been.calledWith(sinon.match.string, sinon.match.object, callback());
-    });
     context("when using the US english spelling of organisation", function() {
       value(form).equals_haml("%form.a_form\n  %input{ name: \"user[username]\", value: \"username_value\" }\n  %input{ name: \"user[an_organization_field]\", value: \"organisation_value\" }");
       return it("sends all values according to the property map", function() {
-        automagic().form_submitted(event());
+        automagic().event_fired(event(), function() {});
         return trak.io.identify.should.have.been.calledWith('username_value', {
           username: 'username_value',
           organization: 'organisation_value'
@@ -65,7 +74,7 @@ describe('trakio/automagic/identify', function() {
     context("when using latlon", function() {
       value(form).equals_haml("%form.a_form\n  %input{ name: \"user[username]\", value: \"username_value\" }\n  %input{ name: \"user[a_latlon_field]\", value: \"latlon_value\" }");
       return it("sends all values according to the property map", function() {
-        automagic().form_submitted(event());
+        automagic().event_fired(event(), function() {});
         return trak.io.identify.should.have.been.calledWith('username_value', {
           username: 'username_value',
           latlng: "latlon_value"
@@ -75,7 +84,7 @@ describe('trakio/automagic/identify', function() {
     context("when using dob", function() {
       value(form).equals_haml("%form.a_form\n  %input{ name: \"user[username]\", value: \"username_value\" }\n  %input{ name: \"user[a_dob_field]\", value: \"dob_value\" }");
       return it("sends all values according to the property map", function() {
-        automagic().form_submitted(event());
+        automagic().event_fired(event(), function() {});
         return trak.io.identify.should.have.been.calledWith('username_value', {
           username: 'username_value',
           birthday: "dob_value"
@@ -85,7 +94,7 @@ describe('trakio/automagic/identify', function() {
     context("when using date of birth", function() {
       value(form).equals_haml("%form.a_form\n  %input{ name: \"user[username]\", value: \"username_value\" }\n  %input{ name: \"user[a_date_ofbirth_field]\", value: \"date_of_birth_value\" }");
       return it("sends all values according to the property map", function() {
-        automagic().form_submitted(event());
+        automagic().event_fired(event(), function() {});
         return trak.io.identify.should.have.been.calledWith('username_value', {
           username: 'username_value',
           birthday: "date_of_birth_value"
@@ -95,7 +104,7 @@ describe('trakio/automagic/identify', function() {
     context("when using fname, lname", function() {
       value(form).equals_haml("%form.a_form\n  %input{ name: \"user[username]\", value: \"username_value\" }\n  %input{ name: \"user[fname]\", value: \"first_name_value\" }\n  %input{ name: \"user[lname]\", value: \"last_name_value\" }\n  %input{ name: \"user[f__name]\", value: \"not_first_name_value\" }\n  %input{ name: \"user[l__name]\", value: \"not_last_name_value\" }");
       return it("sends all values according to the property map", function() {
-        automagic().form_submitted(event());
+        automagic().event_fired(event(), function() {});
         return trak.io.identify.should.have.been.calledWith('username_value', {
           username: 'username_value',
           first_name: "first_name_value",
@@ -106,7 +115,7 @@ describe('trakio/automagic/identify', function() {
     });
     it("does not send value for fields that are excluded based on excluded_field_selector", function() {
       value(form).equals_haml_now("%form.a_form\n  %input{ name: \"user[username]\", value: \"username_value\" }\n  %input{ name: \"user[name]\", value: \"password_value\", type: \"password\" }");
-      automagic().form_submitted(event());
+      automagic().event_fired(event(), function() {});
       return trak.io.identify.should.have.been.calledWith('username_value', {
         username: "username_value"
       });
@@ -126,7 +135,7 @@ describe('trakio/automagic/identify', function() {
       });
       value(form).equals_haml("%form.a_form\n  %input{ name: \"user[email]\", value: \"email_value\" }\n  %input{ name: \"user[my_field]\", value: \"my_field_value\" }");
       return it("calls trak.io.identify", function() {
-        automagic().form_submitted(event());
+        automagic().event_fired(event(), function() {});
         return trak.io.identify.should.have.been.calledWith('email_value', {
           email: 'email_value',
           my_field: 'my_field_value'
@@ -148,11 +157,13 @@ describe('trakio/automagic/identify', function() {
       });
       value(form).equals_haml("%form.a_form\n  %input{ name: \"user[email]\", value: \"email_value\" }\n  %input{ name: \"user[not_a_field]\", value: \"my_field_value\" }");
       it("doesn't call trak.io.identify", function() {
-        automagic().form_submitted(event(), callback());
+        automagic().event_fired(event(), callback());
         return trak.io.identify.should.not.have.been.called;
       });
       return it("calls the callback", function() {
-        automagic().form_submitted(event(), callback());
+        automagic().event_fired(event(), callback());
+        trak.io.track["yield"]();
+        trak.io.track["yield"]();
         return callback().should.have.been.called;
       });
     });
@@ -174,7 +185,7 @@ describe('trakio/automagic/identify', function() {
       });
       value(form).equals_haml("%form.a_form\n  %input{ name: \"user[email]\", value: \"email_value\" }\n  %input{ name: \"user[my_field]\", value: \"my_field_value\" }\n  %input{ name: \"user[yet_another_field]\", value: \"yet_another_field_value\" }\n  %input{ name: \"user[last_one]\", value: \"last_one_value\" }");
       return it("calls trak.io.identify", function() {
-        automagic().form_submitted(event());
+        automagic().event_fired(event(), function() {});
         return trak.io.identify.should.have.been.calledWith('email_value', {
           email: 'email_value',
           my_field: 'my_field_value',
@@ -201,18 +212,20 @@ describe('trakio/automagic/identify', function() {
       });
       value(form).equals_haml("%form.a_form\n  %input{ name: \"user[email]\", value: \"email_value\" }\n  %input{ name: \"user[my_field]\", value: \"my_field_value\" }\n  %input{ name: \"user[yet_another_field]\", value: \"yet_another_field_value\" }");
       it("doesn't call trak.io.identify", function() {
-        automagic().form_submitted(event(), callback());
+        automagic().event_fired(event(), callback());
         return trak.io.identify.should.not.have.been.called;
       });
       return it("calls the callback", function() {
-        automagic().form_submitted(event(), callback());
+        automagic().event_fired(event(), callback());
+        trak.io.track["yield"]();
+        trak.io.track["yield"]();
         return callback().should.have.been.called;
       });
     });
     context("when form provides a matching distinct_id field", function() {
       value(form).equals_haml("%form.a_form\n  %input{ name: \"user[username]\", value: \"username_value\" }\n  %input{ name: \"user[email]\", value: \"email_value\" }");
       return it("calls trak.io.identify with the value", function() {
-        automagic().form_submitted(event());
+        automagic().event_fired(event(), function() {});
         return trak.io.identify.should.have.been.calledWith('username_value', {
           email: 'email_value',
           username: 'username_value'
@@ -222,7 +235,7 @@ describe('trakio/automagic/identify', function() {
     context("when form provides a matching secondary distinct_id field", function() {
       value(form).equals_haml("%form.a_form\n  %input{ name: \"user[name]\", value: \"name_value\" }\n  %input{ name: \"user[email]\", value: \"email_value\" }");
       return it("calls trak.io.identify with the value", function() {
-        automagic().form_submitted(event());
+        automagic().event_fired(event(), function() {});
         return trak.io.identify.should.have.been.calledWith('email_value', {
           email: 'email_value',
           name: 'name_value'
@@ -236,7 +249,7 @@ describe('trakio/automagic/identify', function() {
       });
       return it("calls trak.io.identify with the auto generaterd distinct_id", function() {
         sinon.stub(trak.io, 'distinct_id').returns('auto_distinct_id');
-        automagic().form_submitted(event());
+        automagic().event_fired(event(), function() {});
         return trak.io.identify.should.have.been.calledWith('auto_distinct_id', {
           name: 'name_value'
         });
@@ -246,12 +259,12 @@ describe('trakio/automagic/identify', function() {
       value(automagic_options).equals(function() {
         return {
           identify: {
-            form_selector: '.a_form'
+            selector: '.a_form'
           }
         };
       });
       return it("calls trak.io.identify", function() {
-        automagic().form_submitted(event());
+        automagic().event_fired(event(), function() {});
         return trak.io.identify.should.have.been.called;
       });
     });
@@ -259,16 +272,18 @@ describe('trakio/automagic/identify', function() {
       value(automagic_options).equals(function() {
         return {
           identify: {
-            form_selector: '.my_form'
+            selector: '.my_form'
           }
         };
       });
       it("does not call trak.io.identify", function() {
-        automagic().form_submitted(event(), callback());
+        automagic().event_fired(event(), callback());
         return trak.io.identify.should.not.have.been.called;
       });
       return it("calls the callback", function() {
-        automagic().form_submitted(event(), callback());
+        automagic().event_fired(event(), callback());
+        trak.io.track["yield"]();
+        trak.io.track["yield"]();
         return callback().should.have.been.called;
       });
     });

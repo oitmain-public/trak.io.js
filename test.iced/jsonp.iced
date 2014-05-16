@@ -119,11 +119,13 @@ describe 'JSONP', ->
     afterEach ->
       trak.io.protocol.restore()
       trak.io.host.restore()
+      trak.io.api_token.restore()
       jsonp.default_params.restore()
 
     it "joins Trak#protocol Trak#host / endpoint and params for endpoint", ->
       sinon.stub(trak.io, "protocol").returns('mcp://')
       sinon.stub(trak.io, "host").returns('my_host.com')
+      sinon.stub(trak.io, "api_token").returns('api_token')
       sinon.stub(jsonp, "default_params").returns({ override: 'foo', keep: 'foo' })
       jsonp.url('my_endpoint', { override: 'bar' }).should.equal('mcp://my_host.com/my_endpoint?override=bar&keep=foo')
 

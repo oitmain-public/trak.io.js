@@ -11,6 +11,12 @@ define(['exceptions', 'json2', 'lodash'], function(Exceptions, JSON, _) {
     };
 
     JSONP.prototype.url = function(endpoint, params) {
+      var e;
+      if (!trak.io.api_token()) {
+        e = new Exceptions.InvalidToken('Missing or invalid API token.', 401, 'You must provide a valid API token, see http://docs.trak.io/authentication.html.');
+        trak.io.debug_error(e);
+        throw e;
+      }
       return trak.io.protocol() + trak.io.host() + '/' + endpoint + this.params(endpoint, params);
     };
 
