@@ -69,6 +69,7 @@ describe 'trakio/automagic', ->
       automagic().page_ready()
       automagic().identify.page_ready.should.have.been.called
 
+
   describe '#bind_events', ->
 
     afterEach ->

@@ -77,7 +77,7 @@ describe('trakio/automagic', function() {
         addEventListener = sinon.stub(document.body, 'addEventListener');
         sinon.stub(automagic(), 'submit_bubbles').returns(true);
         automagic_initialized().bind_events();
-        addEventListener.should.have.been.called;
+        addEventListener.should.have.been.calledOnce;
         addEventListener.should.have.been.calledWith('submit');
         return addEventListener.restore();
       });
