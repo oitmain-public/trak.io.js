@@ -16,7 +16,7 @@ describe 'trakio/automagic/identify', ->
       %input{ name: \"user[an_latlng_field]\", value: \"latlng_value\" }
       %input{ name: \"user[an_birthday_field]\", value: \"birthday_value\" }
   """
-  event = memoize().as -> new MockEvent('submit',form())
+  event = memoize().as -> new MockEvent('submit', form(), { automagic_ready: {}, callback: callback() })
   automagic = memoize().as -> new Trak.Automagic().initialize(automagic_options())
   automagic_options = memoize().as -> {}
   callback = memoize().as -> sinon.spy()
@@ -28,14 +28,23 @@ describe 'trakio/automagic/identify', ->
 
   beforeEach ->
     sinon.stub(trak.io, 'identify')
+    sinon.stub(trak.io, 'track')
 
   afterEach ->
     trak.io.identify.restore() if trak.io.identify.restore
+    trak.io.track.restore() if trak.io.track.restore
 
-  describe '#form_submitted', ->
+  describe '#event_fired', ->
+
+    it "passes callback along to trak.io.identify", ->
+      automagic().identify.event_fired(form(), event(), callback(), {})
+      trak.io.identify.should.have.been.calledWith sinon.match.string, sinon.match.object, sinon.match.func
+      trak.io.identify.yield()
+      callback().should.have.been.called
+
 
     it "sends all values according to the property map", ->
-      automagic().form_submitted(event())
+      automagic().event_fired(event(), ()->)
       trak.io.identify.should.have.been.calledWith 'username_value',
         username: "username_value"
         name: "name_value"
@@ -51,11 +60,6 @@ describe 'trakio/automagic/identify', ->
         birthday: "birthday_value"
 
 
-    it "passes callback along to trak.io.identify", ->
-      automagic().form_submitted(event(), callback())
-      trak.io.identify.should.have.been.calledWith sinon.match.string, sinon.match.object, callback()
-
-
     context "when using the US english spelling of organisation", ->
 
       value(form).equals_haml """
@@ -65,7 +69,7 @@ describe 'trakio/automagic/identify', ->
       """
 
       it "sends all values according to the property map", ->
-        automagic().form_submitted(event())
+        automagic().event_fired(event(), ()->)
         trak.io.identify.should.have.been.calledWith 'username_value',
           username: 'username_value'
           organization: 'organisation_value'
@@ -80,7 +84,7 @@ describe 'trakio/automagic/identify', ->
       """
 
       it "sends all values according to the property map", ->
-        automagic().form_submitted(event())
+        automagic().event_fired(event(), ()->)
         trak.io.identify.should.have.been.calledWith 'username_value',
           username: 'username_value'
           latlng: "latlon_value"
@@ -95,7 +99,7 @@ describe 'trakio/automagic/identify', ->
       """
 
       it "sends all values according to the property map", ->
-        automagic().form_submitted(event())
+        automagic().event_fired(event(), ()->)
         trak.io.identify.should.have.been.calledWith 'username_value',
           username: 'username_value'
           birthday: "dob_value"
@@ -110,7 +114,7 @@ describe 'trakio/automagic/identify', ->
       """
 
       it "sends all values according to the property map", ->
-        automagic().form_submitted(event())
+        automagic().event_fired(event(), ()->)
         trak.io.identify.should.have.been.calledWith('username_value',
           username: 'username_value'
           birthday: "date_of_birth_value"
@@ -129,7 +133,7 @@ describe 'trakio/automagic/identify', ->
       """
 
       it "sends all values according to the property map", ->
-        automagic().form_submitted(event())
+        automagic().event_fired(event(), ()->)
         trak.io.identify.should.have.been.calledWith('username_value',
           username: 'username_value'
           first_name: "first_name_value"
@@ -143,7 +147,7 @@ describe 'trakio/automagic/identify', ->
           %input{ name: \"user[username]\", value: \"username_value\" }
           %input{ name: \"user[name]\", value: \"password_value\", type: \"password\" }
       """
-      automagic().form_submitted(event())
+      automagic().event_fired(event(), ()->)
       trak.io.identify.should.have.been.calledWith 'username_value',
         username: "username_value"
 
@@ -165,7 +169,7 @@ describe 'trakio/automagic/identify', ->
       """
 
       it "calls trak.io.identify", ->
-        automagic().form_submitted(event())
+        automagic().event_fired(event(), ()->)
         trak.io.identify.should.have.been.calledWith 'email_value',
           email: 'email_value'
           my_field: 'my_field_value'
@@ -188,11 +192,13 @@ describe 'trakio/automagic/identify', ->
       """
 
       it "doesn't call trak.io.identify", ->
-        automagic().form_submitted(event(), callback())
+        automagic().event_fired(event(), callback())
         trak.io.identify.should.not.have.been.called
 
       it "calls the callback", ->
-        automagic().form_submitted(event(), callback())
+        automagic().event_fired(event(), callback())
+        trak.io.track.yield()
+        trak.io.track.yield()
         callback().should.have.been.called
 
 
@@ -218,7 +224,7 @@ describe 'trakio/automagic/identify', ->
       """
 
       it "calls trak.io.identify", ->
-        automagic().form_submitted(event())
+        automagic().event_fired(event(), ()->)
         trak.io.identify.should.have.been.calledWith 'email_value',
           email: 'email_value'
           my_field: 'my_field_value'
@@ -247,11 +253,13 @@ describe 'trakio/automagic/identify', ->
       """
 
       it "doesn't call trak.io.identify", ->
-        automagic().form_submitted(event(), callback())
+        automagic().event_fired(event(), callback())
         trak.io.identify.should.not.have.been.called
 
       it "calls the callback", ->
-        automagic().form_submitted(event(), callback())
+        automagic().event_fired(event(), callback())
+        trak.io.track.yield()
+        trak.io.track.yield()
         callback().should.have.been.called
 
 
@@ -264,7 +272,7 @@ describe 'trakio/automagic/identify', ->
       """
 
       it "calls trak.io.identify with the value", ->
-        automagic().form_submitted(event())
+        automagic().event_fired(event(), ()->)
         trak.io.identify.should.have.been.calledWith 'username_value',
           email: 'email_value'
           username: 'username_value'
@@ -278,7 +286,7 @@ describe 'trakio/automagic/identify', ->
       """
 
       it "calls trak.io.identify with the value", ->
-        automagic().form_submitted(event())
+        automagic().event_fired(event(), ()->)
         trak.io.identify.should.have.been.calledWith 'email_value',
           email: 'email_value'
           name: 'name_value'
@@ -296,30 +304,32 @@ describe 'trakio/automagic/identify', ->
 
       it "calls trak.io.identify with the auto generaterd distinct_id", ->
         sinon.stub(trak.io, 'distinct_id').returns('auto_distinct_id')
-        automagic().form_submitted(event())
+        automagic().event_fired(event(), ()->)
         trak.io.identify.should.have.been.calledWith 'auto_distinct_id',
           name: 'name_value'
 
 
     context "when form matches the identify form selector", ->
 
-      value(automagic_options).equals -> { identify: { form_selector: '.a_form' } }
+      value(automagic_options).equals -> { identify: { selector: '.a_form' } }
 
       it "calls trak.io.identify", ->
-        automagic().form_submitted(event())
+        automagic().event_fired(event(), ()->)
         trak.io.identify.should.have.been.called
 
 
     context "when a form does not match the identify form selector", ->
 
-      value(automagic_options).equals -> { identify: { form_selector: '.my_form' } }
+      value(automagic_options).equals -> { identify: { selector: '.my_form' } }
 
       it "does not call trak.io.identify", ->
-        automagic().form_submitted(event(), callback())
+        automagic().event_fired(event(), callback())
         trak.io.identify.should.not.have.been.called
 
       it "calls the callback", ->
-        automagic().form_submitted(event(), callback())
+        automagic().event_fired(event(), callback())
+        trak.io.track.yield()
+        trak.io.track.yield()
         callback().should.have.been.called
 
 

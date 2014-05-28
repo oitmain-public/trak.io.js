@@ -3450,6 +3450,12 @@ define('jsonp',['exceptions', 'json2', 'lodash'], function(Exceptions, JSON, _) 
     };
 
     JSONP.prototype.url = function(endpoint, params) {
+      var e;
+      if (!trak.io.api_token()) {
+        e = new Exceptions.InvalidToken('Missing or invalid API token.', 401, 'You must provide a valid API token, see http://docs.trak.io/authentication.html.');
+        trak.io.debug_error(e);
+        throw e;
+      }
       return trak.io.protocol() + trak.io.host() + '/' + endpoint + this.params(endpoint, params);
     };
 
@@ -3932,7 +3938,10 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
 
     Trak.prototype.page_ready = function() {
       if (this.options.auto_track_page_views !== false) {
-        return this.page_view();
+        this.page_view();
+      }
+      if (this.automagic) {
+        return this.automagic.page_ready();
       }
     };
 
@@ -3945,8 +3954,8 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
         if (me.page_ready_event_fired) {
           return;
         }
-        me.page_ready_event_fired = true;
-        return fn();
+        fn();
+        return me.page_ready_event_fired = true;
       };
       do_oll_check = function() {
         var e;
@@ -4297,6 +4306,16 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
         }
       }
       return r;
+    };
+
+    Trak.prototype.debug_error = function(error) {
+      if (console && console.error) {
+        if (error.stack) {
+          return console.error(error.stack);
+        } else {
+          return console.error(error);
+        }
+      }
     };
 
     return Trak;

@@ -2,12 +2,12 @@
 var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-define(['trakio/lodash', 'trakio/automagic/identify'], function(_, Identify) {
+define(['trakio/lodash', 'trakio/automagic/identify', 'trakio/automagic/track'], function(_, Identify, Track) {
   var Automagic, instance, _i, _len, _ref, _results;
   Automagic = (function() {
     function Automagic() {
-      this.form_submitted = __bind(this.form_submitted, this);
-      this.emulated_form_submitted = __bind(this.emulated_form_submitted, this);
+      this.event_fired = __bind(this.event_fired, this);
+      this.emulated_event_fired = __bind(this.emulated_event_fired, this);
       this.bind_events = __bind(this.bind_events, this);
       this.submit_bubbles = __bind(this.submit_bubbles, this);
       this.page_ready = __bind(this.page_ready, this);
@@ -18,9 +18,9 @@ define(['trakio/lodash', 'trakio/automagic/identify'], function(_, Identify) {
     Automagic.prototype.default_options = {
       test_hooks: [],
       bind_events: true,
-      form_selector: 'form',
+      selector: 'form',
       identify: {
-        form_selector: 'form',
+        selector: 'form',
         excluded_field_selector: '[type=password]',
         property_map: {
           username: /.*username.*/,
@@ -38,11 +38,35 @@ define(['trakio/lodash', 'trakio/automagic/identify'], function(_, Identify) {
         },
         has_any_fields: ['username', 'name', 'first_name', 'last_name', 'email'],
         has_all_fields: [],
-        distinct_ids: ['username', 'email']
+        distinct_ids: ['username', 'email'],
+        should_identify: function(element, event) {
+          return this.identify.should_identify(element, event);
+        }
+      },
+      track: {
+        selector: 'form',
+        should_track: function(element, event) {
+          return this.track.should_track(element, event);
+        },
+        should_track_events: {
+          signed_in: function(element, event) {
+            return this.track.should_track_events.signed_in.call(this.track, element, event);
+          },
+          signed_up: function(element, event) {
+            return this.track.should_track_events.signed_up.call(this.track, element, event);
+          },
+          subscribed_with_email: function(element, event) {
+            return this.track.should_track_events.subscribed_with_email.call(this.track, element, event);
+          },
+          submitted_form: function(element, event) {
+            return this.track.should_track_events.submitted_form.call(this.track, element, event);
+          }
+        }
       }
     };
 
     Automagic.prototype.initialize = function(options) {
+      var e;
       if (options == null) {
         options = {};
       }
@@ -51,12 +75,15 @@ define(['trakio/lodash', 'trakio/automagic/identify'], function(_, Identify) {
         _.merge(this.options, options, this.merge_options);
         this.identify = new Identify();
         this.identify.initialize(this, this.options.identify);
+        this.track = new Track();
+        this.track.initialize(this, this.options.track);
         if (trak.io.page_ready_event_fired) {
           this.page_ready();
         }
         return this;
       } catch (_error) {
-
+        e = _error;
+        return trak.io.debug_error(e);
       }
     };
 
@@ -75,6 +102,7 @@ define(['trakio/lodash', 'trakio/automagic/identify'], function(_, Identify) {
     Automagic.prototype.page_ready = function() {
       _.attr(this.page_body(), 'data-trakio-automagic', '1');
       this.identify.page_ready();
+      this.track.page_ready();
       if (this.options.bind_events) {
         return this.bind_events();
       }
@@ -89,17 +117,15 @@ define(['trakio/lodash', 'trakio/automagic/identify'], function(_, Identify) {
       try {
         body = document.body || document.getElementsByTagName('body')[0];
         if (this.submit_bubbles()) {
-          return _.addEvent(body, 'submit', this.form_submitted);
+          return _.addEvent(body, 'submit', this.event_fired);
         } else {
-          _.addEvent(body, 'click', this.emulated_form_submitted);
-          return _.addEvent(body, 'keypress', this.emulated_form_submitted);
+          _.addEvent(body, 'click', this.emulated_event_fired);
+          return _.addEvent(body, 'keypress', this.emulated_event_fired);
         }
-      } catch (_error) {
-
-      }
+      } catch (_error) {}
     };
 
-    Automagic.prototype.emulated_form_submitted = function(event, callback) {
+    Automagic.prototype.emulated_event_fired = function(event, callback) {
       var form, keycode, parent, target;
       target = event.srcElement || event.target;
       if (target.nodeName === 'INPUT' || target.nodeName === 'BUTTON') {
@@ -110,7 +136,7 @@ define(['trakio/lodash', 'trakio/automagic/identify'], function(_, Identify) {
           while (parent && parent.nodeName !== 'FORM') {
             parent = target.parentNode;
           }
-          if (parent.nodeName.toLowercase === 'FORM') {
+          if (parent.nodeName === 'FORM') {
             form = parent;
           }
         }
@@ -119,27 +145,54 @@ define(['trakio/lodash', 'trakio/automagic/identify'], function(_, Identify) {
         return;
       }
       if (event.type === 'click' && target.type === 'submit') {
-        return this.form_submitted(event, callback);
+        return this.event_fired(event, callback);
       } else if (event.type === 'keypress') {
         keycode = event.keyCode || event.which;
         if (keycode === 13) {
-          return this.form_submitted(event, callback);
+          return this.event_fired(event, callback);
         }
       }
     };
 
-    Automagic.prototype.form_submitted = function(event, callback) {
-      var target;
-      target = event.srcElement || event.target;
-      if (!_.matches(target, this.options.form_selector)) {
-        return;
-      }
+    Automagic.prototype.event_fired = function(event, provided_callback) {
+      var automagic_ready, callback, e, element, timeout;
       try {
+        element = event.srcElement || event.target;
         event.preventDefault();
-        this.identify.form_submitted(event, callback);
+        automagic_ready = {
+          identify: false,
+          track: false
+        };
+        timeout = setTimeout(function() {
+          if (provided_callback) {
+            return provided_callback();
+          } else {
+            return element.submit();
+          }
+        }, 1000);
+        callback = function() {
+          clearTimeout(timeout);
+          if (automagic_ready.identify && automagic_ready.track) {
+            if (provided_callback) {
+              provided_callback();
+            } else {
+              element.submit();
+            }
+            return true;
+          }
+        };
+        this.identify.event_fired(element, event, callback, automagic_ready);
+        this.track.event_fired(element, event, callback, automagic_ready);
         return false;
       } catch (_error) {
-        return callback();
+        e = _error;
+        trak.io.debug_error(e);
+        event.automagic_ready = {
+          identify: true,
+          track: true
+        };
+        event.callback();
+        return true;
       }
     };
 
@@ -148,6 +201,7 @@ define(['trakio/lodash', 'trakio/automagic/identify'], function(_, Identify) {
   })();
   Trak.Automagic = Automagic;
   Trak.Automagic.Identify = Identify;
+  Trak.Automagic.Track = Track;
   _ref = Trak.instances;
   _results = [];
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {

@@ -66,15 +66,17 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
     page_ready: ()=>
       if @options.auto_track_page_views != false
         @page_view()
+      if @automagic
+        @automagic.page_ready()
 
     page_ready_event_fired: false
     on_page_ready: (fn) =>
       me = @
       # Create an idempotent version of the 'fn' function
       idempotent_fn = ->
-        return  if me.page_ready_event_fired
-        me.page_ready_event_fired = true
+        return if me.page_ready_event_fired
         fn()
+        me.page_ready_event_fired = true
 
 
       # The DOM ready check for Internet Explorer
@@ -343,3 +345,11 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
         else
           r.push null
       r
+
+
+    debug_error: (error) ->
+      if console && console.error
+        if error.stack
+          console.error error.stack
+        else
+          console.error error

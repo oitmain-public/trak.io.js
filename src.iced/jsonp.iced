@@ -8,6 +8,10 @@ define ['exceptions','json2','lodash'], (Exceptions, JSON, _) ->
       this.jsonp(this.url(endpoint, params), callback)
 
     url: (endpoint, params) ->
+      unless trak.io.api_token()
+        e = new Exceptions.InvalidToken('Missing or invalid API token.', 401, 'You must provide a valid API token, see http://docs.trak.io/authentication.html.')
+        trak.io.debug_error e
+        throw e
       trak.io.protocol()+trak.io.host()+'/'+endpoint+this.params(endpoint, params)
 
     params: (endpoint, provided_params) ->

@@ -13,7 +13,8 @@ describe 'trakio/automagic', ->
       %input{type: "text"}
       %input{type: "submit"}
   """
-  event = memoize().as -> new MockEvent('submit',form())
+  event = memoize().as -> new MockEvent('submit',form(), { callback: callback(), automagic_ready: {} })
+  callback = memoize().as -> sinon.spy()
 
   before (done)->
     requirejs ['trakio/lodash'], (lodash) ->
@@ -24,6 +25,10 @@ describe 'trakio/automagic', ->
 
     it "initializes Automagic.Identify", ->
       automagic_initialized().identify.should.be.an.instanceof Trak.Automagic.Identify
+
+
+    it "initializes Automagic.Track", ->
+      automagic_initialized().track.should.be.an.instanceof Trak.Automagic.Track
 
 
     it "calls #page_ready if trak.io.page_ready_event_fired is true", ->
@@ -71,6 +76,13 @@ describe 'trakio/automagic', ->
       automagic().identify.page_ready.should.have.been.called
 
 
+    it "calls trakio/automagic/track#page_ready", ->
+      sinon.stub(automagic_initialized().track, 'page_ready')
+
+      automagic().page_ready()
+      automagic().track.page_ready.should.have.been.called
+
+
   describe '#bind_events', ->
 
     afterEach ->
@@ -103,18 +115,18 @@ describe 'trakio/automagic', ->
         addEventListener.restore()
 
 
-  describe '#emulated_form_submitted', ->
+  describe '#emulated_event_fired', ->
 
     context "when it's triggered by a click", ->
 
       it "should call form_submitted if it's a submit button", ->
-        stub = sinon.stub(automagic(), 'form_submitted').returns(false)
+        stub = sinon.stub(automagic_initialized(), 'event_fired').returns(false)
 
         second_form()
         submit = $('input[type=submit]')[0]
         _event = new MockEvent 'click', submit
 
-        automagic_initialized().emulated_form_submitted(_event)
+        automagic_initialized().emulated_event_fired(_event)
 
         stub.should.have.been.called
         stub.restore()
@@ -122,25 +134,42 @@ describe 'trakio/automagic', ->
     context "when it's triggered by a keypress", ->
 
       it "should call form_submitted if it's an enter key", ->
-        stub = sinon.stub(automagic(), 'form_submitted').returns(false)
+        stub = sinon.stub(automagic_initialized(), 'event_fired').returns(false)
 
         second_form()
         text = $('input[type=text]')[0]
         _event = new MockEvent 'keypress', text, keyCode: 13
 
-        automagic_initialized().emulated_form_submitted(_event)
+        automagic_initialized().emulated_event_fired(_event)
 
         stub.should.have.been.called
         stub.restore()
 
+  describe '#event_fired', ->
+
+    it "calls trakio/automagic/identify#event_fired", ->
+      sinon.stub(automagic_initialized().identify, 'event_fired').returns(false)
+      sinon.stub(automagic_initialized().track, 'event_fired').returns(false)
+
+      automagic().event_fired(event(),()->)
+
+      automagic().identify.event_fired.should.have.been.calledWith(form(), event(), sinon.match.func, sinon.match.object)
+      automagic().identify.event_fired.restore()
 
 
-  describe '#form_submitted', ->
+    it "calls trakio/automagic/track#event_fired", ->
+      sinon.stub(automagic_initialized().track, 'event_fired').returns(false)
 
-    it "calls trakio/automagic/identify#form_submitted", ->
-      sinon.stub(automagic_initialized().identify, 'form_submitted').returns(false)
+      automagic().event_fired(event(),()->)
 
-      automagic().form_submitted(event())
+      automagic().track.event_fired.should.have.been.calledWith(form(), event(), sinon.match.func, sinon.match.object)
 
-      automagic().identify.form_submitted.should.have.been.calledWith(event())
+      automagic().track.event_fired.restore()
 
+    it "calls the callback once", ->
+      sinon.stub(trak.io, 'track')
+      automagic_initialized().event_fired(event(), callback())
+      trak.io.track.yield()
+
+      callback().should.have.been.calledOnce
+      trak.io.track.restore()

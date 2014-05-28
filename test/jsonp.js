@@ -180,11 +180,13 @@ describe('JSONP', function() {
     afterEach(function() {
       trak.io.protocol.restore();
       trak.io.host.restore();
+      trak.io.api_token.restore();
       return jsonp.default_params.restore();
     });
     return it("joins Trak#protocol Trak#host / endpoint and params for endpoint", function() {
       sinon.stub(trak.io, "protocol").returns('mcp://');
       sinon.stub(trak.io, "host").returns('my_host.com');
+      sinon.stub(trak.io, "api_token").returns('api_token');
       sinon.stub(jsonp, "default_params").returns({
         override: 'foo',
         keep: 'foo'
