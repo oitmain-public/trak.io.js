@@ -12,7 +12,7 @@ describe('trakio/automagic', function() {
     return {};
   });
   form = memoize().as_haml("%form.my_form\n  %input");
-  second_form = memoize().as_haml("%form.a_form\n  %input{type: \"submit\"}");
+  second_form = memoize().as_haml("%form.a_form\n  %input{type: \"text\"}\n  %input{type: \"submit\"}");
   event = memoize().as(function() {
     return new MockEvent('submit', form());
   });
@@ -96,15 +96,30 @@ describe('trakio/automagic', function() {
     });
   });
   describe('#emulated_form_submitted', function() {
-    return context("wtf", function() {
-      return it("should call form_submitted if valid", function() {
-        var le_event, submit, wot;
+    context("when it's triggered by a click", function() {
+      return it("should call form_submitted if it's a submit button", function() {
+        var stub, submit, _event;
+        stub = sinon.stub(automagic(), 'form_submitted').returns(false);
         second_form();
-        wot = sinon.stub(automagic(), 'form_submitted').returns(false);
         submit = $('input[type=submit]')[0];
-        le_event = new MockEvent('click', submit);
-        automagic_initialized().emulated_form_submitted(le_event);
-        return wot.should.have.been.called;
+        _event = new MockEvent('click', submit);
+        automagic_initialized().emulated_form_submitted(_event);
+        stub.should.have.been.called;
+        return stub.restore();
+      });
+    });
+    return context("when it's triggered by a keypress", function() {
+      return it("should call form_submitted if it's an enter key", function() {
+        var stub, text, _event;
+        stub = sinon.stub(automagic(), 'form_submitted').returns(false);
+        second_form();
+        text = $('input[type=text]')[0];
+        _event = new MockEvent('keypress', text, {
+          keyCode: 13
+        });
+        automagic_initialized().emulated_form_submitted(_event);
+        stub.should.have.been.called;
+        return stub.restore();
       });
     });
   });

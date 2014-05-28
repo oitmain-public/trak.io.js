@@ -118,7 +118,6 @@ define(['trakio/lodash', 'trakio/automagic/identify'], function(_, Identify) {
       if (!(form && event.type)) {
         return;
       }
-      console.log("HERE");
       if (event.type === 'click' && target.type === 'submit') {
         return this.form_submitted(event, callback);
       } else if (event.type === 'keypress') {

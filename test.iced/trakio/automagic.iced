@@ -10,6 +10,7 @@ describe 'trakio/automagic', ->
   """
   second_form = memoize().as_haml """
     %form.a_form
+      %input{type: "text"}
       %input{type: "submit"}
   """
   event = memoize().as -> new MockEvent('submit',form())
@@ -104,19 +105,33 @@ describe 'trakio/automagic', ->
 
   describe '#emulated_form_submitted', ->
 
-    context "wtf", ->
+    context "when it's triggered by a click", ->
 
-      it "should call form_submitted if valid", ->
+      it "should call form_submitted if it's a submit button", ->
+        stub = sinon.stub(automagic(), 'form_submitted').returns(false)
+
         second_form()
-
-        wot = sinon.stub(automagic(), 'form_submitted').returns(false)
-
         submit = $('input[type=submit]')[0]
+        _event = new MockEvent 'click', submit
 
-        le_event = new MockEvent 'click', submit
+        automagic_initialized().emulated_form_submitted(_event)
 
-        automagic_initialized().emulated_form_submitted(le_event)
-        wot.should.have.been.called
+        stub.should.have.been.called
+        stub.restore()
+
+    context "when it's triggered by a keypress", ->
+
+      it "should call form_submitted if it's an enter key", ->
+        stub = sinon.stub(automagic(), 'form_submitted').returns(false)
+
+        second_form()
+        text = $('input[type=text]')[0]
+        _event = new MockEvent 'keypress', text, keyCode: 13
+
+        automagic_initialized().emulated_form_submitted(_event)
+
+        stub.should.have.been.called
+        stub.restore()
 
 
 
