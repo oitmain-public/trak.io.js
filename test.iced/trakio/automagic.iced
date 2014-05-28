@@ -82,7 +82,7 @@ describe 'trakio/automagic', ->
 
         automagic_initialized().bind_events()
 
-        addEventListener.should.have.been.called
+        addEventListener.should.have.been.calledOnce
         addEventListener.should.have.been.calledWith('submit')
 
         addEventListener.restore()
