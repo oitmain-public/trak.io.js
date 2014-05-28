@@ -10,7 +10,7 @@ describe 'trakio/automagic', ->
   """
   second_form = memoize().as_haml """
     %form.a_form
-      %input
+      %input{type: "submit"}
   """
   event = memoize().as -> new MockEvent('submit',form())
 
@@ -100,6 +100,24 @@ describe 'trakio/automagic', ->
         addEventListener.should.have.been.calledWith('keypress')
 
         addEventListener.restore()
+
+
+  describe '#emulated_form_submitted', ->
+
+    context "wtf", ->
+
+      it "should call form_submitted if valid", ->
+        second_form()
+
+        wot = sinon.stub(automagic(), 'form_submitted').returns(false)
+
+        submit = $('input[type=submit]')[0]
+
+        le_event = new MockEvent 'click', submit
+
+        automagic_initialized().emulated_form_submitted(le_event)
+        wot.should.have.been.called
+
 
 
   describe '#form_submitted', ->

@@ -5048,15 +5048,15 @@ define('trakio/automagic',['trakio/lodash', 'trakio/automagic/identify'], functi
     Automagic.prototype.emulated_form_submitted = function(event, callback) {
       var form, keycode, parent, target;
       target = event.srcElement || event.target;
-      if (target.nodeName.toLowerCase === 'input' || target.nodeName.toLowerCase === 'button') {
+      if (target.nodeName === 'INPUT' || target.nodeName === 'BUTTON') {
         if (target.form) {
           form = target.form;
         } else {
           parent = target.parentNode;
-          while (parent && parent.nodeName.toLowerCase !== 'form') {
+          while (parent && parent.nodeName !== 'FORM') {
             parent = target.parentNode;
           }
-          if (parent.nodeName.toLowercase === 'form') {
+          if (parent.nodeName.toLowercase === 'FORM') {
             form = parent;
           }
         }
@@ -5064,6 +5064,7 @@ define('trakio/automagic',['trakio/lodash', 'trakio/automagic/identify'], functi
       if (!(form && event.type)) {
         return;
       }
+      console.log("HERE");
       if (event.type === 'click' && target.type === 'submit') {
         return this.form_submitted(event, callback);
       } else if (event.type === 'keypress') {
@@ -5075,15 +5076,9 @@ define('trakio/automagic',['trakio/lodash', 'trakio/automagic/identify'], functi
     };
 
     Automagic.prototype.form_submitted = function(event, callback) {
-      var matches, target, _matches;
+      var target;
       target = event.srcElement || event.target;
-      _matches = target.matches || target.matchesSelector || target.msMatchesSelector || target.mozMatchesSelector || target.webkitMatchesSelector || target.oMatchesSelector;
-      if (_matches) {
-        matches = _matches.call(target, this.options.form_selector);
-      } else {
-        matches = __indexOf.call(document.querySelectorAll(this.options.form_selector), target) >= 0;
-      }
-      if (!matches) {
+      if (!_.matches(target, this.options.form_selector)) {
         return;
       }
       try {

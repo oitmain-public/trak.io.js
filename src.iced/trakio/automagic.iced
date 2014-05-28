@@ -75,17 +75,18 @@ define [
       # this is for IE7 and IE8 only
       target = event.srcElement || event.target
 
-      if target.nodeName.toLowerCase == 'input' || target.nodeName.toLowerCase == 'button'
+      if target.nodeName == 'INPUT' || target.nodeName == 'BUTTON'
         if target.form
           form = target.form
         else # if form isn't set try and find it by ascending the DOM
           parent = target.parentNode
 
-          while parent && parent.nodeName.toLowerCase != 'form'
+          while parent && parent.nodeName != 'FORM'
             parent = target.parentNode
 
-          if parent.nodeName.toLowercase == 'form'
+          if parent.nodeName.toLowercase == 'FORM'
             form = parent
+          # if form isn't set now target clearly doesn't belong to a form
 
       unless form && event.type
         return
@@ -105,13 +106,7 @@ define [
     form_submitted: (event, callback) =>
       target = event.srcElement || event.target
 
-      _matches = (target.matches || target.matchesSelector || target.msMatchesSelector || target.mozMatchesSelector || target.webkitMatchesSelector || target.oMatchesSelector)
-      if _matches # if matchesSelector is built into browser
-        matches = _matches.call(target, @options.form_selector)
-      else # slower alternative
-        matches = target in document.querySelectorAll(@options.form_selector)
-
-      unless matches
+      unless _.matches(target, @options.form_selector)
         return # return early if the element does not match the selector
 
       try

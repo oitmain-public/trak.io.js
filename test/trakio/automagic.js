@@ -12,7 +12,7 @@ describe('trakio/automagic', function() {
     return {};
   });
   form = memoize().as_haml("%form.my_form\n  %input");
-  second_form = memoize().as_haml("%form.a_form\n  %input");
+  second_form = memoize().as_haml("%form.a_form\n  %input{type: \"submit\"}");
   event = memoize().as(function() {
     return new MockEvent('submit', form());
   });
@@ -92,6 +92,19 @@ describe('trakio/automagic', function() {
         addEventListener.should.have.been.calledWith('click');
         addEventListener.should.have.been.calledWith('keypress');
         return addEventListener.restore();
+      });
+    });
+  });
+  describe('#emulated_form_submitted', function() {
+    return context("wtf", function() {
+      return it("should call form_submitted if valid", function() {
+        var le_event, submit, wot;
+        second_form();
+        wot = sinon.stub(automagic(), 'form_submitted').returns(false);
+        submit = $('input[type=submit]')[0];
+        le_event = new MockEvent('click', submit);
+        automagic_initialized().emulated_form_submitted(le_event);
+        return wot.should.have.been.called;
       });
     });
   });
