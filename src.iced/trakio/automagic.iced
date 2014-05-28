@@ -80,7 +80,10 @@ define [
 
 
     submit_bubbles: ()=>
-      'onsubmit' in window
+      # this is surrounded by backticks so its interpreted as JS
+      # 'onsubmit' in window compiles to an index of in CoffeeScript
+      `'onsubmit' in window`
+
 
 
     bind_events: ()=>
@@ -114,6 +117,7 @@ define [
       unless form && event.type
         return
 
+      target.form = form unless target.form
       # now we need to see if it's real
       if event.type == 'click' && target.type == 'submit'
         # we have a submit
@@ -147,7 +151,10 @@ define [
             if provided_callback
               provided_callback()
             else
-              element.submit() # @todo this will need to be much cleverer when we do more than forms
+              if element.submit
+                element.submit()
+              else
+                element.form.submit() # @todo this will need to be much cleverer when we do more than forms
             true
 
         @identify.event_fired element, event, callback, automagic_ready
