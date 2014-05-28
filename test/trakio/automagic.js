@@ -66,35 +66,33 @@ describe('trakio/automagic', function() {
     });
   });
   describe('#bind_events', function() {
-    it("binds to all forms' submit", function() {
-      sinon.stub(automagic(), 'bind_to_form_submit');
-      form();
-      second_form();
-      automagic_initialized().bind_events();
-      automagic().bind_to_form_submit.should.have.been.calledWith(form());
-      return automagic().bind_to_form_submit.should.have.been.calledWith(second_form());
+    afterEach(function() {
+      if (document.body.addEventListener.restore) {
+        return document.body.addEventListener.restore();
+      }
     });
-    return context("when there is a form that doesn't match", function() {
-      value(automagic_options).equals(function() {
-        return {
-          form_selector: '.my_form'
-        };
-      });
-      return it("only binds to matching forms", function() {
-        sinon.stub(automagic(), 'bind_to_form_submit');
-        form();
-        second_form();
+    context("when submit bubbles", function() {
+      return it("binds submit on body", function() {
+        var addEventListener;
+        addEventListener = sinon.stub(document.body, 'addEventListener');
+        sinon.stub(automagic(), 'submit_bubbles').returns(true);
         automagic_initialized().bind_events();
-        automagic().bind_to_form_submit.should.have.been.calledWith(form());
-        return automagic().bind_to_form_submit.should.not.have.been.calledWith(second_form());
+        addEventListener.should.have.been.called;
+        addEventListener.should.have.been.calledWith('submit');
+        return addEventListener.restore();
       });
     });
-  });
-  describe('#bind_to_form_submit', function() {
-    return it('adds a callback to the form', function() {
-      sinon.stub(form(), 'addEventListener');
-      automagic().bind_to_form_submit(form());
-      return form().addEventListener.should.have.been.calledWith('submit', automagic().form_submitted);
+    return context("when submit does not bubble", function() {
+      return it("binds click and keypress on body", function() {
+        var addEventListener;
+        addEventListener = sinon.stub(document.body, 'addEventListener');
+        sinon.stub(automagic(), 'submit_bubbles').returns(false);
+        automagic_initialized().bind_events();
+        addEventListener.should.have.been.calledTwice;
+        addEventListener.should.have.been.calledWith('click');
+        addEventListener.should.have.been.calledWith('keypress');
+        return addEventListener.restore();
+      });
     });
   });
   return describe('#form_submitted', function() {

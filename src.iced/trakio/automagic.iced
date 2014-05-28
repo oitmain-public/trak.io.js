@@ -54,7 +54,7 @@ define [
       @bind_events() if @options.bind_events
 
 
-    submit_bubbles: () =>
+    submit_bubbles: ()=>
       'onsubmit' in window
 
 

@@ -66,15 +66,15 @@ test: test-server
 # Runs only the non-minified core tests.
 test-core: test-server ice
 	-$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.io.html -R dot
-	-$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.automagic.html -R dot
+	-$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.io.automagic.html -R dot
 	make kill-test
 
 # Opens all the tests in your browser.
 test-browser: test-server
 	open http://localhost:8001/test/trak.io.html
 	open http://localhost:8001/test/trak.io.min.html
-	open http://localhost:8001/test/trak.automagic.html
-	open http://localhost:8001/test/trak.automagic.min.html
+	open http://localhost:8001/test/trak.io.automagic.html
+	open http://localhost:8001/test/trak.io.automagic.min.html
 
 kill-test:
 	kill -9 `cat pid.8001.txt`

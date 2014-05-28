@@ -69,6 +69,38 @@ describe 'trakio/automagic', ->
       automagic().page_ready()
       automagic().identify.page_ready.should.have.been.called
 
+  describe '#bind_events', ->
+
+    afterEach ->
+      if document.body.addEventListener.restore
+        document.body.addEventListener.restore()
+
+    context "when submit bubbles", ->
+      it "binds submit on body", ->
+        addEventListener = sinon.stub(document.body, 'addEventListener')
+        sinon.stub(automagic(), 'submit_bubbles').returns(true)
+
+        automagic_initialized().bind_events()
+
+        addEventListener.should.have.been.called
+        addEventListener.should.have.been.calledWith('submit')
+
+        addEventListener.restore()
+
+    context "when submit does not bubble", ->
+      it "binds click and keypress on body", ->
+        addEventListener = sinon.stub(document.body, 'addEventListener')
+        sinon.stub(automagic(), 'submit_bubbles').returns(false)
+
+        automagic_initialized().bind_events()
+
+        addEventListener.should.have.been.calledTwice
+        addEventListener.should.have.been.calledWith('click')
+        addEventListener.should.have.been.calledWith('keypress')
+
+        addEventListener.restore()
+
+
   describe '#form_submitted', ->
 
     it "calls trakio/automagic/identify#form_submitted", ->
