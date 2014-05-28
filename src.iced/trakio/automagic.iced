@@ -54,20 +54,66 @@ define [
       @bind_events() if @options.bind_events
 
 
+    submit_bubbles: () =>
+      'onsubmit' in window
+
+
     bind_events: ()=>
       try
         body = document.body or document.getElementsByTagName('body')[0]
-        for form in _.find(@options.form_selector)
-          @bind_to_form_submit(form)
+
+        if @submit_bubbles()
+          _.addEvent(body, 'submit', @form_submitted)
+        else
+          # below is a hacky way of picking up submits when the submit event does not bubble.
+          _.addEvent(body, 'click', @emulated_form_submitted)
+          _.addEvent(body, 'keypress', @emulated_form_submitted)
+
       catch
 
+    emulated_form_submitted: (event, callback) =>
+      # this is for IE7 and IE8 only
+      target = event.srcElement || event.target
 
-    bind_to_form_submit: (form) =>
-      me = @
-      _.addEvent(form, 'submit', @form_submitted)
+      if target.nodeName.toLowerCase == 'input' || target.nodeName.toLowerCase == 'button'
+        if target.form
+          form = target.form
+        else # if form isn't set try and find it by ascending the DOM
+          parent = target.parentNode
 
+          while parent && parent.nodeName.toLowerCase != 'form'
+            parent = target.parentNode
+
+          if parent.nodeName.toLowercase == 'form'
+            form = parent
+
+      unless form && event.type
+        return
+
+      # now we need to see if it's real
+      if event.type == 'click' && target.type == 'submit'
+        # we have a submit
+        @form_submitted(event, callback)
+
+      else if event.type == 'keypress'
+        # check we're an enter press
+        keycode = event.keyCode || event.which
+        @form_submitted(event, callback) if keycode == 13
+
+      # end
 
     form_submitted: (event, callback) =>
+      target = event.srcElement || event.target
+
+      _matches = (target.matches || target.matchesSelector || target.msMatchesSelector || target.mozMatchesSelector || target.webkitMatchesSelector || target.oMatchesSelector)
+      if _matches # if matchesSelector is built into browser
+        matches = _matches.call(target, @options.form_selector)
+      else # slower alternative
+        matches = target in document.querySelectorAll(@options.form_selector)
+
+      unless matches
+        return # return early if the element does not match the selector
+
       try
         event.preventDefault()
         @identify.form_submitted(event, callback)

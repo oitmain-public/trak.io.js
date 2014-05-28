@@ -69,44 +69,6 @@ describe 'trakio/automagic', ->
       automagic().page_ready()
       automagic().identify.page_ready.should.have.been.called
 
-
-  describe '#bind_events', ->
-
-    it "binds to all forms' submit", ->
-      sinon.stub(automagic(), 'bind_to_form_submit')
-      form()
-      second_form()
-      automagic_initialized().bind_events()
-
-      automagic().bind_to_form_submit.should.have.been.calledWith(form())
-      automagic().bind_to_form_submit.should.have.been.calledWith(second_form())
-
-
-    context "when there is a form that doesn't match", ->
-
-      value(automagic_options).equals -> { form_selector: '.my_form'}
-
-      it "only binds to matching forms", ->
-        sinon.stub(automagic(), 'bind_to_form_submit')
-        form()
-        second_form()
-
-        automagic_initialized().bind_events()
-
-        automagic().bind_to_form_submit.should.have.been.calledWith(form())
-        automagic().bind_to_form_submit.should.not.have.been.calledWith(second_form())
-
-
-  describe '#bind_to_form_submit', ->
-
-    it 'adds a callback to the form', ->
-      sinon.stub(form(), 'addEventListener')
-
-      automagic().bind_to_form_submit(form())
-
-      form().addEventListener.should.have.been.calledWith('submit',automagic().form_submitted)
-
-
   describe '#form_submitted', ->
 
     it "calls trakio/automagic/identify#form_submitted", ->
