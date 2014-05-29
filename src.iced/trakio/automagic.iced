@@ -96,37 +96,42 @@ define [
           # below is a hacky way of picking up submits when the submit event does not bubble.
           _.addEvent(body, 'click', @emulated_event_fired)
           _.addEvent(body, 'keypress', @emulated_event_fired)
+      catch e
+        trak.io.debug_error e
 
 
     emulated_event_fired: (event, callback)=>
-      target = event.srcElement || event.target
+      try
+        target = event.srcElement || event.target
 
-      if target.nodeName == 'INPUT' || target.nodeName == 'BUTTON'
-        if target.form
-          form = target.form
-        else # if form isn't set try and find it by ascending the DOM
-          parent = target.parentNode
-
-          while parent && parent.nodeName != 'FORM'
+        if target.nodeName == 'INPUT' || target.nodeName == 'BUTTON'
+          if target.form
+            form = target.form
+          else # if form isn't set try and find it by ascending the DOM
             parent = target.parentNode
 
-          if parent.nodeName == 'FORM'
-            form = parent
-          # if form isn't set now target clearly doesn't belong to a form
+            while parent && parent.nodeName != 'FORM'
+              parent = target.parentNode
 
-      unless form && event.type
-        return
+            if parent.nodeName == 'FORM'
+              form = parent
+            # if form isn't set now target clearly doesn't belong to a form
 
-      target.form = form unless target.form
-      # now we need to see if it's real
-      if event.type == 'click' && target.type == 'submit'
-        # we have a submit
-        @event_fired(event, callback)
+        unless form && event.type
+          return
 
-      else if event.type == 'keypress'
-        # check we're an enter press
-        keycode = event.keyCode || event.which
-        @event_fired(event, callback) if keycode == 13
+        target.form = form unless target.form
+        # now we need to see if it's real
+        if event.type == 'click' && target.type == 'submit'
+          # we have a submit
+          @event_fired(event, callback)
+
+        else if event.type == 'keypress'
+          # check we're an enter press
+          keycode = event.keyCode || event.which
+          @event_fired(event, callback) if keycode == 13
+      catch e
+        trak.io.debug_error e
 
 
     event_fired: (event, provided_callback) =>
