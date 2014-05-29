@@ -159,7 +159,7 @@ define [
               if element.submit
                 element.submit()
               else
-                element.form.submit() # @todo this will need to be much cleverer when we do more than forms
+                element.form.submit() # this is for when emulated form submit is used
             true
 
         @identify.event_fired element, event, callback, automagic_ready
