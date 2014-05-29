@@ -112,7 +112,7 @@ define(['trakio/lodash', 'trakio/automagic/identify', 'trakio/automagic/track'],
     };
 
     Automagic.prototype.bind_events = function() {
-      var body;
+      var body, e;
       try {
         body = document.body || document.getElementsByTagName('body')[0];
         if (this.submit_bubbles()) {
@@ -121,38 +121,46 @@ define(['trakio/lodash', 'trakio/automagic/identify', 'trakio/automagic/track'],
           _.addEvent(body, 'click', this.emulated_event_fired);
           return _.addEvent(body, 'keypress', this.emulated_event_fired);
         }
-      } catch (_error) {}
+      } catch (_error) {
+        e = _error;
+        return trak.io.debug_error(e);
+      }
     };
 
     Automagic.prototype.emulated_event_fired = function(event, callback) {
-      var form, keycode, parent, target;
-      target = event.srcElement || event.target;
-      if (target.nodeName === 'INPUT' || target.nodeName === 'BUTTON') {
-        if (target.form) {
-          form = target.form;
-        } else {
-          parent = target.parentNode;
-          while (parent && parent.nodeName !== 'FORM') {
+      var e, form, keycode, parent, target;
+      try {
+        target = event.srcElement || event.target;
+        if (target.nodeName === 'INPUT' || target.nodeName === 'BUTTON') {
+          if (target.form) {
+            form = target.form;
+          } else {
             parent = target.parentNode;
-          }
-          if (parent.nodeName === 'FORM') {
-            form = parent;
+            while (parent && parent.nodeName !== 'FORM') {
+              parent = target.parentNode;
+            }
+            if (parent.nodeName === 'FORM') {
+              form = parent;
+            }
           }
         }
-      }
-      if (!(form && event.type)) {
-        return;
-      }
-      if (!target.form) {
-        target.form = form;
-      }
-      if (event.type === 'click' && target.type === 'submit') {
-        return this.event_fired(event, callback);
-      } else if (event.type === 'keypress') {
-        keycode = event.keyCode || event.which;
-        if (keycode === 13) {
+        if (!(form && event.type)) {
+          return;
+        }
+        if (!target.form) {
+          target.form = form;
+        }
+        if (event.type === 'click' && target.type === 'submit') {
           return this.event_fired(event, callback);
+        } else if (event.type === 'keypress') {
+          keycode = event.keyCode || event.which;
+          if (keycode === 13) {
+            return this.event_fired(event, callback);
+          }
         }
+      } catch (_error) {
+        e = _error;
+        return trak.io.debug_error(e);
       }
     };
 
