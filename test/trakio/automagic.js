@@ -12,7 +12,7 @@ describe('trakio/automagic', function() {
     return {};
   });
   form = memoize().as_haml("%form.my_form\n  %input");
-  second_form = memoize().as_haml("%form.a_form\n  %input");
+  second_form = memoize().as_haml("%form.a_form\n  %input{type: \"text\"}\n  %input{type: \"submit\"}");
   event = memoize().as(function() {
     return new MockEvent('submit', form(), {
       callback: callback(),
@@ -80,35 +80,61 @@ describe('trakio/automagic', function() {
     });
   });
   describe('#bind_events', function() {
-    it("binds to all forms' submit", function() {
-      sinon.stub(automagic(), 'bind_event');
-      form();
-      second_form();
-      automagic_initialized().bind_events();
-      automagic().bind_event.should.have.been.calledWith(form());
-      return automagic().bind_event.should.have.been.calledWith(second_form());
+    afterEach(function() {
+      if (document.body.addEventListener.restore) {
+        return document.body.addEventListener.restore();
+      }
     });
-    return context("when there is a form that doesn't match", function() {
-      value(automagic_options).equals(function() {
-        return {
-          selector: '.my_form'
-        };
-      });
-      return it("only binds to matching forms", function() {
-        sinon.stub(automagic(), 'bind_event');
-        form();
-        second_form();
+    context("when submit bubbles", function() {
+      return it("binds submit on body", function() {
+        var addEventListener;
+        addEventListener = sinon.stub(document.body, 'addEventListener');
+        sinon.stub(automagic(), 'submit_bubbles').returns(true);
         automagic_initialized().bind_events();
-        automagic().bind_event.should.have.been.calledWith(form());
-        return automagic().bind_event.should.not.have.been.calledWith(second_form());
+        addEventListener.should.have.been.calledOnce;
+        addEventListener.should.have.been.calledWith('submit');
+        return addEventListener.restore();
+      });
+    });
+    return context("when submit does not bubble", function() {
+      return it("binds click and keypress on body", function() {
+        var addEventListener;
+        addEventListener = sinon.stub(document.body, 'addEventListener');
+        sinon.stub(automagic(), 'submit_bubbles').returns(false);
+        automagic_initialized().bind_events();
+        addEventListener.should.have.been.calledTwice;
+        addEventListener.should.have.been.calledWith('click');
+        addEventListener.should.have.been.calledWith('keypress');
+        return addEventListener.restore();
       });
     });
   });
-  describe('#bind_event', function() {
-    return it('adds a callback to the form', function() {
-      sinon.stub(form(), 'addEventListener');
-      automagic().bind_event(form(), 'submit');
-      return form().addEventListener.should.have.been.calledWith('submit', automagic().event_fired);
+  describe('#emulated_event_fired', function() {
+    context("when it's triggered by a click", function() {
+      return it("should call form_submitted if it's a submit button", function() {
+        var stub, submit, _event;
+        stub = sinon.stub(automagic_initialized(), 'event_fired').returns(false);
+        second_form();
+        submit = $('input[type=submit]')[0];
+        _event = new MockEvent('click', submit);
+        automagic_initialized().emulated_event_fired(_event);
+        stub.should.have.been.called;
+        return stub.restore();
+      });
+    });
+    return context("when it's triggered by a keypress", function() {
+      return it("should call form_submitted if it's an enter key", function() {
+        var stub, text, _event;
+        stub = sinon.stub(automagic_initialized(), 'event_fired').returns(false);
+        second_form();
+        text = $('input[type=text]')[0];
+        _event = new MockEvent('keypress', text, {
+          keyCode: 13
+        });
+        automagic_initialized().emulated_event_fired(_event);
+        stub.should.have.been.called;
+        return stub.restore();
+      });
     });
   });
   return describe('#event_fired', function() {

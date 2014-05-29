@@ -79,26 +79,65 @@ define [
       @bind_events() if @options.bind_events
 
 
+    submit_bubbles: ()=>
+      # this is surrounded by backticks so its interpreted as JS
+      # 'onsubmit' in window compiles to an index of in CoffeeScript
+      `'onsubmit' in window`
+
+
+
     bind_events: ()=>
       try
         body = document.body or document.getElementsByTagName('body')[0]
 
-        # Need to bind directly to form submit as it doesn't bubble (for other elements we'll bind to the document)
-        for element in _.find(@options.selector)
-          if _.matches(element, 'form')
-            @bind_event(element, 'submit')
+        if @submit_bubbles()
+          _.addEvent(body, 'submit', @event_fired)
+        else
+          # below is a hacky way of picking up submits when the submit event does not bubble.
+          _.addEvent(body, 'click', @emulated_event_fired)
+          _.addEvent(body, 'keypress', @emulated_event_fired)
       catch e
         trak.io.debug_error e
 
 
-    bind_event: (element, event) =>
-      me = @
-      _.addEvent(element, event, @event_fired)
+    emulated_event_fired: (event, callback)=>
+      try
+        target = event.srcElement || event.target
+
+        if target.nodeName == 'INPUT' || target.nodeName == 'BUTTON'
+          if target.form
+            form = target.form
+          else # if form isn't set try and find it by ascending the DOM
+            parent = target.parentNode
+
+            while parent && parent.nodeName != 'FORM'
+              parent = target.parentNode
+
+            if parent.nodeName == 'FORM'
+              form = parent
+            # if form isn't set now target clearly doesn't belong to a form
+
+        unless form && event.type
+          return
+
+        target.form = form unless target.form
+        # now we need to see if it's real
+        if event.type == 'click' && target.type == 'submit'
+          # we have a submit
+          @event_fired(event, callback)
+
+        else if event.type == 'keypress'
+          # check we're an enter press
+          keycode = event.keyCode || event.which
+          @event_fired(event, callback) if keycode == 13
+      catch e
+        trak.io.debug_error e
 
 
     event_fired: (event, provided_callback) =>
       try
         element = event.srcElement || event.target
+
         event.preventDefault()
         automagic_ready =
           identify: false
@@ -117,7 +156,10 @@ define [
             if provided_callback
               provided_callback()
             else
-              element.submit() # @todo this will need to be much cleverer when we do more than forms
+              if element.submit
+                element.submit()
+              else
+                element.form.submit() # this is for when emulated form submit is used
             true
 
         @identify.event_fired element, event, callback, automagic_ready

@@ -10,7 +10,8 @@ describe 'trakio/automagic', ->
   """
   second_form = memoize().as_haml """
     %form.a_form
-      %input
+      %input{type: "text"}
+      %input{type: "submit"}
   """
   event = memoize().as -> new MockEvent('submit',form(), { callback: callback(), automagic_ready: {} })
   callback = memoize().as -> sinon.spy()
@@ -84,40 +85,65 @@ describe 'trakio/automagic', ->
 
   describe '#bind_events', ->
 
-    it "binds to all forms' submit", ->
-      sinon.stub(automagic(), 'bind_event')
-      form()
-      second_form()
-      automagic_initialized().bind_events()
+    afterEach ->
+      if document.body.addEventListener.restore
+        document.body.addEventListener.restore()
 
-      automagic().bind_event.should.have.been.calledWith(form())
-      automagic().bind_event.should.have.been.calledWith(second_form())
-
-
-    context "when there is a form that doesn't match", ->
-
-      value(automagic_options).equals -> { selector: '.my_form'}
-
-      it "only binds to matching forms", ->
-        sinon.stub(automagic(), 'bind_event')
-        form()
-        second_form()
+    context "when submit bubbles", ->
+      it "binds submit on body", ->
+        addEventListener = sinon.stub(document.body, 'addEventListener')
+        sinon.stub(automagic(), 'submit_bubbles').returns(true)
 
         automagic_initialized().bind_events()
 
-        automagic().bind_event.should.have.been.calledWith(form())
-        automagic().bind_event.should.not.have.been.calledWith(second_form())
+        addEventListener.should.have.been.calledOnce
+        addEventListener.should.have.been.calledWith('submit')
+
+        addEventListener.restore()
+
+    context "when submit does not bubble", ->
+      it "binds click and keypress on body", ->
+        addEventListener = sinon.stub(document.body, 'addEventListener')
+        sinon.stub(automagic(), 'submit_bubbles').returns(false)
+
+        automagic_initialized().bind_events()
+
+        addEventListener.should.have.been.calledTwice
+        addEventListener.should.have.been.calledWith('click')
+        addEventListener.should.have.been.calledWith('keypress')
+
+        addEventListener.restore()
 
 
-  describe '#bind_event', ->
+  describe '#emulated_event_fired', ->
 
-    it 'adds a callback to the form', ->
-      sinon.stub(form(), 'addEventListener')
+    context "when it's triggered by a click", ->
 
-      automagic().bind_event(form(), 'submit')
+      it "should call form_submitted if it's a submit button", ->
+        stub = sinon.stub(automagic_initialized(), 'event_fired').returns(false)
 
-      form().addEventListener.should.have.been.calledWith('submit',automagic().event_fired)
+        second_form()
+        submit = $('input[type=submit]')[0]
+        _event = new MockEvent 'click', submit
 
+        automagic_initialized().emulated_event_fired(_event)
+
+        stub.should.have.been.called
+        stub.restore()
+
+    context "when it's triggered by a keypress", ->
+
+      it "should call form_submitted if it's an enter key", ->
+        stub = sinon.stub(automagic_initialized(), 'event_fired').returns(false)
+
+        second_form()
+        text = $('input[type=text]')[0]
+        _event = new MockEvent 'keypress', text, keyCode: 13
+
+        automagic_initialized().emulated_event_fired(_event)
+
+        stub.should.have.been.called
+        stub.restore()
 
   describe '#event_fired', ->
 
@@ -147,5 +173,3 @@ describe 'trakio/automagic', ->
 
       callback().should.have.been.calledOnce
       trak.io.track.restore()
-
-
