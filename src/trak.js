@@ -400,6 +400,10 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       });
     };
 
+    Trak.prototype.sign_out = function() {
+      return this.distinct_id(this.generate_distinct_id());
+    };
+
     Trak.prototype._root_domain = null;
 
     Trak.prototype.root_domain = function(value) {

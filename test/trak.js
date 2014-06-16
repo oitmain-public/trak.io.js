@@ -346,7 +346,7 @@ describe('Trak', function() {
       return trak.io.root_domain().should.equal('custom.lvh.me');
     });
   });
-  return describe('#get_root_domain', function() {
+  describe('#get_root_domain', function() {
     it("returns ip address", function() {
       sinon.stub(trak.io, 'hostname').returns('127.0.0.1');
       trak.io.get_root_domain().should.equal('127.0.0.1');
@@ -368,6 +368,20 @@ describe('Trak', function() {
     return it("returns provided value if set", function() {
       trak.io.root_domain('custom.lvh.me').should.equal('custom.lvh.me');
       return trak.io.root_domain().should.equal('custom.lvh.me');
+    });
+  });
+  return describe('#sign_out', function() {
+    it("resets the distinct_id to a new randomly generateGUID", function() {
+      trak.io.distinct_id('my_distinct_id');
+      trak.io.sign_out();
+      trak.io.distinct_id().should.not.eq('my_distinct_id');
+      return cookie.get("_trak_" + (trak.io.api_token()) + "_id").should.not.eq('my_distinct_id');
+    });
+    return it("doesn't call alias", function() {
+      sinon.stub(trak.io, 'alias');
+      trak.io.sign_out();
+      trak.io.alias.should.not.have.been.called;
+      return trak.io.alias.restore();
     });
   });
 });

@@ -19,29 +19,36 @@ describe 'Trak', ->
       trak.io.initialize('api_token_value', { auto_track_page_views: false })
       trak.io.api_token().should.equal 'api_token_value'
 
+
     it "stores protocol option", ->
       trak.io.initialize('api_token_value', { protocol: 'http', auto_track_page_views: false })
       trak.io.protocol().should.equal 'http://'
+
 
     it "stores host option", ->
       trak.io.initialize('api_token_value', { host: 'custom_host.com', auto_track_page_views: false  })
       trak.io.host().should.equal 'custom_host.com'
 
+
     it "stores context option", ->
       trak.io.initialize('api_token_value', { context: { foo: 'bar' }, auto_track_page_views: false })
       trak.io.current_context().should.eql {foo: 'bar'}
+
 
     it "stores channel option", ->
       trak.io.initialize('api_token_value', { channel: 'custom_channel', auto_track_page_views: false })
       trak.io.channel().should.equal 'custom_channel'
 
+
     it "stores distinct_id option", ->
       trak.io.initialize('api_token_value', { distinct_id: 'custom_distinct_id', auto_track_page_views: false })
       trak.io.distinct_id().should.equal 'custom_distinct_id'
 
+
     it "stores root domain option", ->
       trak.io.initialize('api_token_value', { root_domain: 'root_domain.co.uk', auto_track_page_views: false })
       trak.io.root_domain().should.equal 'root_domain.co.uk'
+
 
     it "set up default options", ->
       trak = new Trak()
@@ -54,6 +61,7 @@ describe 'Trak', ->
       trak.io.channel().should.equal window.location.hostname
       trak.io.get_root_domain.restore()
 
+
     it "calls #on_page_ready", ->
       sinon.stub(trak.io, 'on_page_ready')
       sinon.stub(trak.io, 'url').returns('page_url')
@@ -64,11 +72,13 @@ describe 'Trak', ->
       trak.io.page_title.restore()
       trak.io.url.restore()
 
+
     it "should not set up automagic by default", ->
       trak.io.initialize('api_token_value', { auto_track_page_views: false })
       trak.io.automagic.should.equal false
       script_name = if document.location.pathname == '/test/trak.io.min.html' then 'trak.io.automagic.min.js' else 'trak.io.automagic.js'
       $("script[src='//#{document.location.host}/#{script_name}']").length.should.equal(0)
+
 
     it "should set up automagic if set to true", ->
       trak = new Trak()
@@ -98,6 +108,7 @@ describe 'Trak', ->
       script_name = if document.location.pathname == '/test/trak.io.min.html' then 'trak.io.automagic.min.js' else 'trak.io.automagic.js'
       script = $("script[src='//#{document.location.host}/#{script_name}']")
       script.length.should.equal(1)
+
 
   describe '#page_ready', ->
 
@@ -306,4 +317,19 @@ describe 'Trak', ->
     it "returns provided value if set", ->
       trak.io.root_domain('custom.lvh.me').should.equal 'custom.lvh.me'
       trak.io.root_domain().should.equal 'custom.lvh.me'
+
+  describe '#sign_out', ()->
+
+    it "resets the distinct_id to a new randomly generateGUID", ()->
+      trak.io.distinct_id('my_distinct_id')
+      trak.io.sign_out()
+      trak.io.distinct_id().should.not.eq 'my_distinct_id'
+      cookie.get("_trak_#{trak.io.api_token()}_id").should.not.eq 'my_distinct_id'
+
+
+    it "doesn't call alias", ()->
+      sinon.stub(trak.io, 'alias')
+      trak.io.sign_out()
+      trak.io.alias.should.not.have.been.called
+      trak.io.alias.restore()
 

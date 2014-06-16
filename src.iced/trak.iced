@@ -299,6 +299,9 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
           v = if c == 'x' then r else (r&0x3|0x8)
           v.toString(16);
 
+    sign_out: ->
+      @distinct_id(@generate_distinct_id())
+
     _root_domain: null
     root_domain: (value) ->
       if !value && !@_root_domain
