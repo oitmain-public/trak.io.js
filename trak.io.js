@@ -3889,6 +3889,9 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       if (this.options.channel) {
         this.channel(this.options.channel);
       }
+      if (typeof this.options.alias_on_identify !== 'undefined') {
+        this.alias_on_identify(this.options.alias_on_identify);
+      }
       this.distinct_id(this.options.distinct_id || null);
       this.root_domain(this.options.root_domain || null);
       this.page_ready_event_fired = false;
@@ -4025,7 +4028,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
           }
         }
       };
-      if (args[0]) {
+      if (args[0] && this.alias_on_identify()) {
         me.alias(distinct_id, identify_call);
       } else if (properties && properties_length > 0) {
         identify_call();
@@ -4204,6 +4207,15 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
         this.set_cookie('channel', value);
       }
       return this._channel;
+    };
+
+    Trak.prototype._alias_on_identify = true;
+
+    Trak.prototype.alias_on_identify = function(value) {
+      if (typeof value !== 'undefined') {
+        this._alias_on_identify = value;
+      }
+      return this._alias_on_identify;
     };
 
     Trak.prototype._api_token = null;

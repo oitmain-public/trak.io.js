@@ -47,6 +47,14 @@ describe 'Trak', ->
       trak.io.identify(1234)
       trak.io.alias.should.have.been.calledWith('1234')
 
+    context "when alias_on_identify is false", ->
+
+      it "doesn't call alias", ->
+        trak.io.alias_on_identify(false)
+        trak.io.identify('my_distinct_id')
+        trak.io.alias.should.not.have.been.called
+        trak.io.alias_on_identify(true)
+
 
   describe '#identify(distinct_id, callback)', ->
 

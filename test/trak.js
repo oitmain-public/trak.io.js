@@ -74,6 +74,13 @@ describe('Trak', function() {
       });
       return trak.io.root_domain().should.equal('root_domain.co.uk');
     });
+    it("stores alias_on_identify option", function() {
+      trak.io.initialize('api_token_value', {
+        channel: 'custom_channel',
+        alias_on_identify: false
+      });
+      return trak.io.alias_on_identify().should.equal(false);
+    });
     it("set up default options", function() {
       var trak;
       trak = new Trak();
@@ -86,7 +93,8 @@ describe('Trak', function() {
       trak.io.get_root_domain().should.equal('.lvh.me');
       trak.io.current_context().should.eql({});
       trak.io.channel().should.equal(window.location.hostname);
-      return trak.io.get_root_domain.restore();
+      trak.io.get_root_domain.restore();
+      return trak.io.alias_on_identify().should.equal(true);
     });
     it("calls #on_page_ready", function() {
       sinon.stub(trak.io, 'on_page_ready');
@@ -183,6 +191,17 @@ describe('Trak', function() {
     return it("allows value to be set", function() {
       trak.io.host('custom.com').should.equal('custom.com');
       return trak.io.host().should.equal('custom.com');
+    });
+  });
+  describe('#alias_on_identify', function() {
+    it("returns trak.io._alias_on_identify", function() {
+      trak.io._alias_on_identify = false;
+      return trak.io.alias_on_identify().should.equal(false);
+    });
+    return it("allows value to be set", function() {
+      trak.io._alias_on_identify = false;
+      trak.io.alias_on_identify(true);
+      return trak.io._alias_on_identify.should.equal(true);
     });
   });
   describe('#call', function() {

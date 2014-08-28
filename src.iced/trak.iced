@@ -18,6 +18,7 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       @host(@options.host) if @options.host
       @context(@options.context) if @options.context
       @channel(@options.channel) if @options.channel
+      @alias_on_identify(@options.alias_on_identify) if typeof @options.alias_on_identify != 'undefined'
       @distinct_id(@options.distinct_id || null)
       @root_domain(@options.root_domain || null)
       @page_ready_event_fired = false
@@ -147,7 +148,7 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
         else
           callback(data) if callback
 
-      if args[0]
+      if args[0] && @alias_on_identify()
         me.alias(distinct_id, identify_call)
 
       else if properties && properties_length > 0
@@ -278,6 +279,12 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
         @set_cookie('channel', value)
       @_channel
 
+    _alias_on_identify: true
+    alias_on_identify: (value)->
+      if typeof value != 'undefined'
+        @_alias_on_identify = value
+      @_alias_on_identify
+
     _api_token: null
     api_token: ->
       @_api_token
@@ -332,7 +339,6 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       cookie.set(@cookie_key('foo'), '', options)
       cookie.set(@cookie_key('foo'), 'bar', options)
       cookie.get(@cookie_key('foo')) == 'bar'
-
 
     cookie_key: (key)->
       "_trak_#{@api_token()}_#{key}"

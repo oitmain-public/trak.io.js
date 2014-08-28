@@ -56,9 +56,17 @@ describe('Trak', function() {
       trak.io.identify('my_distinct_id');
       return trak.io.alias.should.have.been.calledWith('my_distinct_id');
     });
-    return it("takes an numerical value for id", function() {
+    it("takes an numerical value for id", function() {
       trak.io.identify(1234);
       return trak.io.alias.should.have.been.calledWith('1234');
+    });
+    return context("when alias_on_identify is false", function() {
+      return it("doesn't call alias", function() {
+        trak.io.alias_on_identify(false);
+        trak.io.identify('my_distinct_id');
+        trak.io.alias.should.not.have.been.called;
+        return trak.io.alias_on_identify(true);
+      });
     });
   });
   describe('#identify(distinct_id, callback)', function() {

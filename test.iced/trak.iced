@@ -49,6 +49,9 @@ describe 'Trak', ->
       trak.io.initialize('api_token_value', { root_domain: 'root_domain.co.uk', auto_track_page_views: false })
       trak.io.root_domain().should.equal 'root_domain.co.uk'
 
+    it "stores alias_on_identify option", ->
+      trak.io.initialize('api_token_value', { channel: 'custom_channel', alias_on_identify: false })
+      trak.io.alias_on_identify().should.equal false
 
     it "set up default options", ->
       trak = new Trak()
@@ -60,6 +63,7 @@ describe 'Trak', ->
       trak.io.current_context().should.eql {}
       trak.io.channel().should.equal window.location.hostname
       trak.io.get_root_domain.restore()
+      trak.io.alias_on_identify().should.equal true
 
 
     it "calls #on_page_ready", ->
@@ -153,6 +157,17 @@ describe 'Trak', ->
     it "allows value to be set", ->
       trak.io.host('custom.com').should.equal 'custom.com'
       trak.io.host().should.equal 'custom.com'
+
+  describe '#alias_on_identify', ->
+
+    it "returns trak.io._alias_on_identify", ->
+      trak.io._alias_on_identify = false
+      trak.io.alias_on_identify().should.equal false
+
+    it "allows value to be set", ->
+      trak.io._alias_on_identify = false
+      trak.io.alias_on_identify(true)
+      trak.io._alias_on_identify.should.equal true
 
 
   describe '#call', ->
