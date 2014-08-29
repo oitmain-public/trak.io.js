@@ -9,19 +9,22 @@ describe('Trak', function() {
     });
   });
   beforeEach(function() {
+    trak.io.should_track(true);
     sinon.stub(trak.io, 'call');
     sinon.stub(trak.io, 'distinct_id').returns('default_distinct_id');
     sinon.stub(trak.io, 'context').returns({
       "default": 'context',
       override: 'override'
     });
-    return sinon.stub(trak.io, 'channel').returns('default_channel');
+    sinon.stub(trak.io, 'channel').returns('default_channel');
+    return sinon.stub(trak.io, 'should_track').returns(true);
   });
   afterEach(function() {
     trak.io.call.restore();
     trak.io.distinct_id.restore();
     trak.io.context.restore();
-    return trak.io.channel.restore();
+    trak.io.channel.restore();
+    return trak.io.should_track.restore();
   });
   describe('#track()', function() {
     return it("raises Exceptions.MissingParameter", function() {
@@ -31,7 +34,7 @@ describe('Trak', function() {
     });
   });
   describe('#track(event)', function() {
-    return it("calls #call", function() {
+    it("calls #call", function() {
       trak.io.track('my_event');
       return trak.io.call.should.have.been.calledWith('track', {
         data: {
@@ -45,6 +48,17 @@ describe('Trak', function() {
           properties: {}
         }
       }, null);
+    });
+    return context("when #should_track is false", function() {
+      beforeEach(function() {
+        trak.io.should_track.restore();
+        return sinon.stub(trak.io, 'should_track').returns(false);
+      });
+      return it("shouldn't call #call", function() {
+        trak.io.should_track(false);
+        trak.io.track('my_event');
+        return trak.io.call.should.not.have.been.called;
+      });
     });
   });
   describe('#track(event, properties)', function() {

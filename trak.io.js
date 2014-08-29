@@ -4009,6 +4009,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       distinct_id = args[0] || this.distinct_id();
       properties = args[1] || null;
       callback = args[2] || null;
+      this.should_track(true);
       properties_length = 0;
       for (property in properties) {
         v = properties[property];
@@ -4084,15 +4085,17 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       if (!event) {
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an event to track, see http://docs.trak.io/track.html');
       }
-      this.call('track', {
-        data: {
-          distinct_id: distinct_id,
-          event: event,
-          channel: channel,
-          context: context,
-          properties: properties
-        }
-      }, callback);
+      if (this.should_track()) {
+        this.call('track', {
+          data: {
+            distinct_id: distinct_id,
+            event: event,
+            channel: channel,
+            context: context,
+            properties: properties
+          }
+        }, callback);
+      }
       return this;
     };
 
@@ -4209,6 +4212,19 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       return this._channel;
     };
 
+    Trak.prototype._should_track = null;
+
+    Trak.prototype.should_track = function(value) {
+      if (this._should_track === null) {
+        this._should_track = this.get_cookie('should_track') === 'true';
+      }
+      if (typeof value !== 'undefined') {
+        this._should_track = value;
+        this.set_cookie('should_track', value);
+      }
+      return this._should_track;
+    };
+
     Trak.prototype._alias_on_identify = true;
 
     Trak.prototype.alias_on_identify = function(value) {
@@ -4233,6 +4249,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       }
       if (value) {
         this._distinct_id = value;
+        this.should_track(true);
       }
       if (!this._distinct_id && !(this._distinct_id = this.get_distinct_id_url_param()) && !(this._distinct_id = this.get_cookie('id'))) {
         this._distinct_id = this.generate_distinct_id();

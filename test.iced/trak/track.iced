@@ -8,16 +8,19 @@ describe  'Trak', ->
       done()
 
   beforeEach ->
+    trak.io.should_track(true)
     sinon.stub(trak.io, 'call')
     sinon.stub(trak.io, 'distinct_id').returns('default_distinct_id')
     sinon.stub(trak.io, 'context').returns({default: 'context', override: 'override'})
     sinon.stub(trak.io, 'channel').returns('default_channel')
+    sinon.stub(trak.io, 'should_track').returns(true)
 
   afterEach ->
     trak.io.call.restore()
     trak.io.distinct_id.restore()
     trak.io.context.restore()
     trak.io.channel.restore()
+    trak.io.should_track.restore()
 
   describe '#track()', ->
 
@@ -31,6 +34,17 @@ describe  'Trak', ->
     it "calls #call", ->
       trak.io.track('my_event')
       trak.io.call.should.have.been.calledWith('track', { data: { distinct_id: 'default_distinct_id', event: 'my_event', channel: 'default_channel', context: { default: 'context', override: 'override'}, properties: {}}}, null)
+
+    context "when #should_track is false", ->
+
+      beforeEach ->
+        trak.io.should_track.restore()
+        sinon.stub(trak.io, 'should_track').returns(false)
+
+      it "shouldn't call #call", ->
+        trak.io.should_track(false)
+        trak.io.track('my_event')
+        trak.io.call.should.not.have.been.called
 
 
   describe '#track(event, properties)', ->

@@ -138,6 +138,7 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       distinct_id = args[0] || @distinct_id()
       properties = args[1] || null
       callback = args[2] || null
+      @should_track(true)
 
       properties_length = 0
       properties_length++ for property,v of properties
@@ -193,7 +194,8 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       unless event
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an event to track, see http://docs.trak.io/track.html')
 
-      @call 'track', { data: { distinct_id: distinct_id, event: event, channel: channel, context: context, properties: properties }}, callback
+      if @should_track()
+        @call 'track', { data: { distinct_id: distinct_id, event: event, channel: channel, context: context, properties: properties }}, callback
 
       this
 
@@ -279,6 +281,15 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
         @set_cookie('channel', value)
       @_channel
 
+    _should_track: null
+    should_track: (value)->
+      if @_should_track == null
+        @_should_track = (@get_cookie('should_track') == 'true')
+      if typeof value != 'undefined'
+        @_should_track = value
+        @set_cookie('should_track', value)
+      @_should_track
+
     _alias_on_identify: true
     alias_on_identify: (value)->
       if typeof value != 'undefined'
@@ -294,6 +305,7 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       value = value.toString() if typeof value == 'number'
       if value
         @_distinct_id = value
+        @should_track(true)
       if !@_distinct_id and !(@_distinct_id = @get_distinct_id_url_param()) and !(@_distinct_id = @get_cookie('id'))
         @_distinct_id = @generate_distinct_id()
       options = if @root_domain() == 'localhost' then {} else {domain: @root_domain()}

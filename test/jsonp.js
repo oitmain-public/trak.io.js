@@ -16,7 +16,8 @@ describe('JSONP', function() {
     trak.io._host = 'api.trak.io';
     trak.io._current_context = false;
     trak.io._channel = false;
-    return trak.io._distinct_id = null;
+    trak.io._distinct_id = null;
+    return trak.io._should_track = true;
   });
   describe('#call', function() {
     after(function() {

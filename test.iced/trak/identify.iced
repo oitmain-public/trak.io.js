@@ -2,6 +2,7 @@ describe 'Trak', ->
 
   beforeEach ->
     sinon.stub(trak.io, 'call')
+    trak.io.should_track(true)
 
   afterEach ->
     trak.io.distinct_id('another_distinct_id')
@@ -13,6 +14,12 @@ describe 'Trak', ->
       properties = {foo: 'bar'}
       trak.io.identify(properties)
       trak.io.call.should.have.been.calledWith('identify', { data: { distinct_id: trak.io.distinct_id(), properties: properties } })
+
+    it "sets should_track to true", ->
+      properties = {foo: 'bar'}
+      trak.io.should_track(false)
+      trak.io.identify(properties)
+      trak.io.should_track().should.equal true
 
 
   describe '#identify(properties, callback)', ->

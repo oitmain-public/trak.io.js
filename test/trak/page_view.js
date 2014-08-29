@@ -6,6 +6,7 @@ describe('Trak', function() {
     sinon.stub(trak.io, 'track');
     sinon.stub(trak.io, 'url').returns('page_url');
     sinon.stub(trak.io, 'page_title').returns('A page title');
+    sinon.stub(trak.io, 'should_track').returns(true);
     return requirejs(['exceptions'], function(E) {
       Exceptions = E;
       return done();
@@ -14,7 +15,8 @@ describe('Trak', function() {
   after(function() {
     trak.io.track.restore();
     trak.io.page_title.restore();
-    return trak.io.url.restore();
+    trak.io.url.restore();
+    return trak.io.should_track.restore();
   });
   describe('#page_view()', function() {
     return it("should call #track", function() {

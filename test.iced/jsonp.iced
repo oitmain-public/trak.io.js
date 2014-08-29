@@ -16,6 +16,7 @@ describe 'JSONP', ->
     trak.io._current_context = false
     trak.io._channel = false
     trak.io._distinct_id = null
+    trak.io._should_track = true
 
   describe '#call', ->
 

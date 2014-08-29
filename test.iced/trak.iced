@@ -1,5 +1,7 @@
 describe 'Trak', ->
 
+  beforeEach ->
+
   afterEach ->
     trak.cookie.empty() # Only empties for the current domain
     for key in trak.cookie.utils.getKeys(trak.cookie.all())
@@ -11,6 +13,7 @@ describe 'Trak', ->
     trak.io._channel = false
     trak.io._distinct_id = null
     trak.io._root_domain = null
+    trak.io._should_track = true
 
 
   describe '#initialize', ->
@@ -212,6 +215,12 @@ describe 'Trak', ->
       trak.io.distinct_id(1234)
       trak.io.distinct_id().should.eq('1234')
 
+    it "sets should_track to true", ->
+      properties = {foo: 'bar'}
+      trak.io.should_track(false)
+      trak.io.identify(properties)
+      trak.io.should_track().should.equal true
+
 
   describe '#context', ()->
 
@@ -298,6 +307,30 @@ describe 'Trak', ->
       trak.io.channel().should.equal 'cookie_channel'
 
 
+  describe '#should_track', ()->
+
+    it "is false by default", ->
+      clean_trak = new Trak()
+      clean_trak.should_track().should.equal false
+
+    it "returns provided value if set", ->
+      trak.io.should_track(true).should.equal true
+      trak.io.should_track().should.equal true
+
+    it "stores value in cookie", ->
+      trak.io.should_track true
+      cookie.get("_trak_#{trak.io.api_token()}_should_track").should.eql 'true'
+      trak.io.should_track false
+      cookie.get("_trak_#{trak.io.api_token()}_should_track").should.eql 'false'
+
+    it "retrieve should_track from a cookie", ->
+      cookie.set "_trak_#{trak.io.api_token()}_should_track", 'true'
+      trak.io.should_track().should.equal true
+      trak.io._should_track = null
+      cookie.set "_trak_#{trak.io.api_token()}_should_track", 'false'
+      trak.io.should_track().should.equal false
+
+
   describe '#root_domain', ()->
 
     it "returns the current root domain by default", ->
@@ -335,7 +368,7 @@ describe 'Trak', ->
 
   describe '#sign_out', ()->
 
-    it "resets the distinct_id to a new randomly generateGUID", ()->
+    it "resets the distinct_id to a new randomly generate GUID", ()->
       trak.io.distinct_id('my_distinct_id')
       trak.io.sign_out()
       trak.io.distinct_id().should.not.eq 'my_distinct_id'
