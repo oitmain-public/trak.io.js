@@ -23,6 +23,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       this.page_view = __bind(this.page_view, this);
       this.track = __bind(this.track, this);
       this.alias = __bind(this.alias, this);
+      this.company = __bind(this.company, this);
       this.identify = __bind(this.identify, this);
       this.call = __bind(this.call, this);
       this.on_page_ready = __bind(this.on_page_ready, this);
@@ -52,6 +53,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
         this.alias_on_identify(this.options.alias_on_identify);
       }
       this.distinct_id(this.options.distinct_id || null);
+      this.company_id(this.options.company_id || null);
       this.root_domain(this.options.root_domain || null);
       this.page_ready_event_fired = false;
       if (this.options.automagic) {
@@ -192,6 +194,40 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
         me.alias(distinct_id, identify_call);
       } else if (properties && properties_length > 0) {
         identify_call();
+      } else if (callback) {
+        callback({
+          status: 'unnecessary'
+        });
+      }
+      return this;
+    };
+
+    Trak.prototype.company = function() {
+      var args, callback, company_id, properties, properties_length, property, v;
+      if (typeof arguments[0] === 'number') {
+        arguments[0] = arguments[0].toString();
+      }
+      args = this.sort_arguments(arguments, ['string', 'object', 'function']);
+      company_id = args[0] || this.company_id();
+      properties = args[1] || null;
+      callback = args[2] || null;
+      properties_length = 0;
+      for (property in properties) {
+        v = properties[property];
+        properties_length++;
+      }
+      if (company_id) {
+        this.company_id(company_id);
+      } else {
+        throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an `company_id`, see http://docs.trak.io/company.html');
+      }
+      if (properties && properties_length > 0) {
+        this.call('company', {
+          data: {
+            company_id: company_id,
+            properties: properties
+          }
+        }, callback);
       } else if (callback) {
         callback({
           status: 'unnecessary'
@@ -358,6 +394,13 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       }
     };
 
+    Trak.prototype.get_company_id_url_param = function() {
+      var matches;
+      if ((matches = this.url_params().match(/\?.*trak_company_id\=([^&]+).*/))) {
+        return decodeURIComponent(matches[1]);
+      }
+    };
+
     Trak.prototype._channel = false;
 
     Trak.prototype.channel = function(value) {
@@ -420,6 +463,37 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       return this._distinct_id;
     };
 
+    Trak.prototype._company_id = null;
+
+    Trak.prototype.company_id = function(value) {
+      var options;
+      if (typeof value === 'number') {
+        value = value.toString();
+      }
+      if (value) {
+        this._company_id = value;
+      }
+      if (!this._company_id) {
+        if (!(this._company_id = this.get_company_id_url_param())) {
+          this._company_id = this.get_cookie('company_id');
+        }
+      }
+      options = this.root_domain() === 'localhost' ? {} : {
+        domain: this.root_domain()
+      };
+      if (this._company_id) {
+        cookie.set(this.cookie_key('company_id'), this._company_id, options);
+      }
+      return this._company_id;
+    };
+
+    Trak.prototype.unset_company_id = function() {
+      this._company_id = null;
+      return cookie.set(this.cookie_key('company_id'), '0', {
+        expires: -1
+      });
+    };
+
     Trak.prototype.generate_distinct_id = function() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r, v;
@@ -430,7 +504,8 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
     };
 
     Trak.prototype.sign_out = function() {
-      return this.distinct_id(this.generate_distinct_id());
+      this.distinct_id(this.generate_distinct_id());
+      return this.unset_company_id();
     };
 
     Trak.prototype._root_domain = null;

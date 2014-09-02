@@ -13,13 +13,13 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       @io = @
 
     initialize: (@_api_token, @options = {}) =>
-
       @protocol(@options.protocol)
       @host(@options.host) if @options.host
       @context(@options.context) if @options.context
       @channel(@options.channel) if @options.channel
       @alias_on_identify(@options.alias_on_identify) if typeof @options.alias_on_identify != 'undefined'
       @distinct_id(@options.distinct_id || null)
+      @company_id(@options.company_id || null)
       @root_domain(@options.root_domain || null)
       @page_ready_event_fired = false
 
@@ -161,6 +161,30 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       this
 
 
+    company: ()=>
+      arguments[0] = arguments[0].toString() if typeof arguments[0] == 'number'
+      args = @sort_arguments(arguments, ['string', 'object', 'function'])
+      company_id = args[0] || @company_id()
+      properties = args[1] || null
+      callback = args[2] || null
+
+      properties_length = 0
+      properties_length++ for property,v of properties
+
+      if company_id
+        @company_id(company_id)
+      else
+        throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an `company_id`, see http://docs.trak.io/company.html')
+
+      if properties && properties_length > 0
+        @call 'company', { data: { company_id: company_id, properties: properties }}, callback
+
+      else if callback
+        callback { status: 'unnecessary' }
+
+      this
+
+
     alias: () =>
       arguments[0] = arguments[0].toString() if typeof arguments[0] == 'number'
       args = @sort_arguments(arguments, ['string', 'string', 'boolean', 'function'])
@@ -271,6 +295,9 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       if (matches = @url_params().match /\?.*trak_distinct_id\=([^&]+).*/)
         decodeURIComponent(matches[1])
 
+    get_company_id_url_param: ->
+      if (matches = @url_params().match /\?.*trak_company_id\=([^&]+).*/)
+        decodeURIComponent(matches[1])
 
     _channel: false
     channel: (value)->
@@ -312,6 +339,24 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       cookie.set(@cookie_key('id'), @_distinct_id, options)
       @_distinct_id
 
+    _company_id: null
+    company_id: (value)->
+      value = value.toString() if typeof value == 'number'
+      if value
+        @_company_id = value
+
+      if !@_company_id
+        if !(@_company_id = @get_company_id_url_param())
+          @_company_id = @get_cookie('company_id')
+
+      options = if @root_domain() == 'localhost' then {} else { domain: @root_domain() }
+      cookie.set(@cookie_key('company_id'), @_company_id, options) if @_company_id
+      @_company_id
+
+    unset_company_id: ()->
+      @_company_id = null
+      cookie.set(@cookie_key('company_id'), '0', {expires: -1})
+
     generate_distinct_id: ->
       'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace /[xy]/g, (c) ->
           r = Math.random()*16|0
@@ -320,6 +365,7 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
 
     sign_out: ->
       @distinct_id(@generate_distinct_id())
+      @unset_company_id()
 
     _root_domain: null
     root_domain: (value) ->

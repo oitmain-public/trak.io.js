@@ -15,11 +15,15 @@ describe('Trak', function() {
     trak.cookie.set('_trak_null_id', 'b', {
       expires: -1
     });
+    trak.cookie.set('_trak_null_company_id', 'b', {
+      expires: -1
+    });
     trak.io._protocol = 'https';
     trak.io._host = 'api.trak.io';
     trak.io._current_context = false;
     trak.io._channel = false;
     trak.io._distinct_id = null;
+    trak.io._company_id = null;
     trak.io._root_domain = null;
     return trak.io._should_track = true;
   });
@@ -62,12 +66,19 @@ describe('Trak', function() {
       });
       return trak.io.channel().should.equal('custom_channel');
     });
-    it("stores distinct_id option", function() {
+    it("stores company_id option", function() {
       trak.io.initialize('api_token_value', {
-        distinct_id: 'custom_distinct_id',
+        company_id: 'custom_company_id',
         auto_track_page_views: false
       });
-      return trak.io.distinct_id().should.equal('custom_distinct_id');
+      return trak.io.company_id().should.equal('custom_company_id');
+    });
+    it("stores company_id option", function() {
+      trak.io.initialize('api_token_value', {
+        company_id: 'custom_company_id',
+        auto_track_page_views: false
+      });
+      return trak.io.company_id().should.equal('custom_company_id');
     });
     it("stores root domain option", function() {
       trak.io.initialize('api_token_value', {
@@ -119,7 +130,7 @@ describe('Trak', function() {
       script_name = document.location.pathname === '/test/trak.io.min.html' ? 'trak.io.automagic.min.js' : 'trak.io.automagic.js';
       return $("script[src='//" + document.location.host + "/" + script_name + "']").length.should.equal(0);
     });
-    it("should set up automagic if set to true", function() {
+    return it("should set up automagic if set to true", function() {
       var script, script_name, trak;
       trak = new Trak();
       trak.io.initialize('api_token_value', {
@@ -130,28 +141,6 @@ describe('Trak', function() {
       script = $("script[src='//d29p64779x43zo.cloudfront.net/v1/" + script_name + "']");
       script.length.should.equal(1);
       return script.remove();
-    });
-    return it("should load automagic from specified host", function(done) {
-      var script, script_name, trak;
-      trak = new Trak();
-      trak.io.initialize('api_token_value', {
-        auto_track_page_views: false,
-        automagic: {
-          host: document.location.host,
-          test_hooks: [
-            function(automagic) {
-              return automagic.initialize = sinon.spy();
-            }, function(automagic) {
-              automagic.initialize.should.have.been.called;
-              automagic.should.not.equal(false);
-              return done();
-            }
-          ]
-        }
-      });
-      script_name = document.location.pathname === '/test/trak.io.min.html' ? 'trak.io.automagic.min.js' : 'trak.io.automagic.js';
-      script = $("script[src='//" + document.location.host + "/" + script_name + "']");
-      return script.length.should.equal(1);
     });
   });
   describe('#page_ready', function() {
@@ -213,7 +202,8 @@ describe('Trak', function() {
       argument1 = 'a';
       argument2 = 'b';
       trak.io.call(argument1, argument2);
-      return jsonp_call.should.have.been.calledWith(argument1, argument2);
+      jsonp_call.should.have.been.calledWith(argument1, argument2);
+      return trak.io.jsonp.call.restore();
     });
   });
   describe('#api_token', function() {
@@ -240,7 +230,8 @@ describe('Trak', function() {
     });
     it("gets distinct_id from url", function() {
       sinon.stub(trak.io, 'url_params').returns('?a=a&trak_distinct_id=%7Basdfasdf%7D&b=b');
-      return trak.io.distinct_id().should.equal('{asdfasdf}');
+      trak.io.distinct_id().should.equal('{asdfasdf}');
+      return trak.io.url_params.restore();
     });
     it("takes an numerical value for id", function() {
       trak.io.distinct_id(1234);
@@ -254,6 +245,29 @@ describe('Trak', function() {
       trak.io.should_track(false);
       trak.io.identify(properties);
       return trak.io.should_track().should.equal(true);
+    });
+  });
+  describe('#company_id', function() {
+    it("returns the provided value", function() {
+      trak.io.company_id('my_company_id').should.equal('my_company_id');
+      return trak.io.company_id().should.equal('my_company_id');
+    });
+    it("sets value in cookie", function() {
+      trak.io.company_id('my_company_id');
+      return cookie.get("_trak_" + (trak.io.api_token()) + "_company_id").should.equal('my_company_id');
+    });
+    it("gets company_id based on cookie", function() {
+      cookie.set("_trak_" + (trak.io.api_token()) + "_company_id", 'company_id_value2');
+      return trak.io.company_id().should.equal('company_id_value2');
+    });
+    it("gets company_id from url", function() {
+      sinon.stub(trak.io, 'url_params').returns('?a=a&trak_company_id=%7Basdfasdf%7D&b=b');
+      trak.io.company_id().should.equal('{asdfasdf}');
+      return trak.io.url_params.restore();
+    });
+    return it("takes an numerical value for id", function() {
+      trak.io.company_id(1234);
+      return trak.io.company_id().should.eq('1234');
     });
   });
   describe('#context', function() {
@@ -417,7 +431,8 @@ describe('Trak', function() {
         return options.domain === 'c.d';
       });
       trak.io.get_root_domain().should.equal('c.d');
-      return trak.io.hostname.restore();
+      trak.io.hostname.restore();
+      return trak.io.can_set_cookie.restore();
     });
     return it("returns provided value if set", function() {
       trak.io.root_domain('custom.lvh.me').should.equal('custom.lvh.me');
@@ -431,11 +446,19 @@ describe('Trak', function() {
       trak.io.distinct_id().should.not.eq('my_distinct_id');
       return cookie.get("_trak_" + (trak.io.api_token()) + "_id").should.not.eq('my_distinct_id');
     });
-    return it("doesn't call alias", function() {
+    it("doesn't call alias", function() {
       sinon.stub(trak.io, 'alias');
       trak.io.sign_out();
       trak.io.alias.should.not.have.been.called;
       return trak.io.alias.restore();
+    });
+    return it("resets the company_id to null", function() {
+      trak.io.company_id('my_company_id');
+      trak.io.sign_out();
+      return setTimeout(function() {
+        trak.io.company_id().should.not.eq('my_company_id');
+        return cookie.get("_trak_" + (trak.io.api_token()) + "_company_id").should.not.eq('my_company_id');
+      }, 50);
     });
   });
 });
