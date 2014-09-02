@@ -205,21 +205,36 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
 
 
     track: () =>
-      args = @sort_arguments(arguments, ['string', 'string', 'string', 'object', 'object', 'function'])
+      args = @sort_arguments(arguments, ['string', 'string', 'string','string', 'object', 'object', 'function'])
       distinct_id = (if args[2] then arguments[0]) || @distinct_id()
-      event = (if args[2] then args[1] else args[0])
-
-      channel = (if args[2] then args[2] else args[1]) || @channel()
-      properties = args[3] || {}
-      context = args[4] || {}
+      distinct_id = null if arguments[0] == false
+      company_id = (if args[3] then arguments[1]) || @company_id()
+      company_id = null if arguments[1] == false
+      if args[2] then arg_offset = 1 else arg_offset = 0
+      if args[3] then arg_offset += 1
+      event = args[0+arg_offset]
+      channel = args[1+arg_offset] || @channel()
+      properties = args[4] || {}
+      context = args[5] || {}
       context = _.merge @context(), context
-      callback = args[5] || null
-
+      callback = args[6] || null
+      # debugger
       unless event
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an event to track, see http://docs.trak.io/track.html')
+      unless company_id || distinct_id
+        throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide either a distinct_id and/or a company_id to track the event against, see http://docs.trak.io/track.html')
+
+      data =
+        event: event
+        channel: channel
+        context: context
+        properties: properties
+
+      data.distinct_id = distinct_id if distinct_id
+      data.company_id = company_id if company_id
 
       if @should_track()
-        @call 'track', { data: { distinct_id: distinct_id, event: event, channel: channel, context: context, properties: properties }}, callback
+        @call 'track', { data: data }, callback
 
       this
 
@@ -406,7 +421,7 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       r = []
       value = values.shift()
       for type in types
-        if type == typeof value
+        if type == typeof value || value == null
           r.push value
           value = values.shift()
         else

@@ -268,27 +268,51 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
     };
 
     Trak.prototype.track = function() {
-      var args, callback, channel, context, distinct_id, event, properties;
-      args = this.sort_arguments(arguments, ['string', 'string', 'string', 'object', 'object', 'function']);
+      var arg_offset, args, callback, channel, company_id, context, data, distinct_id, event, properties;
+      args = this.sort_arguments(arguments, ['string', 'string', 'string', 'string', 'object', 'object', 'function']);
       distinct_id = (args[2] ? arguments[0] : void 0) || this.distinct_id();
-      event = (args[2] ? args[1] : args[0]);
-      channel = (args[2] ? args[2] : args[1]) || this.channel();
-      properties = args[3] || {};
-      context = args[4] || {};
+      if (arguments[0] === false) {
+        distinct_id = null;
+      }
+      company_id = (args[3] ? arguments[1] : void 0) || this.company_id();
+      if (arguments[1] === false) {
+        company_id = null;
+      }
+      if (args[2]) {
+        arg_offset = 1;
+      } else {
+        arg_offset = 0;
+      }
+      if (args[3]) {
+        arg_offset += 1;
+      }
+      event = args[0 + arg_offset];
+      channel = args[1 + arg_offset] || this.channel();
+      properties = args[4] || {};
+      context = args[5] || {};
       context = _.merge(this.context(), context);
-      callback = args[5] || null;
+      callback = args[6] || null;
       if (!event) {
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an event to track, see http://docs.trak.io/track.html');
       }
+      if (!(company_id || distinct_id)) {
+        throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide either a distinct_id and/or a company_id to track the event against, see http://docs.trak.io/track.html');
+      }
+      data = {
+        event: event,
+        channel: channel,
+        context: context,
+        properties: properties
+      };
+      if (distinct_id) {
+        data.distinct_id = distinct_id;
+      }
+      if (company_id) {
+        data.company_id = company_id;
+      }
       if (this.should_track()) {
         this.call('track', {
-          data: {
-            distinct_id: distinct_id,
-            event: event,
-            channel: channel,
-            context: context,
-            properties: properties
-          }
+          data: data
         }, callback);
       }
       return this;
@@ -565,7 +589,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       value = values.shift();
       for (_i = 0, _len = types.length; _i < _len; _i++) {
         type = types[_i];
-        if (type === typeof value) {
+        if (type === typeof value || value === null) {
           r.push(value);
           value = values.shift();
         } else {

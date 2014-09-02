@@ -55,7 +55,7 @@ install:
 # Runs all the tests on travis.
 build_and_test: min test
 
-test: test-server
+test: test-server min
 	sleep 1
 	$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.io.html -R dot
 	$(PHANTOM) $(PHANTOM_OPTS) http://localhost:8001/test/trak.io.min.html -R dot
