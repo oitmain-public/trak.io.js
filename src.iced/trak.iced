@@ -131,12 +131,11 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
 
 
     identify: () =>
-
       me = this
       arguments[0] = arguments[0].toString() if typeof arguments[0] == 'number'
       args = @sort_arguments(arguments, ['string', 'object', 'function'])
       distinct_id = args[0] || @distinct_id()
-      properties = args[1] || null
+      properties = @proccess_companies(args[1]) || null
       callback = args[2] || null
       @should_track(true)
 
@@ -159,6 +158,41 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
         callback({status: 'unnecessary'})
 
       this
+
+    proccess_companies: (properties)->
+      return null unless properties
+
+      # String company should be moved to company_name
+      if typeof properties.company == 'string'
+        properties.company_name = properties.company
+        delete properties.company
+
+      # Company must be an array
+      properties.company ||= []
+      unless properties.company instanceof Array
+        properties.company = [properties.company]
+      properties.companies ||= []
+      unless properties.companies instanceof Array
+        properties.companies = [properties.companies]
+
+      # Merge companies and company
+      properties.company = properties.company.concat(properties.companies)
+      delete properties.companies
+
+      # Inject current company
+      if @company_id()
+        has = false
+        for company in properties.company
+          has = true if company.company_id == @company_id()
+        if has
+          properties.company <<
+            company_id: @company_id()
+
+      # Clean up company
+      delete properties.company if properties.company.length == 0
+
+      properties
+
 
 
     company: ()=>

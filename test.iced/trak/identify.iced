@@ -21,6 +21,27 @@ describe 'Trak', ->
       trak.io.identify(properties)
       trak.io.should_track().should.equal true
 
+    context "when distinct_id and company_id are both set", ->
+
+      beforeEach ->
+        trak.io.company_id('my_company_id')
+
+      it "adds it to the company list", ->
+        trak.io.identify({ company: { company_id: 'another_company_id' }, companies: [{ company_id: 'and_another' }] })
+        # trak.io.call.should.have.been.calledWith('identify', { data: { distinct_id: trak.io.distinct_id(), properties: { company: [{ company_id: 'my_company_id' }, { company_id: 'another_company_id' }, { company_id: 'and_another' }] } } })
+
+      context "but company_id is passed in as a property", ->
+
+        it "doesn't send duplicates", ->
+          trak.io.identify({ company: { company_id: 'my_company_id', role: 'sales' }, companies: [{ company_id: 'another_company_id' }] })
+          trak.io.call.should.have.been.calledWith('identify', { data: { distinct_id: trak.io.distinct_id(), properties: { company: [{ company_id: 'my_company_id', role: 'sales' }, { company_id: 'another_company_id' }] } } })
+
+    context "when company_id is a string", ->
+
+      it "is moved into company_name", ->
+        trak.io.identify({ company: 'my_company_name' })
+        trak.io.call.should.have.been.calledWith('identify', { data: { distinct_id: trak.io.distinct_id(), properties: { company_name: 'my_company_name' } } })
+
 
   describe '#identify(properties, callback)', ->
 

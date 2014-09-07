@@ -168,7 +168,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       }
       args = this.sort_arguments(arguments, ['string', 'object', 'function']);
       distinct_id = args[0] || this.distinct_id();
-      properties = args[1] || null;
+      properties = this.proccess_companies(args[1]) || null;
       callback = args[2] || null;
       this.should_track(true);
       properties_length = 0;
@@ -200,6 +200,46 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
         });
       }
       return this;
+    };
+
+    Trak.prototype.proccess_companies = function(properties) {
+      var company, has, _i, _len, _ref;
+      if (!properties) {
+        return null;
+      }
+      if (typeof properties.company === 'string') {
+        properties.company_name = properties.company;
+        delete properties.company;
+      }
+      properties.company || (properties.company = []);
+      if (!(properties.company instanceof Array)) {
+        properties.company = [properties.company];
+      }
+      properties.companies || (properties.companies = []);
+      if (!(properties.companies instanceof Array)) {
+        properties.companies = [properties.companies];
+      }
+      properties.company = properties.company.concat(properties.companies);
+      delete properties.companies;
+      if (this.company_id()) {
+        has = false;
+        _ref = properties.company;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          company = _ref[_i];
+          if (company.company_id === this.company_id()) {
+            has = true;
+          }
+        }
+        if (has) {
+          properties.company << {
+            company_id: this.company_id()
+          };
+        }
+      }
+      if (properties.company.length === 0) {
+        delete properties.company;
+      }
+      return properties;
     };
 
     Trak.prototype.company = function() {
