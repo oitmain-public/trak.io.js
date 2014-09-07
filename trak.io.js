@@ -4044,12 +4044,13 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
     };
 
     Trak.prototype.company = function() {
-      var args, callback, company_id, properties, properties_length, property, v;
+      var args, callback, company_id, data, distinct_id, properties, properties_length, property, v;
       if (typeof arguments[0] === 'number') {
         arguments[0] = arguments[0].toString();
       }
       args = this.sort_arguments(arguments, ['string', 'object', 'function']);
       company_id = args[0] || this.company_id();
+      distinct_id = this.distinct_id();
       properties = args[1] || null;
       callback = args[2] || null;
       properties_length = 0;
@@ -4062,12 +4063,18 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       } else {
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an `company_id`, see http://docs.trak.io/company.html');
       }
+      data = {
+        company_id: company_id
+      };
       if (properties && properties_length > 0) {
+        data.properties = properties;
+      }
+      if (distinct_id && this.should_track()) {
+        data.people_distinct_ids = [distinct_id];
+      }
+      if ((properties && properties_length > 0) || (distinct_id && this.should_track())) {
         this.call('company', {
-          data: {
-            company_id: company_id,
-            properties: properties
-          }
+          data: data
         }, callback);
       } else if (callback) {
         callback({

@@ -2,10 +2,11 @@
 describe('Trak', function() {
   beforeEach(function() {
     sinon.stub(trak.io, 'call');
+    trak.io.distinct_id('my_distinct_id');
+    trak.io.company_id('company_id');
     return trak.io.should_track(true);
   });
   afterEach(function() {
-    trak.io.company_id('company_id');
     return trak.io.call.restore();
   });
   describe('#company(properties)', function() {
@@ -19,7 +20,8 @@ describe('Trak', function() {
       return trak.io.call.should.have.been.calledWith('company', {
         data: {
           company_id: trak.io.company_id(),
-          properties: properties
+          properties: properties,
+          people_distinct_ids: ["my_distinct_id"]
         }
       });
     });
@@ -49,15 +51,28 @@ describe('Trak', function() {
       return trak.io.call.should.have.been.calledWith('company', {
         data: {
           company_id: trak.io.company_id(),
-          properties: properties
+          properties: properties,
+          people_distinct_ids: ["my_distinct_id"]
         }
       }, callback);
     });
   });
   describe('#company(company_id)', function() {
-    return it("doesn't bother with #call", function() {
-      trak.io.company('my_company_id');
-      return trak.io.call.should.not.have.been.calledWith('company');
+    return context("when distinct_id is set", function() {
+      return it("sends it in the people_distinct_ids parameter", function() {
+        var trakio;
+        trakio = new Trak();
+        sinon.stub(trakio, 'call');
+        trakio.company_id('my_company_id');
+        trakio.distinct_id('my_distinct_id');
+        trakio.company();
+        return trakio.call.should.have.been.calledWith('company', {
+          data: {
+            company_id: 'my_company_id',
+            people_distinct_ids: ['my_distinct_id']
+          }
+        });
+      });
     });
   });
   describe('#company(company_id, properties)', function() {
@@ -72,6 +87,7 @@ describe('Trak', function() {
       return trak.io.call.getCall(0).args[1].should.eql({
         data: {
           company_id: 'my_company_id',
+          people_distinct_ids: ["my_distinct_id"],
           properties: properties
         }
       });
@@ -100,7 +116,8 @@ describe('Trak', function() {
           company_id: 'my_company_id',
           properties: {
             foo: "bar"
-          }
+          },
+          people_distinct_ids: ["my_distinct_id"]
         }
       }, callback);
     });

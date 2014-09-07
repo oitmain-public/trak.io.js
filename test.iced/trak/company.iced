@@ -2,10 +2,11 @@ describe 'Trak', ->
 
   beforeEach ->
     sinon.stub(trak.io, 'call')
+    trak.io.distinct_id('my_distinct_id')
+    trak.io.company_id('company_id')
     trak.io.should_track(true)
 
   afterEach ->
-    trak.io.company_id('company_id')
     trak.io.call.restore()
 
   describe '#company(properties)', ->
@@ -14,7 +15,7 @@ describe 'Trak', ->
       properties = { foo: 'bar' }
       trak.io.company_id('company_id')
       trak.io.company(properties)
-      trak.io.call.should.have.been.calledWith('company', { data: { company_id: trak.io.company_id(), properties: properties } })
+      trak.io.call.should.have.been.calledWith('company', { data: { company_id: trak.io.company_id(), properties: properties, people_distinct_ids: ["my_distinct_id"] } })
 
     context "when company_id has not been provided", ->
 
@@ -35,15 +36,20 @@ describe 'Trak', ->
       properties = {foo: 'bar'}
       callback = sinon.spy()
       trak.io.company(properties, callback)
-      trak.io.call.should.have.been.calledWith('company', { data: { company_id: trak.io.company_id(), properties: properties } }, callback)
+      trak.io.call.should.have.been.calledWith('company', { data: { company_id: trak.io.company_id(), properties: properties, people_distinct_ids: ["my_distinct_id"] } }, callback)
 
 
   describe '#company(company_id)', ->
 
-    it "doesn't bother with #call", ->
-      trak.io.company('my_company_id')
-      trak.io.call.should.not.have.been.calledWith('company')
+    context "when distinct_id is set", ->
 
+      it "sends it in the people_distinct_ids parameter", ->
+        trakio = new Trak()
+        sinon.stub(trakio, 'call')
+        trakio.company_id('my_company_id')
+        trakio.distinct_id('my_distinct_id')
+        trakio.company()
+        trakio.call.should.have.been.calledWith('company', { data: { company_id: 'my_company_id', people_distinct_ids: ['my_distinct_id'] } })
 
   describe '#company(company_id, properties)', ->
 
@@ -52,7 +58,7 @@ describe 'Trak', ->
       trak.io.company('my_company_id', properties)
       trak.io.call.should.have.been.called
       trak.io.call.getCall(0).args[0].should.eql 'company'
-      trak.io.call.getCall(0).args[1].should.eql { data: { company_id: 'my_company_id', properties: properties } }
+      trak.io.call.getCall(0).args[1].should.eql { data: { company_id: 'my_company_id', people_distinct_ids: ["my_distinct_id"], properties: properties } }
 
     it "sets the company_id", ->
       properties = {foo: 'bar'}
@@ -68,5 +74,5 @@ describe 'Trak', ->
       callback = sinon.spy()
       properties = {foo: 'bar'}
       trak.io.company('my_company_id', properties, callback)
-      trak.io.call.should.have.been.calledWith('company', { data: { company_id: 'my_company_id', properties: { foo: "bar" } } }, callback)
+      trak.io.call.should.have.been.calledWith('company', { data: { company_id: 'my_company_id', properties: { foo: "bar" }, people_distinct_ids: ["my_distinct_id"] } }, callback)
 
