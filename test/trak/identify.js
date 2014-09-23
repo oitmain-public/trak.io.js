@@ -22,7 +22,7 @@ describe('Trak', function() {
         }
       });
     });
-    return it("sets should_track to true", function() {
+    it("sets should_track to true", function() {
       var properties;
       properties = {
         foo: 'bar'
@@ -30,6 +30,68 @@ describe('Trak', function() {
       trak.io.should_track(false);
       trak.io.identify(properties);
       return trak.io.should_track().should.equal(true);
+    });
+    context("when distinct_id and company_id are both set", function() {
+      beforeEach(function() {
+        return trak.io.company_id('my_company_id');
+      });
+      it("adds it to the company list", function() {
+        return trak.io.identify({
+          company: {
+            company_id: 'another_company_id'
+          },
+          companies: [
+            {
+              company_id: 'and_another'
+            }
+          ]
+        });
+      });
+      return context("but company_id is passed in as a property", function() {
+        return it("doesn't send duplicates", function() {
+          trak.io.identify({
+            company: {
+              company_id: 'my_company_id',
+              role: 'sales'
+            },
+            companies: [
+              {
+                company_id: 'another_company_id'
+              }
+            ]
+          });
+          return trak.io.call.should.have.been.calledWith('identify', {
+            data: {
+              distinct_id: trak.io.distinct_id(),
+              properties: {
+                company: [
+                  {
+                    company_id: 'my_company_id',
+                    role: 'sales'
+                  }, {
+                    company_id: 'another_company_id'
+                  }
+                ]
+              }
+            }
+          });
+        });
+      });
+    });
+    return context("when company_id is a string", function() {
+      return it("is moved into company_name", function() {
+        trak.io.identify({
+          company: 'my_company_name'
+        });
+        return trak.io.call.should.have.been.calledWith('identify', {
+          data: {
+            distinct_id: trak.io.distinct_id(),
+            properties: {
+              company_name: 'my_company_name'
+            }
+          }
+        });
+      });
     });
   });
   describe('#identify(properties, callback)', function() {

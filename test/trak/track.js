@@ -12,6 +12,7 @@ describe('Trak', function() {
     trak.io.should_track(true);
     sinon.stub(trak.io, 'call');
     sinon.stub(trak.io, 'distinct_id').returns('default_distinct_id');
+    sinon.stub(trak.io, 'company_id').returns('default_company_id');
     sinon.stub(trak.io, 'context').returns({
       "default": 'context',
       override: 'override'
@@ -22,6 +23,7 @@ describe('Trak', function() {
   afterEach(function() {
     trak.io.call.restore();
     trak.io.distinct_id.restore();
+    trak.io.company_id.restore();
     trak.io.context.restore();
     trak.io.channel.restore();
     return trak.io.should_track.restore();
@@ -38,6 +40,7 @@ describe('Trak', function() {
       trak.io.track('my_event');
       return trak.io.call.should.have.been.calledWith('track', {
         data: {
+          company_id: 'default_company_id',
           distinct_id: 'default_distinct_id',
           event: 'my_event',
           channel: 'default_channel',
@@ -70,6 +73,7 @@ describe('Trak', function() {
       trak.io.track('my_event', properties);
       return trak.io.call.should.have.been.calledWith('track', {
         data: {
+          company_id: 'default_company_id',
           distinct_id: 'default_distinct_id',
           event: 'my_event',
           channel: 'default_channel',
@@ -95,6 +99,7 @@ describe('Trak', function() {
       trak.io.track('my_event', properties, context);
       return trak.io.call.should.have.been.calledWith('track', {
         data: {
+          company_id: 'default_company_id',
           distinct_id: 'default_distinct_id',
           event: 'my_event',
           channel: 'default_channel',
@@ -124,6 +129,7 @@ describe('Trak', function() {
       trak.io.track('my_event', 'my_channel');
       return trak.io.call.should.have.been.calledWith('track', {
         data: {
+          company_id: 'default_company_id',
           distinct_id: 'default_distinct_id',
           event: 'my_event',
           channel: 'my_channel',
@@ -145,6 +151,7 @@ describe('Trak', function() {
       trak.io.track('my_event', 'my_channel', properties);
       return trak.io.call.should.have.been.calledWith('track', {
         data: {
+          company_id: 'default_company_id',
           distinct_id: 'default_distinct_id',
           event: 'my_event',
           channel: 'my_channel',
@@ -178,6 +185,7 @@ describe('Trak', function() {
       trak.io.track('my_event', 'my_channel', properties, context);
       return trak.io.call.should.have.been.calledWith('track', {
         data: {
+          company_id: 'default_company_id',
           distinct_id: 'default_distinct_id',
           event: 'my_event',
           channel: 'my_channel',
@@ -218,6 +226,7 @@ describe('Trak', function() {
       trak.io.track('my_distinct_id', 'my_event', 'my_channel');
       return trak.io.call.should.have.been.calledWith('track', {
         data: {
+          company_id: 'default_company_id',
           distinct_id: 'my_distinct_id',
           event: 'my_event',
           channel: 'my_channel',
@@ -238,6 +247,28 @@ describe('Trak', function() {
       return trak.io.channel().should.not.equal('my_channel');
     });
   });
+  describe('#track(distinct_id, company_id, event, channel)', function() {
+    it("calls #call", function() {
+      trak.io.track(null, 'my_company_id', 'my_event', 'my_channel');
+      return trak.io.call.should.have.been.calledWith('track', {
+        data: {
+          company_id: 'my_company_id',
+          distinct_id: 'default_distinct_id',
+          event: 'my_event',
+          channel: 'my_channel',
+          context: {
+            "default": 'context',
+            override: 'override'
+          },
+          properties: {}
+        }
+      }, null);
+    });
+    return it("doesn't change trak.io.company_id()", function() {
+      trak.io.track('my_distinct_id', 'my_company_id', 'my_event', 'my_channel');
+      return trak.io.company_id().should.not.equal('my_company_id');
+    });
+  });
   describe('#track(distinct_id, event, channel, properties)', function() {
     it("calls #call", function() {
       var properties;
@@ -247,6 +278,7 @@ describe('Trak', function() {
       trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties);
       return trak.io.call.should.have.been.calledWith('track', {
         data: {
+          company_id: 'default_company_id',
           distinct_id: 'my_distinct_id',
           event: 'my_event',
           channel: 'my_channel',
@@ -288,6 +320,7 @@ describe('Trak', function() {
       trak.io.track('my_distinct_id', 'my_event', 'my_channel', properties, context);
       return trak.io.call.should.have.been.calledWith('track', {
         data: {
+          company_id: 'default_company_id',
           distinct_id: 'my_distinct_id',
           event: 'my_event',
           channel: 'my_channel',

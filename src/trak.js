@@ -23,6 +23,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       this.page_view = __bind(this.page_view, this);
       this.track = __bind(this.track, this);
       this.alias = __bind(this.alias, this);
+      this.company = __bind(this.company, this);
       this.identify = __bind(this.identify, this);
       this.call = __bind(this.call, this);
       this.on_page_ready = __bind(this.on_page_ready, this);
@@ -52,6 +53,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
         this.alias_on_identify(this.options.alias_on_identify);
       }
       this.distinct_id(this.options.distinct_id || null);
+      this.company_id(this.options.company_id || null);
       this.root_domain(this.options.root_domain || null);
       this.page_ready_event_fired = false;
       if (this.options.automagic) {
@@ -166,7 +168,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       }
       args = this.sort_arguments(arguments, ['string', 'object', 'function']);
       distinct_id = args[0] || this.distinct_id();
-      properties = args[1] || null;
+      properties = this.proccess_companies(args[1]) || null;
       callback = args[2] || null;
       this.should_track(true);
       properties_length = 0;
@@ -192,6 +194,87 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
         me.alias(distinct_id, identify_call);
       } else if (properties && properties_length > 0) {
         identify_call();
+      } else if (callback) {
+        callback({
+          status: 'unnecessary'
+        });
+      }
+      return this;
+    };
+
+    Trak.prototype.proccess_companies = function(properties) {
+      var company, has, _i, _len, _ref;
+      if (!properties) {
+        return null;
+      }
+      if (typeof properties.company === 'string') {
+        properties.company_name = properties.company;
+        delete properties.company;
+      }
+      properties.company || (properties.company = []);
+      if (!(properties.company instanceof Array)) {
+        properties.company = [properties.company];
+      }
+      properties.companies || (properties.companies = []);
+      if (!(properties.companies instanceof Array)) {
+        properties.companies = [properties.companies];
+      }
+      properties.company = properties.company.concat(properties.companies);
+      delete properties.companies;
+      if (this.company_id()) {
+        has = false;
+        _ref = properties.company;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          company = _ref[_i];
+          if (company.company_id === this.company_id()) {
+            has = true;
+          }
+        }
+        if (has) {
+          properties.company << {
+            company_id: this.company_id()
+          };
+        }
+      }
+      if (properties.company.length === 0) {
+        delete properties.company;
+      }
+      return properties;
+    };
+
+    Trak.prototype.company = function() {
+      var args, callback, company_id, data, distinct_id, properties, properties_length, property, v;
+      if (typeof arguments[0] === 'number') {
+        arguments[0] = arguments[0].toString();
+      }
+      args = this.sort_arguments(arguments, ['string', 'object', 'function']);
+      company_id = args[0] || this.company_id();
+      distinct_id = this.distinct_id();
+      properties = args[1] || null;
+      callback = args[2] || null;
+      properties_length = 0;
+      for (property in properties) {
+        v = properties[property];
+        properties_length++;
+      }
+      if (company_id) {
+        this.company_id(company_id);
+      } else {
+        throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an `company_id`, see http://docs.trak.io/company.html');
+      }
+      data = {
+        company_id: company_id
+      };
+      if (properties && properties_length > 0) {
+        data.properties = properties;
+      }
+      if (distinct_id && this.should_track()) {
+        data.people_distinct_ids = [distinct_id];
+      }
+      if ((properties && properties_length > 0) || (distinct_id && this.should_track())) {
+        this.call('company', {
+          data: data
+        }, callback);
       } else if (callback) {
         callback({
           status: 'unnecessary'
@@ -232,27 +315,51 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
     };
 
     Trak.prototype.track = function() {
-      var args, callback, channel, context, distinct_id, event, properties;
-      args = this.sort_arguments(arguments, ['string', 'string', 'string', 'object', 'object', 'function']);
+      var arg_offset, args, callback, channel, company_id, context, data, distinct_id, event, properties;
+      args = this.sort_arguments(arguments, ['string', 'string', 'string', 'string', 'object', 'object', 'function']);
       distinct_id = (args[2] ? arguments[0] : void 0) || this.distinct_id();
-      event = (args[2] ? args[1] : args[0]);
-      channel = (args[2] ? args[2] : args[1]) || this.channel();
-      properties = args[3] || {};
-      context = args[4] || {};
+      if (arguments[0] === false) {
+        distinct_id = null;
+      }
+      company_id = (args[3] ? arguments[1] : void 0) || this.company_id();
+      if (arguments[1] === false) {
+        company_id = null;
+      }
+      if (args[2]) {
+        arg_offset = 1;
+      } else {
+        arg_offset = 0;
+      }
+      if (args[3]) {
+        arg_offset += 1;
+      }
+      event = args[0 + arg_offset];
+      channel = args[1 + arg_offset] || this.channel();
+      properties = args[4] || {};
+      context = args[5] || {};
       context = _.merge(this.context(), context);
-      callback = args[5] || null;
+      callback = args[6] || null;
       if (!event) {
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an event to track, see http://docs.trak.io/track.html');
       }
+      if (!(company_id || distinct_id)) {
+        throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide either a distinct_id and/or a company_id to track the event against, see http://docs.trak.io/track.html');
+      }
+      data = {
+        event: event,
+        channel: channel,
+        context: context,
+        properties: properties
+      };
+      if (distinct_id) {
+        data.distinct_id = distinct_id;
+      }
+      if (company_id) {
+        data.company_id = company_id;
+      }
       if (this.should_track()) {
         this.call('track', {
-          data: {
-            distinct_id: distinct_id,
-            event: event,
-            channel: channel,
-            context: context,
-            properties: properties
-          }
+          data: data
         }, callback);
       }
       return this;
@@ -358,6 +465,13 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       }
     };
 
+    Trak.prototype.get_company_id_url_param = function() {
+      var matches;
+      if ((matches = this.url_params().match(/\?.*trak_company_id\=([^&]+).*/))) {
+        return decodeURIComponent(matches[1]);
+      }
+    };
+
     Trak.prototype._channel = false;
 
     Trak.prototype.channel = function(value) {
@@ -420,6 +534,37 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       return this._distinct_id;
     };
 
+    Trak.prototype._company_id = null;
+
+    Trak.prototype.company_id = function(value) {
+      var options;
+      if (typeof value === 'number') {
+        value = value.toString();
+      }
+      if (value) {
+        this._company_id = value;
+      }
+      if (!this._company_id) {
+        if (!(this._company_id = this.get_company_id_url_param())) {
+          this._company_id = this.get_cookie('company_id');
+        }
+      }
+      options = this.root_domain() === 'localhost' ? {} : {
+        domain: this.root_domain()
+      };
+      if (this._company_id) {
+        cookie.set(this.cookie_key('company_id'), this._company_id, options);
+      }
+      return this._company_id;
+    };
+
+    Trak.prototype.unset_company_id = function() {
+      this._company_id = null;
+      return cookie.set(this.cookie_key('company_id'), '0', {
+        expires: -1
+      });
+    };
+
     Trak.prototype.generate_distinct_id = function() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r, v;
@@ -430,7 +575,8 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
     };
 
     Trak.prototype.sign_out = function() {
-      return this.distinct_id(this.generate_distinct_id());
+      this.distinct_id(this.generate_distinct_id());
+      return this.unset_company_id();
     };
 
     Trak.prototype._root_domain = null;
@@ -490,7 +636,7 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
       value = values.shift();
       for (_i = 0, _len = types.length; _i < _len; _i++) {
         type = types[_i];
-        if (type === typeof value) {
+        if (type === typeof value || value === null) {
           r.push(value);
           value = values.shift();
         } else {

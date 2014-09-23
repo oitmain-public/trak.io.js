@@ -13,13 +13,13 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       @io = @
 
     initialize: (@_api_token, @options = {}) =>
-
       @protocol(@options.protocol)
       @host(@options.host) if @options.host
       @context(@options.context) if @options.context
       @channel(@options.channel) if @options.channel
       @alias_on_identify(@options.alias_on_identify) if typeof @options.alias_on_identify != 'undefined'
       @distinct_id(@options.distinct_id || null)
+      @company_id(@options.company_id || null)
       @root_domain(@options.root_domain || null)
       @page_ready_event_fired = false
 
@@ -131,12 +131,11 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
 
 
     identify: () =>
-
       me = this
       arguments[0] = arguments[0].toString() if typeof arguments[0] == 'number'
       args = @sort_arguments(arguments, ['string', 'object', 'function'])
       distinct_id = args[0] || @distinct_id()
-      properties = args[1] || null
+      properties = @proccess_companies(args[1]) || null
       callback = args[2] || null
       @should_track(true)
 
@@ -157,6 +156,70 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
 
       else if callback
         callback({status: 'unnecessary'})
+
+      this
+
+    proccess_companies: (properties)->
+      return null unless properties
+
+      # String company should be moved to company_name
+      if typeof properties.company == 'string'
+        properties.company_name = properties.company
+        delete properties.company
+
+      # Company must be an array
+      properties.company ||= []
+      unless properties.company instanceof Array
+        properties.company = [properties.company]
+      properties.companies ||= []
+      unless properties.companies instanceof Array
+        properties.companies = [properties.companies]
+
+      # Merge companies and company
+      properties.company = properties.company.concat(properties.companies)
+      delete properties.companies
+
+      # Inject current company
+      if @company_id()
+        has = false
+        for company in properties.company
+          has = true if company.company_id == @company_id()
+        if has
+          properties.company <<
+            company_id: @company_id()
+
+      # Clean up company
+      delete properties.company if properties.company.length == 0
+
+      properties
+
+
+
+    company: ()=>
+      arguments[0] = arguments[0].toString() if typeof arguments[0] == 'number'
+      args = @sort_arguments(arguments, ['string', 'object', 'function'])
+      company_id = args[0] || @company_id()
+      distinct_id = @distinct_id()
+      properties = args[1] || null
+      callback = args[2] || null
+
+      properties_length = 0
+      properties_length++ for property,v of properties
+
+      if company_id
+        @company_id(company_id)
+      else
+        throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an `company_id`, see http://docs.trak.io/company.html')
+
+      data =
+        company_id: company_id
+      data.properties = properties if properties && properties_length > 0
+      data.people_distinct_ids = [distinct_id] if distinct_id && @should_track()
+
+      if (properties && properties_length > 0) || (distinct_id && @should_track())
+        @call 'company', { data: data }, callback
+      else if callback
+        callback { status: 'unnecessary' }
 
       this
 
@@ -181,21 +244,36 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
 
 
     track: () =>
-      args = @sort_arguments(arguments, ['string', 'string', 'string', 'object', 'object', 'function'])
+      args = @sort_arguments(arguments, ['string', 'string', 'string','string', 'object', 'object', 'function'])
       distinct_id = (if args[2] then arguments[0]) || @distinct_id()
-      event = (if args[2] then args[1] else args[0])
-
-      channel = (if args[2] then args[2] else args[1]) || @channel()
-      properties = args[3] || {}
-      context = args[4] || {}
+      distinct_id = null if arguments[0] == false
+      company_id = (if args[3] then arguments[1]) || @company_id()
+      company_id = null if arguments[1] == false
+      if args[2] then arg_offset = 1 else arg_offset = 0
+      if args[3] then arg_offset += 1
+      event = args[0+arg_offset]
+      channel = args[1+arg_offset] || @channel()
+      properties = args[4] || {}
+      context = args[5] || {}
       context = _.merge @context(), context
-      callback = args[5] || null
-
+      callback = args[6] || null
+      # debugger
       unless event
         throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide an event to track, see http://docs.trak.io/track.html')
+      unless company_id || distinct_id
+        throw new Exceptions.MissingParameter('Missing a required parameter.', 400, 'You must provide either a distinct_id and/or a company_id to track the event against, see http://docs.trak.io/track.html')
+
+      data =
+        event: event
+        channel: channel
+        context: context
+        properties: properties
+
+      data.distinct_id = distinct_id if distinct_id
+      data.company_id = company_id if company_id
 
       if @should_track()
-        @call 'track', { data: { distinct_id: distinct_id, event: event, channel: channel, context: context, properties: properties }}, callback
+        @call 'track', { data: data }, callback
 
       this
 
@@ -271,6 +349,9 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       if (matches = @url_params().match /\?.*trak_distinct_id\=([^&]+).*/)
         decodeURIComponent(matches[1])
 
+    get_company_id_url_param: ->
+      if (matches = @url_params().match /\?.*trak_company_id\=([^&]+).*/)
+        decodeURIComponent(matches[1])
 
     _channel: false
     channel: (value)->
@@ -312,6 +393,24 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       cookie.set(@cookie_key('id'), @_distinct_id, options)
       @_distinct_id
 
+    _company_id: null
+    company_id: (value)->
+      value = value.toString() if typeof value == 'number'
+      if value
+        @_company_id = value
+
+      if !@_company_id
+        if !(@_company_id = @get_company_id_url_param())
+          @_company_id = @get_cookie('company_id')
+
+      options = if @root_domain() == 'localhost' then {} else { domain: @root_domain() }
+      cookie.set(@cookie_key('company_id'), @_company_id, options) if @_company_id
+      @_company_id
+
+    unset_company_id: ()->
+      @_company_id = null
+      cookie.set(@cookie_key('company_id'), '0', {expires: -1})
+
     generate_distinct_id: ->
       'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace /[xy]/g, (c) ->
           r = Math.random()*16|0
@@ -320,6 +419,7 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
 
     sign_out: ->
       @distinct_id(@generate_distinct_id())
+      @unset_company_id()
 
     _root_domain: null
     root_domain: (value) ->
@@ -360,7 +460,7 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       r = []
       value = values.shift()
       for type in types
-        if type == typeof value
+        if type == typeof value || value == null
           r.push value
           value = values.shift()
         else
