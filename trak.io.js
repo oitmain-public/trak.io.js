@@ -3507,6 +3507,14 @@ define('jsonp',['exceptions', 'json2', 'lodash'], function(Exceptions, JSON, _) 
               context: trak.io.context()
             }
           };
+        case 'company':
+          return {
+            token: trak.io.api_token(),
+            data: {
+              company_id: trak.io.company_id(),
+              properties: {}
+            }
+          };
         default:
           return {};
       }

@@ -38,6 +38,8 @@ define ['exceptions','json2','lodash'], (Exceptions, JSON, _) ->
           { token: trak.io.api_token(), data: { distinct_id: trak.io.distinct_id() } }
         when 'track'
           { token: trak.io.api_token(), data: { distinct_id: trak.io.distinct_id(), properties: {}, channel: trak.io.channel(), context: trak.io.context() } }
+        when 'company'
+          { token: trak.io.api_token(), data: { company_id: trak.io.company_id(), properties: {} } }
         else
           {}
 

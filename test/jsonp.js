@@ -244,12 +244,14 @@ describe('JSONP', function() {
   describe('#default_params', function() {
     beforeEach(function() {
       sinon.stub(trak.io, "distinct_id").returns('distinct_id_value');
+      sinon.stub(trak.io, "company_id").returns('company_id_value');
       sinon.stub(trak.io, "api_token").returns('api_token_value');
       sinon.stub(trak.io, "channel").returns('channel_value');
       return sinon.stub(trak.io, "context").returns('context_value');
     });
     afterEach(function() {
       trak.io.distinct_id.restore();
+      trak.io.company_id.restore();
       trak.io.api_token.restore();
       trak.io.channel.restore();
       return trak.io.context.restore();
@@ -279,6 +281,15 @@ describe('JSONP', function() {
           properties: {},
           channel: 'channel_value',
           context: 'context_value'
+        }
+      });
+    });
+    it("returns default params for company", function() {
+      return jsonp.default_params('company').should.eql({
+        token: 'api_token_value',
+        data: {
+          company_id: 'company_id_value',
+          properties: {}
         }
       });
     });

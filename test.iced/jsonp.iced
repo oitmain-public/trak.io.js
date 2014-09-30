@@ -153,12 +153,14 @@ describe 'JSONP', ->
 
     beforeEach ->
       sinon.stub(trak.io, "distinct_id").returns('distinct_id_value')
+      sinon.stub(trak.io, "company_id").returns('company_id_value')
       sinon.stub(trak.io, "api_token").returns('api_token_value')
       sinon.stub(trak.io, "channel").returns('channel_value')
       sinon.stub(trak.io, "context").returns('context_value')
 
     afterEach ->
       trak.io.distinct_id.restore();
+      trak.io.company_id.restore();
       trak.io.api_token.restore();
       trak.io.channel.restore();
       trak.io.context.restore();
@@ -171,6 +173,9 @@ describe 'JSONP', ->
 
     it "returns default params for track", ->
       jsonp.default_params('track').should.eql({ token: 'api_token_value', data: { distinct_id: 'distinct_id_value', properties: {}, channel: 'channel_value', context: 'context_value' }})
+
+    it "returns default params for company", ->
+      jsonp.default_params('company').should.eql({ token: 'api_token_value', data: { company_id: 'company_id_value', properties: {} }})
 
     it "returns empty object for unknown", ->
       jsonp.default_params('jibersih').should.eql {}
