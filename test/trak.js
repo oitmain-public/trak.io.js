@@ -452,13 +452,18 @@ describe('Trak', function() {
       trak.io.alias.should.not.have.been.called;
       return trak.io.alias.restore();
     });
-    return it("resets the company_id to null", function() {
+    it("resets the company_id to null", function() {
       trak.io.company_id('my_company_id');
       trak.io.sign_out();
       return setTimeout(function() {
         trak.io.company_id().should.not.eq('my_company_id');
         return cookie.get("_trak_" + (trak.io.api_token()) + "_company_id").should.not.eq('my_company_id');
       }, 50);
+    });
+    return it("sets should track to false", function() {
+      trak.io.should_track(true);
+      trak.io.sign_out();
+      return trak.io.should_track().should.equal(false);
     });
   });
 });

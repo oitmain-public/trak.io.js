@@ -414,3 +414,8 @@ describe 'Trak', ->
         cookie.get("_trak_#{trak.io.api_token()}_company_id").should.not.eq 'my_company_id'
       , 50
 
+    it "sets should track to false", ()->
+      trak.io.should_track(true)
+      trak.io.sign_out()
+      trak.io.should_track().should.equal false
+

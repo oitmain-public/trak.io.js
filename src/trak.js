@@ -576,7 +576,8 @@ define('Trak', ['jsonp', 'exceptions', 'io-query', 'cookie', 'lodash'], function
 
     Trak.prototype.sign_out = function() {
       this.distinct_id(this.generate_distinct_id());
-      return this.unset_company_id();
+      this.unset_company_id();
+      return this.should_track(false);
     };
 
     Trak.prototype._root_domain = null;

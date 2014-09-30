@@ -420,6 +420,7 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
     sign_out: ->
       @distinct_id(@generate_distinct_id())
       @unset_company_id()
+      @should_track(false)
 
     _root_domain: null
     root_domain: (value) ->
