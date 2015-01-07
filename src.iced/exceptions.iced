@@ -10,6 +10,7 @@ define [
   'exceptions/revenue_property_invalid',
   'exceptions/route_not_found',
   'exceptions/timeout',
+  'exceptions/trial_expired',
   'exceptions/unknown'
 ], (
   Exception,
@@ -23,6 +24,7 @@ define [
   RevenuePropertyInvalid,
   RouteNotFound,
   Timeout,
+  TrialExpired,
   Unknown
 ) ->
 
@@ -38,5 +40,6 @@ define [
     RevenuePropertyInvalid: RevenuePropertyInvalid,
     RouteNotFound: RouteNotFound,
     Timeout: Timeout,
+    TrialExpired: TrialExpired,
     Unknown: Unknown
   }
