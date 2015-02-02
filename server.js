@@ -9,7 +9,7 @@ var connect = require('connect')
   , path    = require('path')
   , app     = connect()
   , argv    = require('optimist')
-                .default('port', 8000)
+                .default('port', 8001)
                 .argv;
 
 var port = (argv.p || argv.port);

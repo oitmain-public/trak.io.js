@@ -13,6 +13,7 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       @io = @
 
     initialize: (@_api_token, @options = {}) =>
+      cookie.defaults = { path: '/' }
       @protocol(@options.protocol)
       @host(@options.host) if @options.host
       @context(@options.context) if @options.context
@@ -22,6 +23,7 @@ define 'Trak', ['jsonp','exceptions','io-query','cookie','lodash'], (JSONP,Excep
       @company_id(@options.company_id || null)
       @root_domain(@options.root_domain || null)
       @page_ready_event_fired = false
+
 
       if @options.automagic
         @load_automagic(@options.automagic) unless @automagic
