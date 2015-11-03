@@ -3,7 +3,7 @@
   "version": "0.9.5",
   "author": "trak.io",
   "description": "JavaScript library for trak.io",
-  "license": "Proprietary",
+  "license": "Apache",
   "url": "https://trak.io",
   "repository": {
     "type": "git",
