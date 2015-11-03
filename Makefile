@@ -1,4 +1,3 @@
-
 PHANTOM = mocha-phantomjs
 PHANTOM_OPTS = --setting web-security=false --setting local-to-remote-url-access=true
 
@@ -44,6 +43,7 @@ test-server:
 	node server.js -p 8001 &
 
 install:
+	bundle install
 	npm install
 	npm install -g bower
 	npm install -g iced-coffee-script
